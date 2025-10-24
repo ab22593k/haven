@@ -23,8 +23,7 @@ abstract class ProxyScope implements Scope {
   void add<V>(Provider<V> provider, V value) => parent.add(provider, value);
 
   @override
-  void replace<V>(Provider<V> provider, V value) =>
-      parent.replace(provider, value);
+  void replace<V>(Provider<V> provider, V value) => parent.replace(provider, value);
 
   @override
   V read<V>(Provider<V> provider) => parent.read(provider);

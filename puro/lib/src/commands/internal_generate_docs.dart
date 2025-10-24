@@ -38,9 +38,7 @@ class GenerateDocsCommand extends PuroCommand {
     final referenceDir = docsDir.childDirectory('reference');
     referenceDir.createSync(recursive: true);
 
-    await referenceDir
-        .childFile('commands.md')
-        .writeAsString(generateCommands());
+    await referenceDir.childFile('commands.md').writeAsString(generateCommands());
 
     await puroDir.childFile('CHANGELOG.md').copy(
           referenceDir.childFile('changelog.md').path,
@@ -78,9 +76,8 @@ class GenerateDocsCommand extends PuroCommand {
 
   String allowedTitle(Option option, String allowed) {
     final dynamic defaultsTo = option.defaultsTo;
-    final bool isDefault = defaultsTo is List
-        ? defaultsTo.contains(allowed)
-        : defaultsTo == allowed;
+    final bool isDefault =
+        defaultsTo is List ? defaultsTo.contains(allowed) : defaultsTo == allowed;
     return '[$allowed]' + (isDefault ? ' (default)' : '');
   }
 
@@ -143,8 +140,7 @@ class GenerateDocsCommand extends PuroCommand {
       } else if (option.isMultiple) {
         final defaultsTo = option.defaultsTo as List?;
         if (defaultsTo != null && defaultsTo.isNotEmpty) {
-          final defaults =
-              defaultsTo.map((dynamic value) => '`"$value"`').join(', ');
+          final defaults = defaultsTo.map((dynamic value) => '`"$value"`').join(', ');
           buffer.writeln('(defaults to $defaults)');
           buffer.writeln();
         }
@@ -171,8 +167,8 @@ class GenerateDocsCommand extends PuroCommand {
       buffer.writeln();
       buffer.writeln(command.description);
       buffer.writeln();
-      final options = command.argParser.options.values
-          .where((e) => e.name != 'help' && !e.hide);
+      final options =
+          command.argParser.options.values.where((e) => e.name != 'help' && !e.hide);
       if (options.isNotEmpty) {
         buffer.writeln('#### Options');
         buffer.writeln();

@@ -42,8 +42,7 @@ Future<T> lockFile<T>(
   await mutex.acquire();
   try {
     exclusive ??= mode != FileMode.read;
-    final fileLock =
-        exclusive ? FileLock.blockingExclusive : FileLock.blockingShared;
+    final fileLock = exclusive ? FileLock.blockingExclusive : FileLock.blockingShared;
     RandomAccessFile handle;
     try {
       handle = await file.open(mode: mode);

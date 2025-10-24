@@ -228,16 +228,14 @@ class FlutterReleasesModel extends $pb.GeneratedMessage {
         entryClassName: 'FlutterReleasesModel.CurrentReleaseEntry',
         keyFieldType: $pb.PbFieldType.OS,
         valueFieldType: $pb.PbFieldType.OS)
-    ..pc<FlutterReleaseModel>(
-        3, _omitFieldNames ? '' : 'releases', $pb.PbFieldType.PM,
+    ..pc<FlutterReleaseModel>(3, _omitFieldNames ? '' : 'releases', $pb.PbFieldType.PM,
         subBuilder: FlutterReleaseModel.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
       'Will be removed in next major version')
-  FlutterReleasesModel clone() =>
-      FlutterReleasesModel()..mergeFromMessage(this);
+  FlutterReleasesModel clone() => FlutterReleasesModel()..mergeFromMessage(this);
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
       'Will be removed in next major version')
@@ -277,5 +275,4 @@ class FlutterReleasesModel extends $pb.GeneratedMessage {
 }
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
-const _omitMessageNames =
-    $core.bool.fromEnvironment('protobuf.omit_message_names');
+const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

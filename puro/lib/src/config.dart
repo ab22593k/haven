@@ -20,9 +20,7 @@ import 'version.dart';
 
 Directory? findProjectDir(Directory directory, String fileName) {
   while (directory.existsSync()) {
-    if (directory.fileSystem
-            .statSync(directory.childFile(fileName).path)
-            .type !=
+    if (directory.fileSystem.statSync(directory.childFile(fileName).path).type !=
         FileSystemEntityType.notFound) {
       return directory;
     }
@@ -139,8 +137,7 @@ class PuroConfig {
 
     log.d('puroRootDir: $puroRoot');
     puroRoot.createSync(recursive: true);
-    puroRoot =
-        fileSystem.directory(puroRoot.resolveSymbolicLinksSync()).absolute;
+    puroRoot = fileSystem.directory(puroRoot.resolveSymbolicLinksSync()).absolute;
     log.d('puroRoot (resolved): $puroRoot');
 
     if (environmentOverride == null) {
@@ -178,8 +175,7 @@ class PuroConfig {
       pubCache ??= pubCacheOverride;
     }
     pubCache ??= globalPrefs.hasPubCacheDir() ? globalPrefs.pubCacheDir : null;
-    pubCache ??=
-        puroRoot.childDirectory('shared').childDirectory('pub_cache').path;
+    pubCache ??= puroRoot.childDirectory('shared').childDirectory('pub_cache').path;
 
     shouldSkipCacheSync ??=
         Platform.environment['PURO_SKIP_CACHE_SYNC']?.isNotEmpty ?? false;
@@ -205,9 +201,7 @@ class PuroConfig {
           'https://github.com/dart-lang/sdk.git',
       releasesJsonUrl: Uri.parse(
         releasesJsonUrl ??
-            (globalPrefs.hasReleasesJsonUrl()
-                ? globalPrefs.releasesJsonUrl
-                : null) ??
+            (globalPrefs.hasReleasesJsonUrl() ? globalPrefs.releasesJsonUrl : null) ??
             '$flutterStorageBaseUrl/flutter_infra_release/releases/releases_${Platform.operatingSystem}.json',
       ),
       flutterStorageBaseUrl: Uri.parse(flutterStorageBaseUrl),
@@ -296,26 +290,21 @@ class PuroConfig {
   late final Directory sharedFlutterDir = sharedDir.childDirectory('flutter');
   late final Directory sharedEngineDir = sharedDir.childDirectory('engine');
   late final Directory sharedDartSdkDir = sharedDir.childDirectory('dart-sdk');
-  late final Directory sharedDartReleaseDir =
-      sharedDir.childDirectory('dart-release');
+  late final Directory sharedDartReleaseDir = sharedDir.childDirectory('dart-release');
   late final Directory sharedCachesDir = sharedDir.childDirectory('caches');
   late final Directory sharedGClientDir = sharedDir.childDirectory('gclient');
   late final Directory pubCacheBinDir = legacyPubCacheDir.childDirectory('bin');
   late final Directory sharedFlutterToolsDir =
       sharedDir.childDirectory('flutter_tools');
-  late final File puroExecutableFile =
-      binDir.childFile(buildTarget.executableName);
-  late final File puroTrampolineFile =
-      binDir.childFile(buildTarget.trampolineName);
+  late final File puroExecutableFile = binDir.childFile(buildTarget.executableName);
+  late final File puroTrampolineFile = binDir.childFile(buildTarget.trampolineName);
   late final File puroDartShimFile = binDir.childFile(buildTarget.dartName);
-  late final File puroFlutterShimFile =
-      binDir.childFile(buildTarget.flutterName);
+  late final File puroFlutterShimFile = binDir.childFile(buildTarget.flutterName);
   late final File puroExecutableTempFile =
       binDir.childFile('${buildTarget.executableName}.tmp');
   late final File cachedReleasesJsonFile =
       puroRoot.childFile(releasesJsonUrl.pathSegments.last);
-  late final File cachedDartReleasesJsonFile =
-      puroRoot.childFile('dart_releases.json');
+  late final File cachedDartReleasesJsonFile = puroRoot.childFile('dart_releases.json');
   late final File defaultEnvNameFile = puroRoot.childFile('default_env');
   late final Link defaultEnvLink = envsDir.childLink('default');
   late final Uri puroLatestVersionUrl = puroBuildsUrl.append(path: 'latest');
@@ -385,9 +374,8 @@ class PuroConfig {
   }
 
   DartSdkConfig getDartRelease(DartRelease release) {
-    return DartSdkConfig(sharedDartReleaseDir
-        .childDirectory(release.name)
-        .childDirectory('dart-sdk'));
+    return DartSdkConfig(
+        sharedDartReleaseDir.childDirectory(release.name).childDirectory('dart-sdk'));
   }
 
   Uri? tryGetFlutterGitDownloadUrl({
@@ -564,9 +552,8 @@ class EnvConfig {
   late final File updateLockFile = envDir.childFile('update.lock');
   late final Directory evalDir = envDir.childDirectory('eval');
   late final Directory evalBootstrapDir = evalDir.childDirectory('bootstrap');
-  late final File evalBootstrapPackagesFile = evalBootstrapDir
-      .childDirectory('.dart_tool')
-      .childFile('package_config.json');
+  late final File evalBootstrapPackagesFile =
+      evalBootstrapDir.childDirectory('.dart_tool').childFile('package_config.json');
 
   bool get exists => envDir.existsSync();
 
@@ -632,19 +619,16 @@ class FlutterConfig {
   late final Directory binInternalDir = binDir.childDirectory('internal');
   late final Directory cacheDir = binDir.childDirectory('cache');
   late final FlutterCacheConfig cache = FlutterCacheConfig(cacheDir);
-  late final File engineVersionFile =
-      binInternalDir.childFile('engine.version');
-  late final Directory flutterToolsDir =
-      packagesDir.childDirectory('flutter_tools');
+  late final File engineVersionFile = binInternalDir.childFile('engine.version');
+  late final Directory flutterToolsDir = packagesDir.childDirectory('flutter_tools');
   late final File flutterToolsScriptFile =
       flutterToolsDir.childDirectory('bin').childFile('flutter_tools.dart');
   late final File flutterToolsPubspecYamlFile =
       flutterToolsDir.childFile('pubspec.yaml');
   late final File flutterToolsPubspecLockFile =
       flutterToolsDir.childFile('pubspec.lock');
-  late final File flutterToolsPackageConfigJsonFile = flutterToolsDir
-      .childDirectory('.dart_tool')
-      .childFile('package_config.json');
+  late final File flutterToolsPackageConfigJsonFile =
+      flutterToolsDir.childDirectory('.dart_tool').childFile('package_config.json');
   late final File flutterToolsLegacyPackagesFile =
       flutterToolsDir.childFile('.packages');
   late final File legacyVersionFile = sdkDir.childFile('version');
@@ -668,12 +652,10 @@ class FlutterCacheConfig {
   late final Directory dartSdkDir = cacheDir.childDirectory('dart-sdk');
   late final DartSdkConfig dartSdk = DartSdkConfig(dartSdkDir);
 
-  late final File flutterToolsStampFile =
-      cacheDir.childFile('flutter_tools.stamp');
+  late final File flutterToolsStampFile = cacheDir.childFile('flutter_tools.stamp');
   late final File engineStampFile = cacheDir.childFile('engine.stamp');
   late final File engineRealmFile = cacheDir.childFile('engine.realm');
-  late final File engineVersionFile =
-      cacheDir.childFile('engine-dart-sdk.stamp');
+  late final File engineVersionFile = cacheDir.childFile('engine-dart-sdk.stamp');
   String? get engineVersion => engineVersionFile.existsSync()
       ? engineVersionFile.readAsStringSync().trim()
       : null;
@@ -879,8 +861,7 @@ Future<void> cleanDotfiles({required Scope scope}) {
     fn: (prefs) {
       for (final path in prefs.projectDotfiles.toList()) {
         final canonical = config.fileSystem.file(path).resolveIfExists().path;
-        if (config.fileSystem.statSync(path).type ==
-            FileSystemEntityType.notFound) {
+        if (config.fileSystem.statSync(path).type == FileSystemEntityType.notFound) {
           prefs.projectDotfiles.remove(path);
         } else if (canonical != path) {
           prefs.projectDotfiles.remove(path);
@@ -974,8 +955,7 @@ class PuroInternalPrefsVars {
         } else {
           // If the field is a string, and the value does not start with ", just use
           // that literal value, otherwise we interpret it as json.
-          if (field.type & PbFieldType.OS == PbFieldType.OS &&
-              !value.startsWith('"')) {
+          if (field.type & PbFieldType.OS == PbFieldType.OS && !value.startsWith('"')) {
             data[key] = value;
           } else {
             data[key] = jsonDecode(value);

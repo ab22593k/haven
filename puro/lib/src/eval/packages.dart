@@ -93,9 +93,8 @@ Future<bool> updateBootstrapPackages({
       }
     }
 
-    final original = pubspecYamlFile.existsSync()
-        ? pubspecYamlFile.readAsStringSync()
-        : null;
+    final original =
+        pubspecYamlFile.existsSync() ? pubspecYamlFile.readAsStringSync() : null;
     pubspecYamlFile.writeAsStringSync('$yaml');
 
     final stdoutBuffer = Uint8Buffer();

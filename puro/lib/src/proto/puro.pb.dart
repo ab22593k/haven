@@ -68,8 +68,8 @@ class CommandErrorModel extends $pb.GeneratedMessage {
   static $pb.PbList<CommandErrorModel> createRepeated() =>
       $pb.PbList<CommandErrorModel>();
   @$core.pragma('dart2js:noInline')
-  static CommandErrorModel getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CommandErrorModel>(create);
+  static CommandErrorModel getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CommandErrorModel>(create);
   static CommandErrorModel? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -151,19 +151,17 @@ class LogEntryModel extends $pb.GeneratedMessage {
       'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
       'Will be removed in next major version')
   LogEntryModel copyWith(void Function(LogEntryModel) updates) =>
-      super.copyWith((message) => updates(message as LogEntryModel))
-          as LogEntryModel;
+      super.copyWith((message) => updates(message as LogEntryModel)) as LogEntryModel;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
   static LogEntryModel create() => LogEntryModel._();
   LogEntryModel createEmptyInstance() => create();
-  static $pb.PbList<LogEntryModel> createRepeated() =>
-      $pb.PbList<LogEntryModel>();
+  static $pb.PbList<LogEntryModel> createRepeated() => $pb.PbList<LogEntryModel>();
   @$core.pragma('dart2js:noInline')
-  static LogEntryModel getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<LogEntryModel>(create);
+  static LogEntryModel getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LogEntryModel>(create);
   static LogEntryModel? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -362,8 +360,7 @@ class EnvironmentInfoModel extends $pb.GeneratedMessage {
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
       'Will be removed in next major version')
-  EnvironmentInfoModel clone() =>
-      EnvironmentInfoModel()..mergeFromMessage(this);
+  EnvironmentInfoModel clone() => EnvironmentInfoModel()..mergeFromMessage(this);
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
       'Will be removed in next major version')
@@ -471,15 +468,13 @@ class EnvironmentListModel extends $pb.GeneratedMessage {
         subBuilder: EnvironmentInfoModel.create)
     ..aOS(2, _omitFieldNames ? '' : 'projectEnvironment',
         protoName: 'projectEnvironment')
-    ..aOS(3, _omitFieldNames ? '' : 'globalEnvironment',
-        protoName: 'globalEnvironment')
+    ..aOS(3, _omitFieldNames ? '' : 'globalEnvironment', protoName: 'globalEnvironment')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
       'Will be removed in next major version')
-  EnvironmentListModel clone() =>
-      EnvironmentListModel()..mergeFromMessage(this);
+  EnvironmentListModel clone() => EnvironmentListModel()..mergeFromMessage(this);
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
       'Will be removed in next major version')
@@ -566,13 +561,11 @@ class EnvironmentUpgradeModel extends $pb.GeneratedMessage {
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
       'Will be removed in next major version')
-  EnvironmentUpgradeModel clone() =>
-      EnvironmentUpgradeModel()..mergeFromMessage(this);
+  EnvironmentUpgradeModel clone() => EnvironmentUpgradeModel()..mergeFromMessage(this);
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
       'Will be removed in next major version')
-  EnvironmentUpgradeModel copyWith(
-          void Function(EnvironmentUpgradeModel) updates) =>
+  EnvironmentUpgradeModel copyWith(void Function(EnvironmentUpgradeModel) updates) =>
       super.copyWith((message) => updates(message as EnvironmentUpgradeModel))
           as EnvironmentUpgradeModel;
 
@@ -752,8 +745,7 @@ class CommandResultModel extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'CommandResultModel',
       createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'success')
-    ..pc<CommandMessageModel>(
-        2, _omitFieldNames ? '' : 'messages', $pb.PbFieldType.PM,
+    ..pc<CommandMessageModel>(2, _omitFieldNames ? '' : 'messages', $pb.PbFieldType.PM,
         subBuilder: CommandMessageModel.create)
     ..aOS(3, _omitFieldNames ? '' : 'usage')
     ..aOM<CommandErrorModel>(4, _omitFieldNames ? '' : 'error',
@@ -762,10 +754,8 @@ class CommandResultModel extends $pb.GeneratedMessage {
         subBuilder: LogEntryModel.create)
     ..aOM<EnvironmentListModel>(6, _omitFieldNames ? '' : 'environmentList',
         protoName: 'environmentList', subBuilder: EnvironmentListModel.create)
-    ..aOM<EnvironmentUpgradeModel>(
-        7, _omitFieldNames ? '' : 'environmentUpgrade',
-        protoName: 'environmentUpgrade',
-        subBuilder: EnvironmentUpgradeModel.create)
+    ..aOM<EnvironmentUpgradeModel>(7, _omitFieldNames ? '' : 'environmentUpgrade',
+        protoName: 'environmentUpgrade', subBuilder: EnvironmentUpgradeModel.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('Using this can add significant overhead to your binary. '
@@ -955,45 +945,33 @@ class PuroGlobalPrefsModel extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'defaultEnvironment',
         protoName: 'defaultEnvironment')
-    ..aOS(2, _omitFieldNames ? '' : 'lastUpdateCheck',
-        protoName: 'lastUpdateCheck')
+    ..aOS(2, _omitFieldNames ? '' : 'lastUpdateCheck', protoName: 'lastUpdateCheck')
     ..aOS(3, _omitFieldNames ? '' : 'lastUpdateNotification',
         protoName: 'lastUpdateNotification')
-    ..aOB(4, _omitFieldNames ? '' : 'enableUpdateCheck',
-        protoName: 'enableUpdateCheck')
+    ..aOB(4, _omitFieldNames ? '' : 'enableUpdateCheck', protoName: 'enableUpdateCheck')
     ..aOB(5, _omitFieldNames ? '' : 'enableProfileUpdate',
         protoName: 'enableProfileUpdate')
-    ..aOS(6, _omitFieldNames ? '' : 'profileOverride',
-        protoName: 'profileOverride')
-    ..pPS(7, _omitFieldNames ? '' : 'projectDotfiles',
-        protoName: 'projectDotfiles')
+    ..aOS(6, _omitFieldNames ? '' : 'profileOverride', protoName: 'profileOverride')
+    ..pPS(7, _omitFieldNames ? '' : 'projectDotfiles', protoName: 'projectDotfiles')
     ..aOS(8, _omitFieldNames ? '' : 'lastUpdateNotificationCommand',
         protoName: 'lastUpdateNotificationCommand')
     ..aOS(9, _omitFieldNames ? '' : 'pubCacheDir', protoName: 'pubCacheDir')
-    ..aOS(10, _omitFieldNames ? '' : 'flutterGitUrl',
-        protoName: 'flutterGitUrl')
+    ..aOS(10, _omitFieldNames ? '' : 'flutterGitUrl', protoName: 'flutterGitUrl')
     ..aOS(11, _omitFieldNames ? '' : 'engineGitUrl', protoName: 'engineGitUrl')
-    ..aOS(12, _omitFieldNames ? '' : 'dartSdkGitUrl',
-        protoName: 'dartSdkGitUrl')
-    ..aOS(13, _omitFieldNames ? '' : 'releasesJsonUrl',
-        protoName: 'releasesJsonUrl')
+    ..aOS(12, _omitFieldNames ? '' : 'dartSdkGitUrl', protoName: 'dartSdkGitUrl')
+    ..aOS(13, _omitFieldNames ? '' : 'releasesJsonUrl', protoName: 'releasesJsonUrl')
     ..aOS(14, _omitFieldNames ? '' : 'flutterStorageBaseUrl',
         protoName: 'flutterStorageBaseUrl')
-    ..aOS(15, _omitFieldNames ? '' : 'puroBuildsUrl',
-        protoName: 'puroBuildsUrl')
-    ..aOS(16, _omitFieldNames ? '' : 'puroBuildTarget',
-        protoName: 'puroBuildTarget')
-    ..aOB(18, _omitFieldNames ? '' : 'shouldInstall',
-        protoName: 'shouldInstall')
-    ..aOB(19, _omitFieldNames ? '' : 'legacyPubCache',
-        protoName: 'legacyPubCache')
+    ..aOS(15, _omitFieldNames ? '' : 'puroBuildsUrl', protoName: 'puroBuildsUrl')
+    ..aOS(16, _omitFieldNames ? '' : 'puroBuildTarget', protoName: 'puroBuildTarget')
+    ..aOB(18, _omitFieldNames ? '' : 'shouldInstall', protoName: 'shouldInstall')
+    ..aOB(19, _omitFieldNames ? '' : 'legacyPubCache', protoName: 'legacyPubCache')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
       'Will be removed in next major version')
-  PuroGlobalPrefsModel clone() =>
-      PuroGlobalPrefsModel()..mergeFromMessage(this);
+  PuroGlobalPrefsModel clone() => PuroGlobalPrefsModel()..mergeFromMessage(this);
   @$core.Deprecated('Using this can add significant overhead to your binary. '
       'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
       'Will be removed in next major version')
@@ -1263,8 +1241,7 @@ class PuroEnvPrefsModel extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'forkRemoteUrl', protoName: 'forkRemoteUrl')
     ..aOS(3, _omitFieldNames ? '' : 'engineForkRemoteUrl',
         protoName: 'engineForkRemoteUrl')
-    ..aOB(4, _omitFieldNames ? '' : 'precompileTool',
-        protoName: 'precompileTool')
+    ..aOB(4, _omitFieldNames ? '' : 'precompileTool', protoName: 'precompileTool')
     ..aOB(5, _omitFieldNames ? '' : 'patched')
     ..hasRequiredFields = false;
 
@@ -1287,8 +1264,8 @@ class PuroEnvPrefsModel extends $pb.GeneratedMessage {
   static $pb.PbList<PuroEnvPrefsModel> createRepeated() =>
       $pb.PbList<PuroEnvPrefsModel>();
   @$core.pragma('dart2js:noInline')
-  static PuroEnvPrefsModel getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<PuroEnvPrefsModel>(create);
+  static PuroEnvPrefsModel getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PuroEnvPrefsModel>(create);
   static PuroEnvPrefsModel? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1384,8 +1361,7 @@ class PuroDotfileModel extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'PuroDotfileModel',
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'env')
-    ..aOS(2, _omitFieldNames ? '' : 'previousDartSdk',
-        protoName: 'previousDartSdk')
+    ..aOS(2, _omitFieldNames ? '' : 'previousDartSdk', protoName: 'previousDartSdk')
     ..aOS(3, _omitFieldNames ? '' : 'previousFlutterSdk',
         protoName: 'previousFlutterSdk')
     ..hasRequiredFields = false;
@@ -1409,8 +1385,8 @@ class PuroDotfileModel extends $pb.GeneratedMessage {
   static $pb.PbList<PuroDotfileModel> createRepeated() =>
       $pb.PbList<PuroDotfileModel>();
   @$core.pragma('dart2js:noInline')
-  static PuroDotfileModel getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<PuroDotfileModel>(create);
+  static PuroDotfileModel getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PuroDotfileModel>(create);
   static PuroDotfileModel? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1451,5 +1427,4 @@ class PuroDotfileModel extends $pb.GeneratedMessage {
 }
 
 const _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
-const _omitMessageNames =
-    $core.bool.fromEnvironment('protobuf.omit_message_names');
+const _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

@@ -16,8 +16,7 @@ class PuroUpgradeCommand extends PuroCommand {
     argParser.addFlag(
       'force',
       hide: true,
-      help:
-          'Installs a new puro executable even if it wont replace an existing one',
+      help: 'Installs a new puro executable even if it wont replace an existing one',
       negatable: false,
     );
     argParser.addFlag(
@@ -74,8 +73,7 @@ class PuroUpgradeCommand extends PuroCommand {
           success: false,
         );
       }
-    } else if (puroVersion.type != PuroInstallationType.distribution &&
-        !force) {
+    } else if (puroVersion.type != PuroInstallationType.distribution && !force) {
       return BasicMessageResult(
         "Can't upgrade: ${puroVersion.type.description}",
         success: false,
@@ -86,8 +84,7 @@ class PuroUpgradeCommand extends PuroCommand {
       final exitCode = await upgradePuro(
         scope: scope,
         targetVersion: 'master',
-        path:
-            argResults!.wasParsed('path') ? argResults!['path'] as bool : null,
+        path: argResults!.wasParsed('path') ? argResults!['path'] as bool : null,
       );
       await runner.exitPuro(exitCode);
     }

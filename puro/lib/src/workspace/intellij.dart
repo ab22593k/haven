@@ -25,8 +25,7 @@ class IntelliJConfig extends IdeConfig {
   late final dartSdkBakFile = librariesDir.childFile('Dart_SDK.xml.bak');
   late final dartPackagesFile = librariesDir.childFile('Dart_Packages.xml');
   late final modulesXmlFile = configDir.childFile('modules.xml');
-  late final dartPackagesBakFile =
-      librariesDir.childFile('Dart_Packages.xml.bak');
+  late final dartPackagesBakFile = librariesDir.childFile('Dart_Packages.xml.bak');
 
   @override
   String get name => 'IntelliJ';
@@ -80,8 +79,7 @@ class IntelliJConfig extends IdeConfig {
     // The IntelliJ Dart plugin parses this file and walks its AST to extract
     // the keys of this library map. This is dumb. 💀
     // https://github.com/JetBrains/intellij-plugins/blob/0f07ca63355d5530b441ca566c98f17c560e77f8/Dart/src/com/jetbrains/lang/dart/ide/index/DartLibraryIndex.java#L132
-    final librariesFileLines =
-        await dartSdk.internalLibrariesDartFile.readAsLines();
+    final librariesFileLines = await dartSdk.internalLibrariesDartFile.readAsLines();
     final startLine = librariesFileLines.indexOf(
       'const Map<String, LibraryInfo> libraries = const {',
     );
@@ -95,8 +93,7 @@ class IntelliJConfig extends IdeConfig {
     String? currentLib;
     for (var i = startLine; i < endLine; i++) {
       final line = librariesFileLines[i];
-      if (line.trimLeft().startsWith('documented: false') &&
-          currentLib != null) {
+      if (line.trimLeft().startsWith('documented: false') && currentLib != null) {
         libraries.remove(currentLib);
         continue;
       }
@@ -112,8 +109,7 @@ class IntelliJConfig extends IdeConfig {
         'Failed to extract libraries from ${dartSdk.internalLibrariesDartFile.path}',
       );
     }
-    final homeDirStr =
-        path.canonicalize(config.homeDir.path).replaceAll('\\', '/');
+    final homeDirStr = path.canonicalize(config.homeDir.path).replaceAll('\\', '/');
     final urls = <String>[
       for (final libName in libraries)
         '${Uri.file(path.canonicalize(dartSdk.libDir.path))}/$libName'
@@ -303,14 +299,12 @@ class IntelliJConfig extends IdeConfig {
                     workspaceDir.path))
             .toFilePath()
             .replaceAll(RegExp(r'^\\\\'), '');
-        final dartSdkDir =
-            config.fileSystem.directory(urlPath).absolute.parent.parent;
+        final dartSdkDir = config.fileSystem.directory(urlPath).absolute.parent.parent;
         if (dartSdkDir.childDirectory('bin').existsSync()) {
           intellijConfig.dartSdkDir = dartSdkDir.absolute;
           if (dartSdkDir.parent.basename == 'cache' &&
               dartSdkDir.parent.parent.basename == 'bin') {
-            intellijConfig.flutterSdkDir =
-                dartSdkDir.parent.parent.parent.absolute;
+            intellijConfig.flutterSdkDir = dartSdkDir.parent.parent.parent.absolute;
           }
         }
       }

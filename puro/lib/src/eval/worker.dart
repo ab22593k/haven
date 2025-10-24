@@ -196,8 +196,7 @@ class EvalWorker {
       mainFileHandle: mainFileHandle,
       vmService: vmService,
       isolateId: isolateId,
-      onExit:
-          stdoutFuture.then((_) => stderrFuture.then((_) => process.exitCode)),
+      onExit: stdoutFuture.then((_) => stderrFuture.then((_) => process.exitCode)),
       context: context,
       currentCode: initialCode,
     );

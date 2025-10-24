@@ -30,8 +30,7 @@ class PuroInstallCommand extends PuroCommand {
     );
     argParser.addOption(
       'profile',
-      help:
-          'Overrides the profile script puro appends to when updating the PATH',
+      help: 'Overrides the profile script puro appends to when updating the PATH',
     );
   }
 
@@ -110,8 +109,7 @@ class PuroInstallCommand extends PuroCommand {
       if (Platform.isLinux || Platform.isMacOS) {
         final profile = await installProfileEnv(
           scope: scope,
-          profileOverride:
-              prefs.hasProfileOverride() ? prefs.profileOverride : null,
+          profileOverride: prefs.hasProfileOverride() ? prefs.profileOverride : null,
         );
         profilePath = profile?.path;
         if (profilePath != null && profilePath.startsWith(homeDir)) {
@@ -139,8 +137,7 @@ class PuroInstallCommand extends PuroCommand {
       );
     }
 
-    final externalMessage =
-        await detectExternalFlutterInstallations(scope: scope);
+    final externalMessage = await detectExternalFlutterInstallations(scope: scope);
 
     final updateMessage = await checkIfUpdateAvailable(
       scope: scope,

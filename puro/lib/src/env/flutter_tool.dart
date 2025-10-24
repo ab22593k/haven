@@ -63,9 +63,8 @@ Future<ToolQuirks> getToolQuirks({
     path: 'bin/flutter',
   );
 
-  final flutterScriptStr = utf8
-      .decode(flutterScriptBuf)
-      .replaceAll(RegExp('#.*'), ''); // Remove comments
+  final flutterScriptStr =
+      utf8.decode(flutterScriptBuf).replaceAll(RegExp('#.*'), ''); // Remove comments
 
   return ToolQuirks(
     useDeprecatedPub: flutterScriptStr.contains('__deprecated_pub'),
@@ -134,8 +133,7 @@ Future<FlutterToolInfo> setUpFlutterTool({
     },
   );
 
-  final commit =
-      await git.getCurrentCommitHash(repository: flutterConfig.sdkDir);
+  final commit = await git.getCurrentCommitHash(repository: flutterConfig.sdkDir);
   log.d('flutterCommit: $commit');
 
   final pubspecLockFile = environment.flutter.flutterToolsPubspecLockFile;
@@ -144,8 +142,8 @@ Future<FlutterToolInfo> setUpFlutterTool({
   var didUpdateTool = false;
 
   environmentPrefs ??= await environment.readPrefs(scope: scope);
-  final shouldPrecompile = !environmentPrefs!.hasPrecompileTool() ||
-      environmentPrefs!.precompileTool;
+  final shouldPrecompile =
+      !environmentPrefs!.hasPrecompileTool() || environmentPrefs!.precompileTool;
 
   Future<void> updateTool({required ToolQuirks toolQuirks}) async {
     await ProgressNode.of(scope).wrap((scope, node) async {
@@ -191,8 +189,7 @@ Future<FlutterToolInfo> setUpFlutterTool({
           log.w(
             'Pub upgrade failed, trying again in ${randomizedBackoff.inMilliseconds}ms...',
           );
-          node.description =
-              'Pub upgrade failed, waiting a little before trying again';
+          node.description = 'Pub upgrade failed, waiting a little before trying again';
           await Future<void>.delayed(randomizedBackoff);
         }
       }

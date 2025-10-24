@@ -85,8 +85,7 @@ Future<void> installIdeConfig({
   final log = PuroLogger.of(scope);
   log.v('Workspace path: `${ideConfig.workspaceDir.path}`');
   if (ideConfig.flutterSdkDir?.path != flutterSdkPath ||
-      (ideConfig.dartSdkDir != null &&
-          ideConfig.dartSdkDir?.path != dartSdkPath)) {
+      (ideConfig.dartSdkDir != null && ideConfig.dartSdkDir?.path != dartSdkPath)) {
     log.v('Configuring ${ideConfig.name}...');
     await ideConfig.backup(scope: scope);
     ideConfig.dartSdkDir = environment.flutter.cache.dartSdkDir;

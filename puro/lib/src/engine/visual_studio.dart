@@ -41,8 +41,7 @@ class VisualStudio {
 
   /// True if there is a version of Visual Studio with all the components
   /// necessary to build the project.
-  bool get hasNecessaryComponents =>
-      _bestVisualStudioDetails?.isUsable ?? false;
+  bool get hasNecessaryComponents => _bestVisualStudioDetails?.isUsable ?? false;
 
   /// The name of the Visual Studio install.
   ///
@@ -92,8 +91,7 @@ class VisualStudio {
   bool get isPrerelease => _bestVisualStudioDetails?.isPrerelease ?? false;
 
   /// True if a reboot is required to complete the Visual Studio installation.
-  bool get isRebootRequired =>
-      _bestVisualStudioDetails?.isRebootRequired ?? false;
+  bool get isRebootRequired => _bestVisualStudioDetails?.isRebootRequired ?? false;
 
   /// The name of the recommended Visual Studio installer workload.
   String get workloadDescription => 'Desktop development with C++';
@@ -114,15 +112,12 @@ class VisualStudio {
     }
     // The directories in this folder are named by the SDK version.
     Version? highestVersion;
-    for (final FileSystemEntity versionEntry
-        in sdkIncludeDirectory.listSync()) {
+    for (final FileSystemEntity versionEntry in sdkIncludeDirectory.listSync()) {
       if (versionEntry.basename.startsWith('10.')) {
         // Version only handles 3 components; strip off the '10.' to leave three
         // components, since they all start with that.
-        final Version? version =
-            Version.parse(versionEntry.basename.substring(3));
-        if (highestVersion == null ||
-            (version != null && version > highestVersion)) {
+        final Version? version = Version.parse(versionEntry.basename.substring(3));
+        if (highestVersion == null || (version != null && version > highestVersion)) {
           highestVersion = version;
         }
       }
@@ -153,9 +148,7 @@ class VisualStudio {
   /// the components necessary to build.
   String? get cmakePath {
     final VswhereDetails? details = _bestVisualStudioDetails;
-    if (details == null ||
-        !details.isUsable ||
-        details.installationPath == null) {
+    if (details == null || !details.isUsable || details.installationPath == null) {
       return null;
     }
 
@@ -247,8 +240,7 @@ class VisualStudio {
     // be included here.
     return <String, String>{
       // The C++ toolchain required by the template.
-      'Microsoft.VisualStudio.Component.VC.Tools.x86.x64':
-          cppToolchainDescription,
+      'Microsoft.VisualStudio.Component.VC.Tools.x86.x64': cppToolchainDescription,
       // CMake
       'Microsoft.VisualStudio.Component.VC.CMake.Project':
           'C++ CMake tools for Windows',
@@ -315,8 +307,7 @@ class VisualStudio {
         final List<Map<String, dynamic>>? installations =
             _tryDecodeVswhereJson(whereResult.stdout as String);
         if (installations != null && installations.isNotEmpty) {
-          return VswhereDetails.fromJson(
-              validateRequirements, installations[0]);
+          return VswhereDetails.fromJson(validateRequirements, installations[0]);
         }
       }
     } on ArgumentError {
@@ -380,10 +371,7 @@ class VisualStudio {
         final VswhereDetails? result = _visualStudioDetails(
             validateRequirements: true,
             additionalArguments: checkForPrerelease
-                ? <String>[
-                    ...minimumVersionArguments,
-                    _vswherePrereleaseArgument
-                  ]
+                ? <String>[...minimumVersionArguments, _vswherePrereleaseArgument]
                 : minimumVersionArguments,
             requiredWorkload: requiredWorkload);
 
@@ -441,10 +429,8 @@ class VisualStudio {
       }
       // Version only handles 3 components; strip off the '10.' to leave three
       // components, since they all start with that.
-      final Version? version =
-          Version.parse(versionEntry.basename.substring(3));
-      if (highestVersion == null ||
-          (version != null && version > highestVersion)) {
+      final Version? version = Version.parse(versionEntry.basename.substring(3));
+      if (highestVersion == null || (version != null && version > highestVersion)) {
         highestVersion = version;
       }
     }
@@ -472,8 +458,7 @@ class VswhereDetails {
   /// Create a `VswhereDetails` from the JSON output of vswhere.exe.
   factory VswhereDetails.fromJson(
       bool meetsRequirements, Map<String, dynamic> details) {
-    final Map<String, dynamic>? catalog =
-        details['catalog'] as Map<String, dynamic>?;
+    final Map<String, dynamic>? catalog = details['catalog'] as Map<String, dynamic>?;
 
     return VswhereDetails(
       meetsRequirements: meetsRequirements,

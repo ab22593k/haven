@@ -17,8 +17,7 @@ class EnvUseCommand extends PuroCommand {
     );
     argParser.addFlag(
       'intellij',
-      help:
-          'Enable or disable generation of IntelliJ (or Android Studio) configs',
+      help: 'Enable or disable generation of IntelliJ (or Android Studio) configs',
     );
     argParser.addFlag(
       'global',
@@ -83,9 +82,8 @@ class EnvUseCommand extends PuroCommand {
       scope: scope,
       envName: envName,
       vscode: vscodeOverride,
-      intellij: argResults!.wasParsed('intellij')
-          ? argResults!['intellij'] as bool
-          : null,
+      intellij:
+          argResults!.wasParsed('intellij') ? argResults!['intellij'] as bool : null,
       projectConfig: config.project,
     );
     return BasicMessageResult(

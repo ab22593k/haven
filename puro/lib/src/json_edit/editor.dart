@@ -18,11 +18,7 @@ class JsonEditor {
 
   String _encodeWithoutIndent(Object? value) {
     // Hack to keep space between elements
-    return const JsonEncoder.withIndent('')
-        .convert(value)
-        .split('\n')
-        .join()
-        .trim();
+    return const JsonEncoder.withIndent('').convert(value).split('\n').join().trim();
   }
 
   Object? _wrapWithSelector(Iterable<Object> selectors, Object? value) {
@@ -171,8 +167,7 @@ class JsonEditor {
           indent = collectionIndent + indentLevel;
           if (trimmedCollectionSpace.isNotEmpty) {
             // Shift comments to a new line too
-            leading +=
-                _indentString(trimmedCollectionSpace, ' ' * indent) + '\n';
+            leading += _indentString(trimmedCollectionSpace, ' ' * indent) + '\n';
           }
           trailing += '\n${' ' * collectionIndent}';
         } else {
@@ -199,8 +194,8 @@ class JsonEditor {
           if (lastChild is JsonWhitespace) {
             lastChildTrailingSpace = lastChild.trailing;
           }
-          replaceStart = collectionElement.children.last.stop -
-              lastChildTrailingSpace.length;
+          replaceStart =
+              collectionElement.children.last.stop - lastChildTrailingSpace.length;
           leading = ',${lastChildTrailingSpace.trimRight()}';
         } else {
           replaceStart = collectionToken.stop - 1;
@@ -296,8 +291,7 @@ class JsonEditor {
             'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
           );
         }
-        if (permissive &&
-            (selector < 0 || selector > element.children.length)) {
+        if (permissive && (selector < 0 || selector > element.children.length)) {
           return;
         }
         RangeError.checkValidIndex(
@@ -351,9 +345,8 @@ class JsonEditor {
 
     final trailingSpace = trailingSpaceOf(token.value);
     final trailingSpaceNewline = trailingSpace.indexOf('\n');
-    final trailingSpaceAfterEOL = trailingSpaceNewline == -1
-        ? ''
-        : trailingSpace.substring(trailingSpaceNewline);
+    final trailingSpaceAfterEOL =
+        trailingSpaceNewline == -1 ? '' : trailingSpace.substring(trailingSpaceNewline);
 
     final collectionChildren = collectionElement.children.toList();
     final elementIndex = collectionChildren.indexOf(token);
@@ -399,9 +392,7 @@ class JsonEditor {
       }
     }
 
-    source = source.substring(0, replaceStart) +
-        content +
-        source.substring(replaceEnd);
+    source = source.substring(0, replaceStart) + content + source.substring(replaceEnd);
   }
 
   Token<JsonElement>? query(
@@ -435,8 +426,7 @@ class JsonEditor {
             'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
           );
         }
-        if (permissive &&
-            (selector < 0 || selector > element.children.length)) {
+        if (permissive && (selector < 0 || selector > element.children.length)) {
           return null;
         }
         RangeError.checkValidIndex(

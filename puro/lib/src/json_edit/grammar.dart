@@ -20,8 +20,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
   }
 
   Parser<String> inlineComment() {
-    return (string('/*') & any().starLazy(string('*/')) & string('*/'))
-        .flatten();
+    return (string('/*') & any().starLazy(string('*/')) & string('*/')).flatten();
   }
 
   Parser<String> space() {
@@ -29,9 +28,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
   }
 
   Parser<Token<JsonElement>> token(Parser<JsonElement> parser) {
-    return (ref0(space) & parser.token() & ref0<String>(space))
-        .token()
-        .map((token) {
+    return (ref0(space) & parser.token() & ref0<String>(space)).token().map((token) {
       final res = token.value;
       final leading = res[0] as String;
       final body = res[1] as Token<JsonElement>;
@@ -53,10 +50,9 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
     });
   }
 
-  Parser<String> escapedChar() =>
-      (char(r'\') & pattern(escapeChars.keys.join()))
-          .pick(1)
-          .map((Object? str) => escapeChars[str]!);
+  Parser<String> escapedChar() => (char(r'\') & pattern(escapeChars.keys.join()))
+      .pick(1)
+      .map((Object? str) => escapeChars[str]!);
 
   Parser<String> unicodeChar() =>
       (string(r'\u') & pattern('0-9A-Fa-f').times(4)).map((digits) {
@@ -66,9 +62,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
 
   Parser<String> stringLiteral() {
     return (char('"') &
-            (pattern(r'^"\') |
-                    ref0<String>(escapedChar) |
-                    ref0<String>(unicodeChar))
+            (pattern(r'^"\') | ref0<String>(escapedChar) | ref0<String>(unicodeChar))
                 .star()
                 .map<String>((list) => list.join()) &
             char('"'))
@@ -82,10 +76,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
   Parser<num> numLiteral() => (char('-').optional() &
           char('0').or(digit().plus()) &
           char('.').seq(digit().plus()).optional() &
-          pattern('eE')
-              .seq(pattern('-+').optional())
-              .seq(digit().plus())
-              .optional())
+          pattern('eE').seq(pattern('-+').optional()).seq(digit().plus()).optional())
       .flatten()
       .map(num.parse);
 
@@ -113,9 +104,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
             char('}'))
         .map((res) {
       return JsonMap(
-        children: (res[1] as List? ?? <Object?>[])
-            .cast<Token<JsonMapEntry>>()
-            .toList(),
+        children: (res[1] as List? ?? <Object?>[]).cast<Token<JsonMapEntry>>().toList(),
         space: res[2] as String,
       );
     }));
@@ -123,19 +112,14 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
 
   Parser<Token<JsonElement>> arrayElement() {
     return token((char('[') &
-            ref0(element)
-                .plusSeparated(char(','))
-                .map((e) => e.elements)
-                .optional() &
+            ref0(element).plusSeparated(char(',')).map((e) => e.elements).optional() &
             ref0<String>(space) &
             char(',').optional() &
             ref0<String>(space) &
             char(']'))
         .map((res) {
       return JsonArray(
-        children: (res[1] as List? ?? <Object?>[])
-            .cast<Token<JsonElement>>()
-            .toList(),
+        children: (res[1] as List? ?? <Object?>[]).cast<Token<JsonElement>>().toList(),
         space: res[2] as String,
       );
     }));

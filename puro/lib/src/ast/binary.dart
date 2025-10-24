@@ -266,8 +266,7 @@ class BinFormat {
           if (childDecl['type'][2] != parentName) return;
           final childName = childDecl['type'][1] as String;
 
-          if (childDecl['type'][0] == true ||
-              (childDecl['type'][3] as List).isEmpty) {
+          if (childDecl['type'][0] == true || (childDecl['type'][3] as List).isEmpty) {
             // Enumerate the children of abstract types too
             for (final childChildDecl in childDecl['type'][3] as List) {
               visitDecl(childName, childChildDecl);

@@ -12,8 +12,7 @@ class RunCommand extends PuroCommand {
   final name = 'run';
 
   @override
-  final description =
-      'Forwards arguments to dart run in the current environment';
+  final description = 'Forwards arguments to dart run in the current environment';
 
   @override
   final argParser = ArgParser.allowAnything();

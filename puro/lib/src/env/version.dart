@@ -90,8 +90,7 @@ class FlutterVersion {
     }
   }
 
-  FlutterChannel? get channel =>
-      branch == null ? null : FlutterChannel.parse(branch!);
+  FlutterChannel? get channel => branch == null ? null : FlutterChannel.parse(branch!);
 
   static Future<FlutterVersion> query({
     required Scope scope,

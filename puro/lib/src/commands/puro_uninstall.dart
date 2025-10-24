@@ -11,14 +11,12 @@ class PuroUninstallCommand extends PuroCommand {
   PuroUninstallCommand() {
     argParser.addFlag(
       'force',
-      help:
-          'Ignore the current installation method and attempt to uninstall anyway',
+      help: 'Ignore the current installation method and attempt to uninstall anyway',
       negatable: false,
     );
     argParser.addOption(
       'profile',
-      help:
-          'Overrides the profile script puro appends to when updating the PATH',
+      help: 'Overrides the profile script puro appends to when updating the PATH',
     );
   }
 
@@ -52,8 +50,7 @@ class PuroUninstallCommand extends PuroCommand {
     if (Platform.isLinux || Platform.isMacOS) {
       final profile = await uninstallProfileEnv(
         scope: scope,
-        profileOverride:
-            prefs.hasProfileOverride() ? prefs.profileOverride : null,
+        profileOverride: prefs.hasProfileOverride() ? prefs.profileOverride : null,
       );
       profilePath = profile?.path.replaceAll(homeDir, '~');
     } else if (Platform.isWindows) {

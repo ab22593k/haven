@@ -65,9 +65,7 @@ Future<void> updateEngineVersionFile({
       );
     }
     commit = await git.mergeBase(
-        repository: flutterConfig.sdkDir,
-        ref1: 'HEAD',
-        ref2: 'upstream/master');
+        repository: flutterConfig.sdkDir, ref1: 'HEAD', ref2: 'upstream/master');
   } else {
     commit = await git.mergeBase(
         repository: flutterConfig.sdkDir, ref1: 'HEAD', ref2: 'origin/master');
@@ -267,8 +265,8 @@ Future<EnvCreateResult> createEnvironment({
     await engineTask;
 
     if (cacheEngineTime != null) {
-      final wouldveTaken = (cloneTime.difference(startTime)) +
-          (cacheEngineTime!.difference(startTime));
+      final wouldveTaken =
+          (cloneTime.difference(startTime)) + (cacheEngineTime!.difference(startTime));
       final took = clock.now().difference(startTime);
       log.v(
         'Saved ${(wouldveTaken - took).inMilliseconds}ms by pre-caching engine',

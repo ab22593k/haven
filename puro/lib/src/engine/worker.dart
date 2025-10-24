@@ -116,10 +116,8 @@ Future<void> ensureWindowsDebuggerInstalled({required Scope scope}) async {
   final config = PuroConfig.of(scope);
   final log = PuroLogger.of(scope);
 
-  final win10sdkPath =
-      config.fileSystem.directory(vs.getWindows10SdkLocation()!);
-  final debuggersDir =
-      win10sdkPath.childDirectory('Debuggers').childDirectory('x86');
+  final win10sdkPath = config.fileSystem.directory(vs.getWindows10SdkLocation()!);
+  final debuggersDir = win10sdkPath.childDirectory('Debuggers').childDirectory('x86');
   final dbghelpFile = debuggersDir.childFile('dbghelp.dll');
   log.d('dbghelpFile: $dbghelpFile');
   await ProgressNode.of(scope).wrap((scope, node) async {
@@ -163,8 +161,7 @@ Future<void> ensureWindowsDebuggerInstalled({required Scope scope}) async {
       if (dependencyList.isNotEmpty) {
         final dynamic dependency = dependencyList.reduce(
           (dynamic a, dynamic b) =>
-              compareVersions(a['Version'] as String, b['Version'] as String) >
-                      0
+              compareVersions(a['Version'] as String, b['Version'] as String) > 0
                   ? a
                   : b,
         );
@@ -183,12 +180,7 @@ Future<void> ensureWindowsDebuggerInstalled({required Scope scope}) async {
           final result = await runProcess(
             scope,
             installerFile.path,
-            [
-              '/features',
-              'OptionId.WindowsDesktopDebuggers',
-              '/q',
-              '/norestart'
-            ],
+            ['/features', 'OptionId.WindowsDesktopDebuggers', '/q', '/norestart'],
           );
           if (result.exitCode == 0) return;
         }
@@ -239,8 +231,7 @@ Future<void> ensureWindowsPythonInstalled({required Scope scope}) async {
   for (var i = 0; i < pythonPrograms.length; i++) {
     final program = pythonPrograms[i];
     final parent = program.parent;
-    if (parent.basename == 'WindowsApps' &&
-        parent.parent.basename == 'Microsoft') {
+    if (parent.basename == 'WindowsApps' && parent.parent.basename == 'Microsoft') {
       // Double check that the executable is indeed useless before deleting.
       final result = await runProcess(
         scope,

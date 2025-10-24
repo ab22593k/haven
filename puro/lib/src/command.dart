@@ -200,8 +200,7 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
     }
     isExiting = true;
     final results = <ResultFuture<void>, String>{
-      for (final entry in backgroundTasks.entries)
-        ResultFuture(entry.key): entry.value,
+      for (final entry in backgroundTasks.entries) ResultFuture(entry.key): entry.value,
     };
 
     await Future.wait(results.keys).timeout(
@@ -319,14 +318,12 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
 
       // Initialize config
 
-      final homeDir =
-          PuroConfig.getHomeDir(scope: scope, fileSystem: fileSystem);
+      final homeDir = PuroConfig.getHomeDir(scope: scope, fileSystem: fileSystem);
       final puroRoot = PuroConfig.getPuroRoot(
           scope: scope, fileSystem: fileSystem, homeDir: homeDir);
       final prefsJson = puroRoot.childFile('prefs.json');
       scope.add(globalPrefsJsonFileProvider, prefsJson);
-      final firstRun =
-          !prefsJson.existsSync() || prefsJson.statSync().size == 0;
+      final firstRun = !prefsJson.existsSync() || prefsJson.statSync().size == 0;
       scope.add(isFirstRunProvider, firstRun);
       log.d('firstRun: $firstRun');
       log.d('legacyPubCache: $legacyPubCache');

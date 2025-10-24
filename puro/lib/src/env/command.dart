@@ -148,12 +148,10 @@ Future<int> runDartCommand({
     if (stdin != null) {
       unawaited(dartProcess.stdin.addStream(stdin));
     }
-    final stdoutFuture = onStdout == null
-        ? null
-        : dartProcess.stdout.listen(onStdout).asFuture<void>();
-    final stderrFuture = onStderr == null
-        ? null
-        : dartProcess.stderr.listen(onStderr).asFuture<void>();
+    final stdoutFuture =
+        onStdout == null ? null : dartProcess.stdout.listen(onStdout).asFuture<void>();
+    final stderrFuture =
+        onStderr == null ? null : dartProcess.stderr.listen(onStderr).asFuture<void>();
     final exitCode = await dartProcess.exitCode;
     await stdoutFuture;
     await stderrFuture;

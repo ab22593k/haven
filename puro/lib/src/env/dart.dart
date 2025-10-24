@@ -43,8 +43,8 @@ enum DartArch {
   arm64,
   riscv64;
 
-  static final DartArch current = DartArch.values
-      .singleWhere((e) => '${ffi.Abi.current()}'.endsWith('_${e.name}'));
+  static final DartArch current =
+      DartArch.values.singleWhere((e) => '${ffi.Abi.current()}'.endsWith('_${e.name}'));
 }
 
 class DartRelease {
@@ -76,9 +76,7 @@ class DartReleases {
   factory DartReleases.fromJson(Map<String, dynamic> json) => DartReleases({
         for (final channel in json.keys)
           DartChannel.values.singleWhere((e) => e.name == channel):
-              (json[channel] as List)
-                  .map((v) => Version.parse(v as String))
-                  .toList(),
+              (json[channel] as List).map((v) => Version.parse(v as String)).toList(),
       });
 }
 
@@ -143,8 +141,8 @@ Future<DartReleases> getDartReleases({
 
   final cachedReleasesStat = config.cachedDartReleasesJsonFile.statSync();
   final hasCache = cachedReleasesStat.type == FileSystemEntityType.file;
-  var cacheIsFresh = hasCache &&
-      clock.now().difference(cachedReleasesStat.modified).inHours < 1;
+  var cacheIsFresh =
+      hasCache && clock.now().difference(cachedReleasesStat.modified).inHours < 1;
 
   // Don't read from the cache if it's stale.
   if (hasCache && cacheIsFresh) {
@@ -155,8 +153,8 @@ Future<DartReleases> getDartReleases({
       (handle) async {
         final contents = await handle.readAllAsString();
         try {
-          cachedReleases = DartReleases.fromJson(
-              jsonDecode(contents) as Map<String, dynamic>);
+          cachedReleases =
+              DartReleases.fromJson(jsonDecode(contents) as Map<String, dynamic>);
         } catch (exception, stackTrace) {
           log.w('Error while parsing cached releases');
           log.w('$exception\n$stackTrace');
@@ -209,8 +207,7 @@ Future<void> downloadSharedDartRelease({
     if (!config.sharedDartReleaseDir.existsSync()) {
       config.sharedDartReleaseDir.createSync(recursive: true);
     }
-    final zipFile =
-        config.sharedDartReleaseDir.childFile('${release.name}.zip');
+    final zipFile = config.sharedDartReleaseDir.childFile('${release.name}.zip');
 
     await downloadFile(
       scope: scope,

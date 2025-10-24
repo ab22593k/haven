@@ -13,9 +13,8 @@ Future<int> collectGarbage({
   final log = PuroLogger.of(scope);
   final config = PuroConfig.of(scope);
   final git = GitClient.of(scope);
-  final sharedCacheDirs = config.sharedCachesDir.existsSync()
-      ? config.sharedCachesDir.listSync()
-      : [];
+  final sharedCacheDirs =
+      config.sharedCachesDir.existsSync() ? config.sharedCachesDir.listSync() : [];
   final flutterToolDirs = config.sharedFlutterToolsDir.existsSync()
       ? config.sharedFlutterToolsDir.listSync()
       : [];

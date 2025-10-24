@@ -160,8 +160,8 @@ class CommandMessage {
     return messages
         .map((e) => format.complete(
               e.message(format),
-              type: e.type ??
-                  (success ? CompletionType.success : CompletionType.failure),
+              type:
+                  e.type ?? (success ? CompletionType.success : CompletionType.failure),
             ))
         .join('\n');
   }

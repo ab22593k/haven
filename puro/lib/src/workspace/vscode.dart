@@ -109,8 +109,7 @@ class VSCodeConfig extends IdeConfig {
       editor.update([dartSdkDirKey], dartSdkDir?.path);
     }
 
-    if (editor.query([flutterSdkDirKey])?.value.toJson() !=
-            flutterSdkDir?.path ||
+    if (editor.query([flutterSdkDirKey])?.value.toJson() != flutterSdkDir?.path ||
         editor.query([dartSdkDirKey])?.value.toJson() != dartSdkDir?.path) {
       throw AssertionError('Corrupt settings.json');
     }
@@ -153,11 +152,9 @@ class VSCodeConfig extends IdeConfig {
     if (vscodeConfig.settingsFile.existsSync() &&
         vscodeConfig.settingsFile.lengthSync() > 0) {
       final editor = vscodeConfig.readSettings();
-      final flutterSdkPathStr =
-          editor.query([flutterSdkDirKey])?.value.toJson();
+      final flutterSdkPathStr = editor.query([flutterSdkDirKey])?.value.toJson();
       if (flutterSdkPathStr is String) {
-        vscodeConfig.flutterSdkDir =
-            config.fileSystem.directory(flutterSdkPathStr);
+        vscodeConfig.flutterSdkDir = config.fileSystem.directory(flutterSdkPathStr);
       }
       final dartSdkPathStr = editor.query([dartSdkDirKey])?.value.toJson();
       if (dartSdkPathStr is String) {

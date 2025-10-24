@@ -121,17 +121,13 @@ class PuroVersion {
           scriptPath,
           path.join(path.current, 'puro'),
         ) ||
-        config.fileSystem
-            .file(executablePath)
-            .parent
-            .pathEquals(config.binDir)) {
+        config.fileSystem.file(executablePath).parent.pathEquals(config.binDir)) {
       // A bug in dart gives an incorrect Platform.script :/
       // https://github.com/dart-lang/sdk/issues/45005
       scriptPath = executablePath;
     } else {
       try {
-        scriptPath =
-            config.fileSystem.file(scriptPath).resolveSymbolicLinksSync();
+        scriptPath = config.fileSystem.file(scriptPath).resolveSymbolicLinksSync();
       } catch (exception, stackTrace) {
         log.w('Error while resolving Platform.script\n$exception\n$stackTrace');
       }
@@ -145,10 +141,8 @@ class PuroVersion {
     if (!scriptIsExecutable && packageRoot == null) {
       final pubInstallBinDir = scriptFile.parent;
       final pubInstallPackageDir = pubInstallBinDir.parent;
-      final pubInstallPubspecLockFile =
-          pubInstallPackageDir.childFile('pubspec.lock');
-      final pubInstallPubspecYamlFile =
-          pubInstallPackageDir.childFile('pubspec.yaml');
+      final pubInstallPubspecLockFile = pubInstallPackageDir.childFile('pubspec.lock');
+      final pubInstallPubspecYamlFile = pubInstallPackageDir.childFile('pubspec.yaml');
       log.d('pubInstallBinDir: ${pubInstallBinDir.path}');
       log.d('pubInstallPackageDir: ${pubInstallPackageDir.path}');
       if (pubInstallBinDir.basename == 'bin' &&
@@ -161,8 +155,7 @@ class PuroVersion {
         final segments = path.split(scriptPath);
         final dartToolIndex = segments.indexOf('.dart_tool');
         if (dartToolIndex != -1) {
-          packageRoot =
-              _fs.directory(path.joinAll(segments.take(dartToolIndex)));
+          packageRoot = _fs.directory(path.joinAll(segments.take(dartToolIndex)));
         }
       }
     }
@@ -218,14 +211,12 @@ class PuroVersion {
       } else if (installationType == PuroInstallationType.pub) {
         final pubspecLockFile = packageRoot.childFile('pubspec.lock');
         try {
-          final pubspecLock =
-              loadYaml(pubspecLockFile.readAsStringSync()) as YamlMap;
+          final pubspecLock = loadYaml(pubspecLockFile.readAsStringSync()) as YamlMap;
           version = Version.parse(
             pubspecLock['packages']['puro']['version'] as String,
           );
         } catch (exception, stackTrace) {
-          log.w(
-              'Error while parsing ${pubspecLockFile.path}\n$exception\n$stackTrace');
+          log.w('Error while parsing ${pubspecLockFile.path}\n$exception\n$stackTrace');
         }
       }
     }
@@ -345,8 +336,7 @@ Future<CommandMessage?> checkIfUpdateAvailable({
   final latestVersion = latestVersionFile.existsSync()
       ? tryParseVersion(await readAtomic(scope: scope, file: latestVersionFile))
       : null;
-  final isOutOfDate =
-      latestVersion != null && latestVersion > puroVersion.semver;
+  final isOutOfDate = latestVersion != null && latestVersion > puroVersion.semver;
   final now = clock.now();
   final willNotify = isOutOfDate &&
       (alwaysNotify ||

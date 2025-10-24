@@ -166,8 +166,7 @@ FutureOr<T?> runOptional<T>(
     log.v('Skipped $action');
     return null;
   }
-  final uppercaseAction =
-      action.substring(0, 1).toUpperCase() + action.substring(1);
+  final uppercaseAction = action.substring(0, 1).toUpperCase() + action.substring(1);
   log.v('$uppercaseAction...');
   try {
     return await fn();

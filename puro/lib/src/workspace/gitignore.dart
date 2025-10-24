@@ -29,8 +29,7 @@ Future<void> updateConfigLines({
     }
   }
   while (result.isNotEmpty && result.last.isEmpty) result.removeLast();
-  if (!existingLines.containsAll(lines) ||
-      existingLines.length != lines.length) {
+  if (!existingLines.containsAll(lines) || existingLines.length != lines.length) {
     log.v('Updating config at ${file.path}');
     file.writeAsStringSync(<String>[
       ...result,
@@ -59,8 +58,7 @@ Directory? findGitDir(Directory projectDir) {
     final match = RegExp(r'gitdir: (.+)')
         .firstMatch(fileSystem.file(gitDir.path).readAsStringSync().trim());
     if (match != null) {
-      final gitTree2 =
-          findProjectDir(fileSystem.directory(match.group(1)!), '.git');
+      final gitTree2 = findProjectDir(fileSystem.directory(match.group(1)!), '.git');
       if (gitTree2 != null) {
         return gitTree2.childDirectory('.git').resolve();
       }
@@ -98,10 +96,7 @@ Future<void> updateGitAttributes({
   if (gitTree == null) return;
   await updateConfigLines(
     scope: scope,
-    file: gitTree
-        .childDirectory('.git')
-        .childDirectory('info')
-        .childFile('attributes'),
+    file: gitTree.childDirectory('.git').childDirectory('info').childFile('attributes'),
     lines: {
       for (final entry in attributes.entries) '${entry.key} ${entry.value}',
     },

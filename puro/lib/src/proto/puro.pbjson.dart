@@ -49,15 +49,7 @@ const FlutterVersionModel$json = {
   '1': 'FlutterVersionModel',
   '2': [
     {'1': 'commit', '3': 1, '4': 1, '5': 9, '10': 'commit'},
-    {
-      '1': 'version',
-      '3': 2,
-      '4': 1,
-      '5': 9,
-      '9': 0,
-      '10': 'version',
-      '17': true
-    },
+    {'1': 'version', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'version', '17': true},
     {'1': 'branch', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'branch', '17': true},
     {'1': 'tag', '3': 4, '4': 1, '5': 9, '9': 2, '10': 'tag', '17': true},
   ],
@@ -164,22 +156,8 @@ const EnvironmentUpgradeModel$json = {
   '1': 'EnvironmentUpgradeModel',
   '2': [
     {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
-    {
-      '1': 'from',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.FlutterVersionModel',
-      '10': 'from'
-    },
-    {
-      '1': 'to',
-      '3': 3,
-      '4': 1,
-      '5': 11,
-      '6': '.FlutterVersionModel',
-      '10': 'to'
-    },
+    {'1': 'from', '3': 2, '4': 1, '5': 11, '6': '.FlutterVersionModel', '10': 'from'},
+    {'1': 'to', '3': 3, '4': 1, '5': 11, '6': '.FlutterVersionModel', '10': 'to'},
   ],
 };
 
@@ -515,15 +493,7 @@ const PuroEnvPrefsModel$json = {
       '10': 'precompileTool',
       '17': true
     },
-    {
-      '1': 'patched',
-      '3': 5,
-      '4': 1,
-      '5': 8,
-      '9': 4,
-      '10': 'patched',
-      '17': true
-    },
+    {'1': 'patched', '3': 5, '4': 1, '5': 8, '9': 4, '10': 'patched', '17': true},
   ],
   '8': [
     {'1': '_desiredVersion'},

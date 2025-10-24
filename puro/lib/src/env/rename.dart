@@ -73,8 +73,7 @@ Future<void> renameEnvironment({
       final model = PuroDotfileModel.create();
       model.mergeFromProto3Json(data);
       model.env = newName;
-      dotfile
-          .writeAsStringSync(prettyJsonEncoder.convert(model.toProto3Json()));
+      dotfile.writeAsStringSync(prettyJsonEncoder.convert(model.toProto3Json()));
     }
   });
 

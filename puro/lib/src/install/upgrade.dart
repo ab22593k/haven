@@ -50,8 +50,7 @@ Future<int> upgradePuro({
         if (path) '--path' else '--no-path',
     ],
   );
-  final stdoutFuture =
-      installProcess.stdout.listen(stdout.add).asFuture<void>();
+  final stdoutFuture = installProcess.stdout.listen(stdout.add).asFuture<void>();
   await installProcess.stderr.listen(stderr.add).asFuture<void>();
   await stdoutFuture;
   return installProcess.exitCode;

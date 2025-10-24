@@ -39,8 +39,7 @@ class VersionCommand extends PuroCommand {
       stdout.write('${puroVersion.semver}');
       await runner.exitPuro(0);
     }
-    final externalMessage =
-        await detectExternalFlutterInstallations(scope: scope);
+    final externalMessage = await detectExternalFlutterInstallations(scope: scope);
     final updateMessage = await checkIfUpdateAvailable(
       scope: scope,
       runner: runner,

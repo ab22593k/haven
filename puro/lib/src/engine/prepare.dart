@@ -127,19 +127,15 @@ cache_dir = ${jsonEncode(config.sharedGClientDir.path)}
 
     final logFile = environment.engineRootDir.childFile('gclient.log');
     final logSink = logFile.openWrite(mode: FileMode.append);
-    final stdoutFuture = proc.stdout
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen(
+    final stdoutFuture =
+        proc.stdout.transform(utf8.decoder).transform(const LineSplitter()).listen(
       (line) {
         log.d('gclient: $line');
         logSink.writeln(line);
       },
     ).asFuture();
-    final stderrFuture = proc.stderr
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen(
+    final stderrFuture =
+        proc.stderr.transform(utf8.decoder).transform(const LineSplitter()).listen(
       (line) {
         log.d('(E) gclient: $line');
         logSink.writeln(line);

@@ -103,3 +103,6 @@ linter:
     - valid_regexps
     - void_checks
     - unawaited_futures
+
+formatter:
+  page_width: 88

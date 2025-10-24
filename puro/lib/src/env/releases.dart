@@ -52,8 +52,7 @@ Future<FlutterReleasesModel?> getCachedFlutterReleases({
     scope: scope,
     file: config.cachedReleasesJsonFile,
   );
-  return FlutterReleasesModel.create()
-    ..mergeFromProto3Json(jsonDecode(content));
+  return FlutterReleasesModel.create()..mergeFromProto3Json(jsonDecode(content));
 }
 
 /// Searches [releases] for a specific version and/or channel.
@@ -103,8 +102,8 @@ Future<FlutterReleaseModel?> findFrameworkRelease({
 
   final cachedReleasesStat = config.cachedReleasesJsonFile.statSync();
   final hasCache = cachedReleasesStat.type == FileSystemEntityType.file;
-  var cacheIsFresh = hasCache &&
-      clock.now().difference(cachedReleasesStat.modified).inHours < 1;
+  var cacheIsFresh =
+      hasCache && clock.now().difference(cachedReleasesStat.modified).inHours < 1;
   final isChannelOnly = channel != null && version == null;
 
   // Don't fetch from the cache if it's stale and we are looking for the latest

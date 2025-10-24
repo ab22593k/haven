@@ -89,9 +89,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
   Parser typeDecl() => (string('abstract ').optional() &
           string('type') &
           ref0(identifier).trim(space()) &
-          (string('extends') & ref0(identifier).trim(space()))
-              .pick(1)
-              .optional() &
+          (string('extends') & ref0(identifier).trim(space())).pick(1).optional() &
           string('{') &
           ref0(fieldDecl).star() &
           string('}'))
@@ -118,15 +116,9 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
   Parser tpeInner() => [
         string('Uint').map((e) => 'UInt'), // lol
         string('UInt30').map((e) => 'UInt'), // lol
-        (string('List<') & ref0(tpe) & string('>'))
-            .pick(1)
-            .map((e) => {'list': e}),
-        (string('RList<') & ref0(tpe) & string('>'))
-            .pick(1)
-            .map((e) => {'rlist': e}),
-        (string('Option<') & ref0(tpe) & string('>'))
-            .pick(1)
-            .map((e) => {'option': e}),
+        (string('List<') & ref0(tpe) & string('>')).pick(1).map((e) => {'list': e}),
+        (string('RList<') & ref0(tpe) & string('>')).pick(1).map((e) => {'rlist': e}),
+        (string('Option<') & ref0(tpe) & string('>')).pick(1).map((e) => {'option': e}),
         (string('Pair<') &
                 ref0(tpe) &
                 string(',').trim(space()) &
@@ -135,10 +127,9 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
             .map((e) => {
                   'pair': [e[1], e[3]]
                 }),
-        (string('[') & ref0(tpe) & string(',') & ref0(tpe) & string(']'))
-            .map((e) => {
-                  'pair': [e[1], e[3]]
-                }),
+        (string('[') & ref0(tpe) & string(',') & ref0(tpe) & string(']')).map((e) => {
+              'pair': [e[1], e[3]]
+            }),
         identifier(),
       ].toChoiceParser().trim(space());
 
@@ -152,8 +143,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
           : e[0])
       .trim(space());
 
-  Parser tpe() =>
-      (ref0(tpeArr) & (string('|') & ref0(tpe)).pick(1).optional()).map(
+  Parser tpe() => (ref0(tpeArr) & (string('|') & ref0(tpe)).pick(1).optional()).map(
         (e) => e[1] != null
             ? {
                 'union': [e[0], e[1]]
@@ -222,8 +212,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
   }
 
   Parser<String> inlineComment() {
-    return (string('/*') & any().starLazy(string('*/')) & string('*/'))
-        .flatten();
+    return (string('/*') & any().starLazy(string('*/')) & string('*/')).flatten();
   }
 
   Parser<String> space() {

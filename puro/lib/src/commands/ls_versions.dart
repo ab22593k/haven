@@ -44,8 +44,7 @@ class LsVersionsCommand extends PuroCommand {
 
     FlutterReleasesModel? flutterVersions;
     if (!force) {
-      flutterVersions =
-          await getCachedFlutterReleases(scope: scope, unlessStale: true);
+      flutterVersions = await getCachedFlutterReleases(scope: scope, unlessStale: true);
     }
     flutterVersions ??= await fetchFlutterReleases(scope: scope);
 
@@ -118,8 +117,8 @@ class LsVersionsCommand extends PuroCommand {
             return formattedReleases.values.fold<int>(0, (n, rows) {
               return max(
                   n,
-                  rows.fold(0,
-                      (n, row) => max(n, stripAnsiEscapes(row[index]).length)));
+                  rows.fold(
+                      0, (n, row) => max(n, stripAnsiEscapes(row[index]).length)));
             });
           },
         );

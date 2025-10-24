@@ -137,8 +137,7 @@ Future<void> installEnvShims({
     scope: scope,
     projectDir: environment.flutterDir,
     attributes: {
-      for (final name in _binFiles.followedBy(_sharedScripts))
-        name: 'merge=ours',
+      for (final name in _binFiles.followedBy(_sharedScripts)) name: 'merge=ours',
     },
   );
 
@@ -173,8 +172,7 @@ Future<void> uninstallEnvShims({
     }
   }
 
-  if (await git.tryGetCurrentCommitHash(repository: flutterConfig.sdkDir) !=
-      null) {
+  if (await git.tryGetCurrentCommitHash(repository: flutterConfig.sdkDir) != null) {
     final assumeUnchanged = _binFiles.followedBy(_sharedScripts).toList();
 
     for (final fn in assumeUnchanged.toList()) {

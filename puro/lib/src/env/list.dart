@@ -110,8 +110,7 @@ class ListEnvironmentResult extends CommandResult {
                       results[i].version ?? 'unknown'
                     else
                       'not installed',
-                    if (results[i].dartVersion != null &&
-                        results[i].showDartVersion)
+                    if (results[i].dartVersion != null && results[i].showDartVersion)
                       'Dart ${results[i].dartVersion}',
                   ].join(' / ')})',
                   foregroundColor: Ansi8BitColor.grey,

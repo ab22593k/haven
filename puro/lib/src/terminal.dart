@@ -88,10 +88,8 @@ class OutputFormatter {
     );
   }
 
-  String success(String content) =>
-      complete(content, type: CompletionType.success);
-  String failure(String content) =>
-      complete(content, type: CompletionType.failure);
+  String success(String content) => complete(content, type: CompletionType.success);
+  String failure(String content) => complete(content, type: CompletionType.failure);
   String indeterminate(String content) =>
       complete(content, type: CompletionType.indeterminate);
   String info(String content) => complete(content, type: CompletionType.info);

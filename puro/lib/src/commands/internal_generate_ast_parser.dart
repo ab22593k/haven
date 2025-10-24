@@ -60,8 +60,8 @@ class GenerateASTParserCommand extends PuroCommand {
           path: 'tools/VERSION',
           ref: line,
         );
-        final major = RegExp(r'MAJOR (\d+)')
-            .firstMatch(utf8.decode(versionContents))![1]!;
+        final major =
+            RegExp(r'MAJOR (\d+)').firstMatch(utf8.decode(versionContents))![1]!;
         if (major == '1') continue;
         final contents = await git.cat(
           repository: sharedRepository,
@@ -85,8 +85,7 @@ class GenerateASTParserCommand extends PuroCommand {
     for (final childFile in binaryMdDir.listSync()) {
       if (childFile is! File || !childFile.basename.endsWith('.md')) continue;
       final contents = childFile.readAsStringSync();
-      final commit =
-          childFile.basename.substring(0, childFile.basename.length - 3);
+      final commit = childFile.basename.substring(0, childFile.basename.length - 3);
       binaryMdCommits[commit] = contents;
     }
 
@@ -126,8 +125,8 @@ class GenerateASTParserCommand extends PuroCommand {
         return e['type'] != null && e['type'][1] == 'ComponentFile';
       });
       final version = int.parse((componentFile['type'][3] as List).singleWhere(
-              (e) => e['field'] != null && e['field'][1] == 'formatVersion')[
-          'field'][2] as String);
+              (e) => e['field'] != null && e['field'][1] == 'formatVersion')['field'][2]
+          as String);
 
       verCommit[version] = commit;
       verSchema[version] = result.value;
@@ -181,9 +180,7 @@ class GenerateASTParserCommand extends PuroCommand {
           type: CompletionType.failure,
         );
       }
-      diffsDir
-          .childFile('v${entry.key}.diff')
-          .writeAsStringSync(diff.stdout as String);
+      diffsDir.childFile('v${entry.key}.diff').writeAsStringSync(diff.stdout as String);
     }
 
     // Download Dart
@@ -201,8 +198,8 @@ class GenerateASTParserCommand extends PuroCommand {
     // allReleases.removeWhere((e) => e.version.major < 2);
 
     // This release has no artifacts for some reason
-    allReleases.removeWhere(
-        (e) => '${e.version}' == '1.24.0' && e.channel == DartChannel.dev);
+    allReleases
+        .removeWhere((e) => '${e.version}' == '1.24.0' && e.channel == DartChannel.dev);
 
     // print('releases: ${allReleases.length}');
     // print('releases: ${allReleases.map((e) => e.name).join(',')}');
@@ -343,8 +340,7 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
 
   DartType getType(dynamic data) {
     if (data is String) {
-      return types[fixName(data)] ??
-          (throw AssertionError('Unknown type $data'));
+      return types[fixName(data)] ?? (throw AssertionError('Unknown type $data'));
     } else if (data['list'] != null) {
       return ListType()..element = getType(data['list']);
     } else if (data['rlist'] != null) {
