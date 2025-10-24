@@ -1,12 +1,10 @@
-import 'package:collection/collection.dart';
 import 'package:petitparser/petitparser.dart';
 
 class BinaryMdGrammar extends GrammarDefinition<dynamic> {
   @override
   Parser start() => ref0(topLevelDecls).end();
 
-  Parser topLevelDecls() =>
-      ref0(topLevelDecl).star().map((e) => e.whereNotNull().toList());
+  Parser topLevelDecls() => ref0(topLevelDecl).star().map((e) => e.nonNulls.toList());
 
   final ignoreDecls = {
     ['Byte flags (flag1, flag2, ..., flagN)'],
