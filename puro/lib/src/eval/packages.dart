@@ -6,7 +6,7 @@ import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../env/command.dart';
 import '../file_lock.dart';
 import '../logger.dart';

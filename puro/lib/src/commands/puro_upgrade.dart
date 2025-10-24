@@ -4,7 +4,7 @@ import 'package:pub_semver/pub_semver.dart';
 
 import '../command.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../http.dart';
 import '../install/upgrade.dart';
 import '../process.dart';

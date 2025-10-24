@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/prefs.dart';
 import '../env/default.dart';
 import '../extensions.dart';
 import '../file_lock.dart';

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:clock/clock.dart';
 
-import '../config.dart';
+import '../config/config.dart';
 import '../logger.dart';
 import '../process.dart';
 import '../provider.dart';

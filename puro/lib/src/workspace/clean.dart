@@ -1,7 +1,8 @@
 import 'package:file/file.dart';
 import 'package:path/path.dart' as path;
 
-import '../config.dart';
+import '../config/config.dart';
+import '../config/project.dart';
 import '../logger.dart';
 import '../provider.dart';
 import 'common.dart';

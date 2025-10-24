@@ -5,7 +5,7 @@ import 'package:neoansi/neoansi.dart';
 import 'package:process/process.dart';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../install/profile.dart';
 import '../logger.dart';
 import '../process.dart';

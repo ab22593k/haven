@@ -17,10 +17,5 @@ void main() {
       final error = EnvironmentError('Invalid state');
       expect(error.toString(), contains('Environment error: Invalid state'));
     });
-
-    // TODO: Add integration tests for cleanup on failure
-    test('cleanup placeholder', () {
-      expect(true, isTrue);
-    });
   });
 }

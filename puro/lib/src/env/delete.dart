@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/project.dart';
 import '../process.dart';
 import '../provider.dart';
 import '../terminal.dart';

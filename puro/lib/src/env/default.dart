@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/prefs.dart';
 import '../file_lock.dart';
 import '../provider.dart';
 import 'create.dart';

@@ -7,7 +7,6 @@ import 'package:clock/clock.dart';
 import 'package:path/path.dart' as path;
 import 'package:typed_data/typed_buffers.dart';
 
-import 'config.dart';
 import 'env/engine.dart';
 import 'logger.dart';
 import 'provider.dart';
@@ -338,6 +337,7 @@ Future<List<PsInfo>> getParentProcesses({
       pid = ppid;
     }
   }
-  if (log.shouldLog(LogLevel.debug)) log.d(prettyJsonEncoder.convert(stack));
+  if (log.shouldLog(LogLevel.debug))
+    log.d(const JsonEncoder.withIndent('  ').convert(stack));
   return stack;
 }

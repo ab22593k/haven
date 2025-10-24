@@ -7,7 +7,7 @@ import 'package:file/file.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-import 'config.dart';
+import 'config/config.dart';
 import 'extensions.dart';
 import 'logger.dart';
 import 'process.dart';

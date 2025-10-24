@@ -6,7 +6,7 @@ import 'package:file/file.dart';
 import 'package:vm_service/vm_service.dart';
 import 'package:vm_service/vm_service_io.dart';
 
-import '../config.dart';
+import '../config/config.dart';
 import '../extensions.dart';
 import '../logger.dart';
 import '../process.dart';

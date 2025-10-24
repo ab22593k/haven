@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:neoansi/neoansi.dart';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../process.dart';
 import '../provider.dart';
 import '../terminal.dart';

@@ -1,5 +1,5 @@
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../git.dart';
 import '../logger.dart';
 import '../proto/puro.pb.dart';

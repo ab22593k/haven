@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import '../config.dart';
+import '../config/config.dart';
 import '../downloader.dart';
 import '../extensions.dart';
 import '../http.dart';

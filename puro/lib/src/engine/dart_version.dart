@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../config.dart';
+import '../config/config.dart';
 import '../env/create.dart';
 import '../git.dart';
 import '../http.dart';

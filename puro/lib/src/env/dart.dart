@@ -5,8 +5,9 @@ import 'dart:io';
 import 'package:clock/clock.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-import '../config.dart';
+import '../config/config.dart';
 import '../downloader.dart';
+
 import '../extensions.dart';
 import '../file_lock.dart';
 import '../http.dart';
@@ -107,7 +108,7 @@ Future<DartReleases> fetchDartReleases({
     final result = DartReleases(releases);
     await writeBytesAtomic(
       scope: scope,
-      bytes: utf8.encode(prettyJsonEncoder.convert(result)),
+      bytes: utf8.encode(const JsonEncoder.withIndent('  ').convert(result)),
       file: config.cachedDartReleasesJsonFile,
     );
     return result;

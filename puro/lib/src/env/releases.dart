@@ -5,7 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../extensions.dart';
 import '../file_lock.dart';
 import '../git.dart';

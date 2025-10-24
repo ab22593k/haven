@@ -3,7 +3,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:meta/meta.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-import '../config.dart';
+import '../config/config.dart';
 import '../env/engine.dart';
 import '../logger.dart';
 import '../provider.dart';

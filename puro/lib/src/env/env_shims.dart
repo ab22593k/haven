@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as path;
 
-import '../config.dart';
+import '../config/config.dart';
 import '../file_lock.dart';
 import '../git.dart';
 import '../install/bin.dart';

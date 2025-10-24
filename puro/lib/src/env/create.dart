@@ -4,7 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:file/file.dart';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../file_lock.dart';
 import '../git.dart';
 import '../http.dart';

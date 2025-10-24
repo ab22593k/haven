@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../env/create.dart';
 import '../git.dart';
 import '../logger.dart';

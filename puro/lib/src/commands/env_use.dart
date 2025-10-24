@@ -1,6 +1,6 @@
 import '../command.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../env/create.dart';
 import '../env/default.dart';
 import '../env/version.dart';

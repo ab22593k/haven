@@ -1,4 +1,4 @@
-import '../config.dart';
+import '../config/config.dart';
 import '../git.dart';
 import '../logger.dart';
 import '../provider.dart';

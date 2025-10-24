@@ -1,6 +1,7 @@
 import 'package:file/file.dart';
 
-import '../config.dart';
+import '../config/config.dart';
+import '../config/project.dart';
 import '../extensions.dart';
 import '../json_edit/editor.dart';
 import '../logger.dart';

@@ -4,7 +4,8 @@ import 'package:file/file.dart';
 import 'package:neoansi/neoansi.dart';
 
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/project.dart';
 import '../logger.dart';
 import '../proto/puro.pb.dart';
 import '../provider.dart';

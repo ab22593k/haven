@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file/file.dart';
@@ -5,7 +6,8 @@ import 'package:file/file.dart';
 import '../../models.dart';
 import '../command.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/prefs.dart';
 import '../env/env_shims.dart';
 import '../install/bin.dart';
 import '../install/profile.dart';
@@ -107,7 +109,8 @@ class PuroInstallCommand extends PuroCommand {
         },
       );
 
-      log.d(() => 'prefs: ${prettyJsonEncoder.convert(prefs.toProto3Json())}');
+      log.d(() =>
+          'prefs: ${const JsonEncoder.withIndent('  ').convert(prefs.toProto3Json())}');
 
       // Update the PATH by default if this is a distribution install.
       String? profilePath;

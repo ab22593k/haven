@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -9,7 +10,8 @@ import 'package:file/local.dart';
 
 import '../models.dart';
 import 'command_result.dart';
-import 'config.dart';
+import 'config/config.dart';
+import 'config/prefs.dart';
 import 'logger.dart';
 import 'provider.dart';
 import 'terminal.dart';
@@ -283,7 +285,7 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
       if (isJson) {
         final resultJson = model.toProto3Json();
         stdout.writeln(
-          prettyJsonEncoder.convert(<String, dynamic>{
+          const JsonEncoder.withIndent('  ').convert(<String, dynamic>{
             ...resultJson as Map<String, dynamic>,
             'logs': [
               for (final entry in logEntries)

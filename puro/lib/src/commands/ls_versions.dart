@@ -6,7 +6,7 @@ import 'package:pub_semver/pub_semver.dart';
 
 import '../command.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../env/releases.dart';
 import '../extensions.dart';
 import '../proto/flutter_releases.pb.dart';

@@ -1,6 +1,7 @@
 import '../command.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/prefs.dart';
 import '../terminal.dart';
 
 class PrefsCommand extends PuroCommand {

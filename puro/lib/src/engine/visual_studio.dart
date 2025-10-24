@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:file/file.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-import '../config.dart';
+import '../config/config.dart';
 import '../logger.dart';
 import '../process.dart';
 import '../provider.dart';

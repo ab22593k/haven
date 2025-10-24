@@ -6,7 +6,7 @@ import 'package:file/file.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as path;
 
-import 'config.dart';
+import 'config/config.dart';
 import 'logger.dart';
 import 'process.dart';
 import 'progress.dart';

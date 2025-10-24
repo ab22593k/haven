@@ -1,6 +1,7 @@
 import 'package:file/file.dart';
 
-import '../config.dart';
+import '../config/config.dart';
+import '../config/project.dart';
 import '../env/default.dart';
 import '../extensions.dart';
 import '../logger.dart';

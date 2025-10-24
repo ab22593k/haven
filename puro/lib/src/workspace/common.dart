@@ -1,6 +1,6 @@
 import 'package:file/file.dart';
 
-import '../config.dart';
+import '../config/project.dart';
 import '../provider.dart';
 
 abstract class IdeConfig {

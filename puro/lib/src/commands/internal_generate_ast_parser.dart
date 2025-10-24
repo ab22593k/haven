@@ -9,7 +9,7 @@ import '../ast/binary.dart';
 import '../ast/grammar.dart';
 import '../command.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
 import '../env/create.dart';
 import '../env/dart.dart';
 import '../git.dart';

@@ -4,7 +4,8 @@ import 'dart:math';
 
 import '../../models.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/project.dart';
 import '../extensions.dart';
 import '../file_lock.dart';
 import '../git.dart';

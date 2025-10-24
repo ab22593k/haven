@@ -4,7 +4,8 @@ import 'package:file/file.dart';
 
 import '../../models.dart';
 import '../command_result.dart';
-import '../config.dart';
+import '../config/config.dart';
+import '../config/project.dart';
 import '../logger.dart';
 import '../progress.dart';
 import '../provider.dart';
@@ -54,14 +55,15 @@ Future<void> renameEnvironment({
     node.description = 'Updating projects';
     for (final dotfile in dotfiles) {
       try {
+        final projectConfig = ProjectConfig(
+          projectDir: dotfile.parent,
+          parentProjectDir: dotfile.parent,
+        );
+        projectConfig.parentConfig = config;
         await switchEnvironment(
           scope: scope,
           envName: newName,
-          projectConfig: ProjectConfig(
-            parentConfig: config,
-            projectDir: dotfile.parent,
-            parentProjectDir: dotfile.parent,
-          ),
+          projectConfig: projectConfig,
           passive: true,
         );
         updated.add(dotfile);
