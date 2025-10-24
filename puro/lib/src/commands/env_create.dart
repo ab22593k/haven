@@ -6,6 +6,7 @@ import '../env/default.dart';
 import '../env/releases.dart';
 import '../env/version.dart';
 import '../install/bin.dart';
+import '../logger.dart';
 
 class EnvCreateCommand extends PuroCommand {
   EnvCreateCommand() {
@@ -21,6 +22,24 @@ class EnvCreateCommand extends PuroCommand {
           'The origin to use when cloning the framework, puro will set the upstream automatically.',
       valueHelp: 'url',
     );
+  }
+
+  String? _createdEnvName;
+
+  @override
+  void cleanup() {
+    if (_createdEnvName != null) {
+      final config = PuroConfig.of(scope);
+      final env = config.getEnv(_createdEnvName!);
+      if (env.exists) {
+        try {
+          env.envDir.deleteSync(recursive: true);
+        } catch (e) {
+          // Log but don't throw in cleanup
+          PuroLogger.of(scope).w('Failed to cleanup environment $_createdEnvName: $e');
+        }
+      }
+    }
   }
 
   @override
@@ -43,29 +62,32 @@ class EnvCreateCommand extends PuroCommand {
 
     await ensurePuroInstalled(scope: scope);
 
-    if (fork != null) {
-      if (pseudoEnvironmentNames.contains(envName) || isValidVersion(envName)) {
-        throw CommandError(
-          'Cannot create fixed version `$envName` with a fork',
+    return withErrorRecovery(() async {
+      _createdEnvName = envName;
+      if (fork != null) {
+        if (pseudoEnvironmentNames.contains(envName) || isValidVersion(envName)) {
+          throw CommandError(
+            'Cannot create fixed version `$envName` with a fork',
+          );
+        }
+        return createEnvironment(
+          scope: scope,
+          envName: envName,
+          forkRemoteUrl: fork,
+          forkRef: version,
+        );
+      } else {
+        return createEnvironment(
+          scope: scope,
+          envName: envName,
+          flutterVersion: await FlutterVersion.query(
+            scope: scope,
+            version: version,
+            channel: channel,
+            defaultVersion: isPseudoEnvName(envName) ? envName : 'stable',
+          ),
         );
       }
-      return createEnvironment(
-        scope: scope,
-        envName: envName,
-        forkRemoteUrl: fork,
-        forkRef: version,
-      );
-    } else {
-      return createEnvironment(
-        scope: scope,
-        envName: envName,
-        flutterVersion: await FlutterVersion.query(
-          scope: scope,
-          version: version,
-          channel: channel,
-          defaultVersion: isPseudoEnvName(envName) ? envName : 'stable',
-        ),
-      );
-    }
+    });
   }
 }

@@ -27,6 +27,16 @@ class EnvUseCommand extends PuroCommand {
     );
   }
 
+  String? _switchedEnvName;
+
+  @override
+  void cleanup() {
+    if (_switchedEnvName != null) {
+      PuroLogger.of(scope).w(
+          'Switch to $_switchedEnvName failed; environment state may be inconsistent');
+    }
+  }
+
   @override
   final name = 'use';
 
@@ -38,56 +48,59 @@ class EnvUseCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    final args = unwrapArguments(atMost: 1);
-    final config = PuroConfig.of(scope);
-    final log = PuroLogger.of(scope);
-    final envName = args.isEmpty ? null : args.first;
-    if (argResults!['global'] as bool) {
-      if (envName == null) {
-        final current = await getDefaultEnvName(scope: scope);
+    return withErrorRecovery(() async {
+      final args = unwrapArguments(atMost: 1);
+      final config = PuroConfig.of(scope);
+      final log = PuroLogger.of(scope);
+      final envName = args.isEmpty ? null : args.first;
+      if (argResults!['global'] as bool) {
+        if (envName == null) {
+          final current = await getDefaultEnvName(scope: scope);
+          return BasicMessageResult(
+            'The current global default environment is `$current`',
+            type: CompletionType.info,
+          );
+        }
+        final env = config.getEnv(envName);
+        if (!env.exists) {
+          if (isPseudoEnvName(env.name)) {
+            await createEnvironment(
+              scope: scope,
+              envName: env.name,
+              flutterVersion: await FlutterVersion.query(
+                scope: scope,
+                version: env.name,
+              ),
+            );
+          } else {
+            log.w('Environment `${env.name}` does not exist');
+          }
+        }
+        await setDefaultEnvName(
+          scope: scope,
+          envName: env.name,
+        );
         return BasicMessageResult(
-          'The current global default environment is `$current`',
-          type: CompletionType.info,
+          'Set global default environment to `${env.name}`',
         );
       }
-      final env = config.getEnv(envName);
-      if (!env.exists) {
-        if (isPseudoEnvName(env.name)) {
-          await createEnvironment(
-            scope: scope,
-            envName: env.name,
-            flutterVersion: await FlutterVersion.query(
-              scope: scope,
-              version: env.name,
-            ),
-          );
-        } else {
-          log.w('Environment `${env.name}` does not exist');
-        }
+      var vscodeOverride =
+          argResults!.wasParsed('vscode') ? argResults!['vscode'] as bool : null;
+      if (vscodeOverride == null && await isRunningInVscode(scope: scope)) {
+        vscodeOverride = true;
       }
-      await setDefaultEnvName(
+      final environment = await switchEnvironment(
         scope: scope,
-        envName: env.name,
+        envName: envName,
+        vscode: vscodeOverride,
+        intellij:
+            argResults!.wasParsed('intellij') ? argResults!['intellij'] as bool : null,
+        projectConfig: config.project,
       );
+      _switchedEnvName = environment.name;
       return BasicMessageResult(
-        'Set global default environment to `${env.name}`',
+        'Switched to environment `${environment.name}`',
       );
-    }
-    var vscodeOverride =
-        argResults!.wasParsed('vscode') ? argResults!['vscode'] as bool : null;
-    if (vscodeOverride == null && await isRunningInVscode(scope: scope)) {
-      vscodeOverride = true;
-    }
-    final environment = await switchEnvironment(
-      scope: scope,
-      envName: envName,
-      vscode: vscodeOverride,
-      intellij:
-          argResults!.wasParsed('intellij') ? argResults!['intellij'] as bool : null,
-      projectConfig: config.project,
-    );
-    return BasicMessageResult(
-      'Switched to environment `${environment.name}`',
-    );
+    });
   }
 }

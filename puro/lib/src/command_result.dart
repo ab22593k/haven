@@ -218,3 +218,15 @@ class CommandError implements Exception {
 class UnsupportedOSError extends CommandError {
   UnsupportedOSError() : super('Unsupported OS: `${Platform.operatingSystem}`');
 }
+
+class NetworkError extends CommandError {
+  NetworkError(String message) : super('Network error: $message');
+}
+
+class FileSystemError extends CommandError {
+  FileSystemError(String message) : super('File system error: $message');
+}
+
+class EnvironmentError extends CommandError {
+  EnvironmentError(String message) : super('Environment error: $message');
+}

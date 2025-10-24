@@ -128,6 +128,27 @@ abstract class PuroCommand extends Command<CommandResult> {
 
     return rest.toList();
   }
+
+  /// Performs cleanup operations in case of failure.
+  /// Subclasses should override to implement rollback logic.
+  void cleanup() {}
+
+  /// Wraps a multi-step operation with error recovery.
+  /// Calls cleanup on failure.
+  Future<T> withErrorRecovery<T>(
+    Future<T> Function() operation, {
+    void Function(Object error, StackTrace stackTrace)? onError,
+  }) async {
+    try {
+      return await operation();
+    } catch (error, stackTrace) {
+      cleanup();
+      if (onError != null) {
+        onError(error, stackTrace);
+      }
+      rethrow;
+    }
+  }
 }
 
 class PuroCommandRunner extends CommandRunner<CommandResult> {
