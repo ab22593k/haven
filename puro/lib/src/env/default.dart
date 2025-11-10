@@ -7,7 +7,10 @@ import '../file_lock.dart';
 import '../provider.dart';
 import 'create.dart';
 import 'releases.dart';
+import 'transaction.dart';
 import 'version.dart';
+
+export '../config/prefs.dart' show globalPrefsJsonFileProvider;
 
 bool isPseudoEnvName(String name) {
   return pseudoEnvironmentNames.contains(name) || isValidVersion(name);
@@ -84,16 +87,53 @@ Future<void> setDefaultEnvName({
   required String envName,
 }) async {
   ensureValidEnvName(envName);
-  await updateGlobalPrefs(
-    scope: scope,
-    fn: (prefs) {
-      prefs.defaultEnvironment = envName;
-    },
-  );
-  await updateDefaultEnvSymlink(
-    scope: scope,
-    name: envName,
-  );
+  await EnvTransaction.run(
+      scope: scope,
+      body: (tx) async {
+        // Update global prefs
+        final prefsFile = scope.read(globalPrefsJsonFileProvider);
+        final prefsExisted = prefsFile.existsSync();
+        String? oldPrefsContent;
+        if (prefsExisted) {
+          oldPrefsContent = prefsFile.readAsStringSync();
+        }
+        await tx.step(
+          label: 'update global prefs',
+          action: () async {
+            await updateGlobalPrefs(
+              scope: scope,
+              fn: (prefs) {
+                prefs.defaultEnvironment = envName;
+              },
+            );
+          },
+          rollback: () async {
+            if (oldPrefsContent != null) {
+              prefsFile.writeAsStringSync(oldPrefsContent);
+            } else if (prefsFile.existsSync()) {
+              prefsFile.deleteSync();
+            }
+          },
+        );
+
+        // Update default env symlink
+        final oldDefaultName = await getDefaultEnvName(scope: scope);
+        await tx.step(
+          label: 'update default env symlink',
+          action: () async {
+            await updateDefaultEnvSymlink(
+              scope: scope,
+              name: envName,
+            );
+          },
+          rollback: () async {
+            await updateDefaultEnvSymlink(
+              scope: scope,
+              name: oldDefaultName,
+            );
+          },
+        );
+      });
 }
 
 Future<void> updateDefaultEnvSymlink({

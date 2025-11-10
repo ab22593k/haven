@@ -54,6 +54,10 @@ class EnvUpgradeResult extends CommandResult {
 }
 
 /// Upgrades an environment to a different version of flutter.
+///
+/// This operation is transactional: on failure, prefs and git state are restored
+/// to pre-upgrade values. The environment is left at the old version or with
+/// clear logs if rollback is incomplete.
 Future<EnvUpgradeResult> upgradeEnvironment({
   required Scope scope,
   required EnvConfig environment,
@@ -95,140 +99,146 @@ Future<EnvUpgradeResult> upgradeEnvironment({
     'branch': branch,
   };
 
-  return EnvTransaction.run(scope: scope, body: (tx) async {
-    if (currentCommit != toVersion.commit ||
-        (toVersion.branch != null && branch != toVersion.branch)) {
-      // Update prefs
-      final prefsFile = environment.prefsJsonFile;
-      final prefsExisted = prefsFile.existsSync();
-      String? oldPrefsContent;
-      if (prefsExisted) {
-        oldPrefsContent = prefsFile.readAsStringSync();
-      }
-      await tx.step(
-        label: 'update environment prefs',
-        action: () async {
-          prefs = await environment.updatePrefs(
-            scope: scope,
-            fn: (prefs) {
-              prefs.desiredVersion = toVersion.toModel();
+  return EnvTransaction.run(
+      scope: scope,
+      body: (tx) async {
+        if (currentCommit != toVersion.commit ||
+            (toVersion.branch != null && branch != toVersion.branch)) {
+          // Update prefs
+          final prefsFile = environment.prefsJsonFile;
+          final prefsExisted = prefsFile.existsSync();
+          String? oldPrefsContent;
+          if (prefsExisted) {
+            oldPrefsContent = prefsFile.readAsStringSync();
+          }
+          await tx.step(
+            label: 'update environment prefs',
+            action: () async {
+              prefs = await environment.updatePrefs(
+                scope: scope,
+                fn: (prefs) {
+                  prefs.desiredVersion = toVersion.toModel();
+                },
+              );
+            },
+            rollback: () async {
+              if (oldPrefsContent != null) {
+                prefsFile.writeAsStringSync(oldPrefsContent);
+              } else if (prefsFile.existsSync()) {
+                prefsFile.deleteSync();
+              }
             },
           );
-        },
-        rollback: () async {
-          if (oldPrefsContent != null) {
-            prefsFile.writeAsStringSync(oldPrefsContent);
-          } else if (prefsFile.existsSync()) {
-            prefsFile.deleteSync();
-          }
-        },
-      );
 
-      if (prefs.hasForkRemoteUrl()) {
-        if (branch == null) {
-          throw CommandError(
-            'HEAD is not attached to a branch, could not upgrade fork',
-          );
-        }
-        if (await git.hasUncomittedChanges(repository: repository)) {
-          throw CommandError(
-            "Can't upgrade fork with uncomitted changes",
-          );
-        }
-        await tx.step(
-          label: 'upgrade fork via git operations',
-          action: () async {
-            await git.pull(repository: repository, all: true);
-            final switchBranch = toVersion.branch != null && branch != toVersion.branch;
-            if (switchBranch) {
-              await git.checkout(repository: repository, ref: toVersion.branch!);
+          if (prefs.hasForkRemoteUrl()) {
+            if (branch == null) {
+              throw CommandError(
+                'HEAD is not attached to a branch, could not upgrade fork',
+              );
             }
-            await git.merge(
-              repository: repository,
-              fromCommit: toVersion.commit,
-              fastForwardOnly: true,
+            if (await git.hasUncomittedChanges(repository: repository)) {
+              throw CommandError(
+                "Can't upgrade fork with uncomitted changes",
+              );
+            }
+            await tx.step(
+              label: 'upgrade fork via git operations',
+              action: () async {
+                await git.pull(repository: repository, all: true);
+                final switchBranch =
+                    toVersion.branch != null && branch != toVersion.branch;
+                if (switchBranch) {
+                  await git.checkout(repository: repository, ref: toVersion.branch!);
+                }
+                await git.merge(
+                  repository: repository,
+                  fromCommit: toVersion.commit,
+                  fastForwardOnly: true,
+                );
+              },
+              rollback: () async {
+                // Restore to previous commit and branch
+                await git.reset(
+                    repository: repository, ref: gitSnapshot['commit']!, hard: true);
+                if (gitSnapshot['branch'] != null) {
+                  await git.checkout(
+                      repository: repository, ref: gitSnapshot['branch']!);
+                }
+              },
+            );
+
+            final toolInfo = await setUpFlutterTool(
+              scope: scope,
+              environment: environment,
+              environmentPrefs: prefs,
+            );
+
+            return EnvUpgradeResult(
+              environment: environment,
+              from: fromVersion,
+              to: toVersion,
+              forkRemoteUrl: prefs.forkRemoteUrl,
+              switchedBranch: toVersion.branch != null && branch != toVersion.branch,
+              toolInfo: toolInfo,
+            );
+          }
+
+          await tx.step(
+            label: 'clone flutter with shared refs',
+            action: () async {
+              await cloneFlutterWithSharedRefs(
+                scope: scope,
+                repository: environment.flutterDir,
+                flutterVersion: toVersion,
+                environment: environment,
+                forkRemoteUrl: prefs.hasForkRemoteUrl() ? prefs.forkRemoteUrl : null,
+                force: force,
+              );
+            },
+            rollback: () async {
+              // Restore git state
+              await git.reset(
+                  repository: repository, ref: gitSnapshot['commit']!, hard: true);
+              if (gitSnapshot['branch'] != null) {
+                await git.checkout(repository: repository, ref: gitSnapshot['branch']!);
+              }
+            },
+          );
+        }
+
+        // Replace flutter/dart with shims
+        await tx.step(
+          label: 'install environment shims',
+          action: () async {
+            await installEnvShims(
+              scope: scope,
+              environment: environment,
             );
           },
           rollback: () async {
-            // Restore to previous commit and branch
-            await git.reset(repository: repository, ref: gitSnapshot['commit']!, hard: true);
-            if (gitSnapshot['branch'] != null) {
-              await git.checkout(repository: repository, ref: gitSnapshot['branch']!);
-            }
+            await uninstallEnvShims(scope: scope, environment: environment);
           },
         );
 
         final toolInfo = await setUpFlutterTool(
           scope: scope,
           environment: environment,
-          environmentPrefs: prefs,
         );
+
+        if (environment.flutter.legacyVersionFile.existsSync()) {
+          await tx.step(
+            label: 'delete legacy version file',
+            action: () async => environment.flutter.legacyVersionFile.deleteSync(),
+            rollback: null, // No rollback needed for deletion
+          );
+        }
 
         return EnvUpgradeResult(
           environment: environment,
           from: fromVersion,
           to: toVersion,
-          forkRemoteUrl: prefs.forkRemoteUrl,
-          switchedBranch: toVersion.branch != null && branch != toVersion.branch,
+          forkRemoteUrl: null,
           toolInfo: toolInfo,
         );
-      }
-
-      await tx.step(
-        label: 'clone flutter with shared refs',
-        action: () async {
-          await cloneFlutterWithSharedRefs(
-            scope: scope,
-            repository: environment.flutterDir,
-            flutterVersion: toVersion,
-            environment: environment,
-            forkRemoteUrl: prefs.hasForkRemoteUrl() ? prefs.forkRemoteUrl : null,
-            force: force,
-          );
-        },
-        rollback: () async {
-          // Restore git state
-          await git.reset(repository: repository, ref: gitSnapshot['commit']!, hard: true);
-          if (gitSnapshot['branch'] != null) {
-            await git.checkout(repository: repository, ref: gitSnapshot['branch']!);
-          }
-        },
-      );
-    }
-
-    // Replace flutter/dart with shims
-    await tx.step(
-      label: 'install environment shims',
-      action: () async {
-        await installEnvShims(
-          scope: scope,
-          environment: environment,
-        );
-      },
-      rollback: () async {
-        await uninstallEnvShims(scope: scope, environment: environment);
-      },
-    );
-
-    final toolInfo = await setUpFlutterTool(
-      scope: scope,
-      environment: environment,
-    );
-
-    if (environment.flutter.legacyVersionFile.existsSync()) {
-      await tx.step(
-        label: 'delete legacy version file',
-        action: () async => environment.flutter.legacyVersionFile.deleteSync(),
-        rollback: null, // No rollback needed for deletion
-      );
-    }
-
-    return EnvUpgradeResult(
-      environment: environment,
-      from: fromVersion,
-      to: toVersion,
-      forkRemoteUrl: null,
-      toolInfo: toolInfo,
-    );
-  });
+      });
 }

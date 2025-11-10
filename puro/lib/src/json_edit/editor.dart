@@ -46,8 +46,7 @@ class JsonEditor {
   bool _spaceAt(int offset) => _validOffset(offset) && source[offset] == ' ';
 
   bool _whitespaceAt(int offset) =>
-      _validOffset(offset) &&
-      ' \t\n\r'.contains(source[offset]);
+      _validOffset(offset) && ' \t\n\r'.contains(source[offset]);
 
   bool _newlineAt(int offset) => _validOffset(offset) && source[offset] == '\n';
 

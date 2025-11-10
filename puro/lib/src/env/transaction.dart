@@ -7,6 +7,21 @@ import '../provider.dart';
 ///
 /// Operations are executed in sequence. If any step fails, registered rollbacks
 /// are executed in reverse order to restore the system to a consistent state.
+///
+/// ## Transactional Guarantees
+/// - **Scope**: Each environment operation (create/upgrade/rm) is atomic per environment.
+///   No cross-environment or cross-command atomicity.
+/// - **Success**: Environment is in a fully consistent, usable state.
+/// - **Failure**: All registered rollbacks are attempted in reverse order.
+///   - Resulting state is either fully rolled back or left in clearly recoverable locations (e.g., .puro-trash).
+///   - Original error is preserved and rethrown; rollback failures are logged but don't mask it.
+/// - **Non-goals**: Does not protect against concurrent manual edits or system-level races beyond existing locks.
+///
+/// ## Usage Guidelines
+/// - Rollbacks must be idempotent and safe to run multiple times.
+/// - Rollback failures are logged but don't prevent other rollbacks.
+/// - Every side-effecting step must either be last or have a compensating rollback.
+/// - For env operations: any create/move/modify of files/directories/git/config must register rollback.
 class EnvTransaction {
   final PuroLogger logger;
   final List<Future<void> Function()> _rollbacks = [];
@@ -20,11 +35,14 @@ class EnvTransaction {
     required Future<T> Function(EnvTransaction tx) body,
   }) async {
     final tx = EnvTransaction(PuroLogger.of(scope));
+    tx.logger.v('Starting transaction');
     try {
       final result = await body(tx);
       tx._completed = true;
+      tx.logger.v('Transaction completed successfully');
       return result;
     } catch (e) {
+      tx.logger.w('Transaction failed: $e');
       await tx._rollbackAll();
       rethrow;
     }
@@ -39,10 +57,13 @@ class EnvTransaction {
     if (_completed) {
       throw StateError('Transaction already completed');
     }
+    logger.d('Executing step: $label');
     try {
       await action();
+      logger.d('Step "$label" completed');
       if (rollback != null) {
         _rollbacks.add(rollback);
+        logger.d('Registered rollback for step: $label');
       }
     } catch (e) {
       logger.w('Step "$label" failed: $e');
@@ -59,7 +80,10 @@ class EnvTransaction {
   }
 
   /// Executes all rollbacks in reverse order.
+  /// Rollbacks are run even if some fail; failures are logged but don't stop others.
   Future<void> _rollbackAll() async {
+    if (_rollbacks.isEmpty) return;
+    logger.v('Rolling back ${_rollbacks.length} steps');
     for (final rollback in _rollbacks.reversed) {
       try {
         await rollback();
