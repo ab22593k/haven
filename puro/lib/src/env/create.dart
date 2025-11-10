@@ -16,6 +16,7 @@ import 'default.dart';
 import 'engine.dart';
 import 'env_shims.dart';
 import 'flutter_tool.dart';
+import 'transaction.dart';
 import 'version.dart';
 
 class EnvCreateResult extends CommandResult {
@@ -206,87 +207,136 @@ Future<EnvCreateResult> createEnvironment({
   }
 
   environment.updateLockFile.parent.createSync(recursive: true);
-  await lockFile(scope, environment.updateLockFile, (lockHandle) async {
-    environment.envDir.createSync(recursive: true);
-    await environment.updatePrefs(
-      scope: scope,
-      fn: (prefs) {
-        prefs.clear();
-        if (flutterVersion != null) {
-          prefs.desiredVersion = flutterVersion.toModel();
-        }
-      },
-    );
-
-    final startTime = clock.now();
-    DateTime? cacheEngineTime;
-
-    final engineTask = runOptional(
-      scope,
-      'Pre-caching engine',
-      () async {
-        final engineVersion = await getEngineVersionOfCommit(
-          scope: scope,
-          commit: flutterVersion!.commit,
-        );
-        log.d('Pre-caching engine $engineVersion');
-        if (engineVersion == null) {
-          return;
-        }
-        await downloadSharedEngine(
-          scope: scope,
-          engineCommit: engineVersion,
-        );
-        cacheEngineTime = clock.now();
-      },
-      // The user probably already has flutter cached so cloning forks will be
-      // fast, no point in optimizing this.
-      skip: forkRemoteUrl != null,
-    );
-
-    // Clone flutter
-    await cloneFlutterWithSharedRefs(
-      scope: scope,
-      repository: environment.flutterDir,
-      environment: environment,
-      flutterVersion: flutterVersion,
-      forkRemoteUrl: forkRemoteUrl,
-      forkRef: forkRef,
-    );
-
-    // Replace flutter/dart with shims
-    await installEnvShims(
-      scope: scope,
-      environment: environment,
-    );
-
-    final cloneTime = clock.now();
-
-    await engineTask;
-
-    if (cacheEngineTime != null) {
-      final wouldveTaken =
-          (cloneTime.difference(startTime)) + (cacheEngineTime!.difference(startTime));
-      final took = clock.now().difference(startTime);
-      log.v(
-        'Saved ${(wouldveTaken - took).inMilliseconds}ms by pre-caching engine',
+  return await lockFile(scope, environment.updateLockFile, (lockHandle) async {
+    return await EnvTransaction.run(scope: scope, body: (tx) async {
+      // Create env directory
+      await tx.step(
+        label: 'create environment directory',
+        action: () async => environment.envDir.createSync(recursive: true),
+        rollback: () async => environment.envDir.deleteSync(recursive: true),
       );
-    }
+
+      // Update prefs
+      final prefsFile = environment.prefsJsonFile;
+      final prefsExisted = prefsFile.existsSync();
+      String? oldPrefsContent;
+      if (prefsExisted) {
+        oldPrefsContent = prefsFile.readAsStringSync();
+      }
+      await tx.step(
+        label: 'update environment prefs',
+        action: () async {
+          await environment.updatePrefs(
+            scope: scope,
+            fn: (prefs) {
+              prefs.clear();
+              if (flutterVersion != null) {
+                prefs.desiredVersion = flutterVersion.toModel();
+              }
+            },
+          );
+        },
+          rollback: () async {
+            if (oldPrefsContent != null) {
+              prefsFile.writeAsStringSync(oldPrefsContent);
+            } else if (prefsFile.existsSync()) {
+              prefsFile.deleteSync();
+            }
+          },
+      );
+
+      final startTime = clock.now();
+      DateTime? cacheEngineTime;
+
+      final engineTask = runOptional(
+        scope,
+        'Pre-caching engine',
+        () async {
+          final engineVersion = await getEngineVersionOfCommit(
+            scope: scope,
+            commit: flutterVersion!.commit,
+          );
+          log.d('Pre-caching engine $engineVersion');
+          if (engineVersion == null) {
+            return;
+          }
+          await downloadSharedEngine(
+            scope: scope,
+            engineCommit: engineVersion,
+          );
+          cacheEngineTime = clock.now();
+        },
+        // The user probably already has flutter cached so cloning forks will be
+        // fast, no point in optimizing this.
+        skip: forkRemoteUrl != null,
+      );
+
+      // Clone flutter
+      await tx.step(
+        label: 'clone flutter repository',
+        action: () async {
+          await cloneFlutterWithSharedRefs(
+            scope: scope,
+            repository: environment.flutterDir,
+            environment: environment,
+            flutterVersion: flutterVersion,
+            forkRemoteUrl: forkRemoteUrl,
+            forkRef: forkRef,
+          );
+        },
+        rollback: () async => environment.flutterDir.deleteSync(recursive: true),
+      );
+
+      // Replace flutter/dart with shims
+      await tx.step(
+        label: 'install environment shims',
+        action: () async {
+          await installEnvShims(
+            scope: scope,
+            environment: environment,
+          );
+        },
+        rollback: () async {
+          await uninstallEnvShims(scope: scope, environment: environment);
+        },
+      );
+
+      final cloneTime = clock.now();
+
+      await engineTask;
+
+      if (cacheEngineTime != null) {
+        final wouldveTaken =
+            (cloneTime.difference(startTime)) + (cacheEngineTime!.difference(startTime));
+        final took = clock.now().difference(startTime);
+        log.v(
+          'Saved ${(wouldveTaken - took).inMilliseconds}ms by pre-caching engine',
+        );
+      }
+
+      // In case we are creating the default environment
+      await tx.step(
+        label: 'update default env symlink',
+        action: () async => await updateDefaultEnvSymlink(scope: scope),
+        rollback: null, // Symlink update might not need rollback, or implement if possible
+      );
+
+      // Set up engine and compile tool
+      await tx.step(
+        label: 'set up flutter tool',
+        action: () async => await setUpFlutterTool(
+          scope: scope,
+          environment: environment,
+        ),
+        rollback: null, // Tool setup is final, assume it succeeds or log
+      );
+
+      return EnvCreateResult(
+        success: true,
+        environment: environment,
+      );
+    });
   });
-
-  // In case we are creating the default environment
-  await updateDefaultEnvSymlink(scope: scope);
-
-  // Set up engine and compile tool
-  await setUpFlutterTool(
-    scope: scope,
-    environment: environment,
-  );
-
-  return EnvCreateResult(
-    success: true,
-    environment: environment,
-  );
 }
 
 /// Clones or fetches from a remote, putting it in a shared repository.

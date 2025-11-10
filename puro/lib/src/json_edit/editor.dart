@@ -47,7 +47,7 @@ class JsonEditor {
 
   bool _whitespaceAt(int offset) =>
       _validOffset(offset) &&
-      const WhitespaceCharPredicate().test(source.codeUnitAt(offset));
+      ' \t\n\r'.contains(source[offset]);
 
   bool _newlineAt(int offset) => _validOffset(offset) && source[offset] == '\n';
 

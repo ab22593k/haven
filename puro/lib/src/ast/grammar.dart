@@ -81,7 +81,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
               .map((e) => null),
         ref0(typeDecl),
         ref0(enumDecl),
-        failure('Expected top-level declaration'),
+        failure(),
       ].map((e) => e.trim(space())).toChoiceParser();
 
   Parser typeDecl() => (string('abstract ').optional() &

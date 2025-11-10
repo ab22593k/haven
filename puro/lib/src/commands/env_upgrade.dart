@@ -4,7 +4,6 @@ import '../config/config.dart';
 import '../env/releases.dart';
 import '../env/upgrade.dart';
 import '../env/version.dart';
-import '../logger.dart';
 
 class EnvUpgradeCommand extends PuroCommand {
   EnvUpgradeCommand() {
@@ -19,18 +18,6 @@ class EnvUpgradeCommand extends PuroCommand {
       help: 'Forcefully upgrade the framework, erasing any unstaged changes',
       negatable: false,
     );
-  }
-
-  String? _backupPath;
-
-  @override
-  void cleanup() {
-    if (_backupPath != null) {
-      // Restore from backup if possible
-      // Note: This is simplified; in practice, might need to move back
-      PuroLogger.of(scope)
-          .w('Upgrade failed; manual recovery may be needed. Backup at $_backupPath');
-    }
   }
 
   @override

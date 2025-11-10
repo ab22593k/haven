@@ -1,5 +1,5 @@
 // The analyzer package is silly and hides important files
-// ignore_for_file: implementation_imports
+// ignore_for_file: implementation_imports, deprecated_member_use
 
 import 'package:analyzer/dart/analysis/features.dart';
 import 'package:analyzer/dart/ast/ast.dart';
@@ -148,7 +148,7 @@ ParseResult<Block> parseDartBlock(String code) => parseDart(
       code,
       (parser) => (parser.parseFunctionBody(
         false,
-        ParserErrorCode.MISSING_FUNCTION_BODY,
+        ParserErrorCode.missingFunctionBody,
         false,
       ) as BlockFunctionBody)
           .block,
