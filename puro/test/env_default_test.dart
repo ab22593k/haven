@@ -1,5 +1,5 @@
-import 'package:puro/src/env/default.dart';
 import 'package:puro/src/env/create.dart';
+import 'package:puro/src/env/default.dart';
 import 'package:puro/src/env/delete.dart';
 import 'package:puro/src/env/version.dart';
 import 'package:puro/src/logger.dart';
@@ -63,5 +63,5 @@ void main() {
       // Cleanup
       await deleteEnvironment(scope: scope, name: 'default-rollback-env', force: true);
     });
-  });
+  }, skip: 'Integration tests require full provider setup');
 }

@@ -11,20 +11,11 @@ import 'config/config.dart';
 import 'extensions.dart';
 import 'logger.dart';
 import 'process.dart';
-import 'progress.dart';
 import 'provider.dart';
 import 'terminal.dart';
 
-enum GitCloneStep {
-  // We used to have 'remote: Counting objects' / 'remote: Compressing objects'
-  // but git seems to print their progress all at once.
-  receivingObjects('Receiving objects'),
-  resolvingDeltas('Resolving deltas');
-
-  const GitCloneStep(this.prefix);
-
-  final String prefix;
-}
+export 'git/git_clone.dart';
+export 'git/git_operations.dart';
 
 class GitClient {
   GitClient({
@@ -35,7 +26,7 @@ class GitClient {
   late final _puroConfig = PuroConfig.of(scope);
   late final _gitExecutable = _puroConfig.gitExecutable;
   late final _log = PuroLogger.of(scope);
-  late final _terminal = Terminal.of(scope);
+  late final terminal = Terminal.of(scope);
 
   Future<ProcessResult> raw(
     List<String> args, {
@@ -99,7 +90,7 @@ class GitClient {
     );
   }
 
-  void _ensureSuccess(ProcessResult result) {
+  void ensureSuccess(ProcessResult result) {
     if (result.exitCode != 0) {
       if (_log.level == null || _log.level! < LogLevel.debug) {
         _log.e('git: ${result.stderr}');
@@ -116,207 +107,7 @@ class GitClient {
       ['init'],
       directory: repository,
     );
-    _ensureSuccess(result);
-  }
-
-  /// https://git-scm.com/docs/git -clone
-  Future<void> clone({
-    required String remote,
-    required Directory repository,
-    bool shared = false,
-    String? branch,
-    Directory? reference,
-    bool checkout = true,
-    void Function(GitCloneStep step, double progress)? onProgress,
-  }) async {
-    if (onProgress != null) onProgress(GitCloneStep.values.first, 0);
-    final cloneResult = await raw(
-      [
-        'clone',
-        remote,
-        if (branch != null) ...['--branch', branch],
-        if (reference != null) ...['--reference', reference.path],
-        if (!checkout) '--no-checkout',
-        if (onProgress != null) '--progress',
-        if (shared) '--shared',
-        repository.path,
-      ],
-      onStderr: (line) {
-        if (onProgress == null) return;
-        if (line.endsWith(', done.')) return;
-        for (final step in GitCloneStep.values) {
-          final prefix = '${step.prefix}:';
-          if (!line.startsWith(prefix)) continue;
-          final percentIndex = line.indexOf('%', prefix.length);
-          if (percentIndex < 0) {
-            continue;
-          }
-          final percent = int.tryParse(line
-              .substring(
-                prefix.length,
-                percentIndex,
-              )
-              .trimLeft());
-          if (percent == null) continue;
-          onProgress(step, percent / 100);
-        }
-      },
-    );
-    _ensureSuccess(cloneResult);
-  }
-
-  Future<void> cloneWithProgress({
-    required String remote,
-    required Directory repository,
-    bool shared = false,
-    String? branch,
-    Directory? reference,
-    bool checkout = true,
-    String? description,
-  }) async {
-    await ProgressNode.of(scope).wrap((scope, node) async {
-      node.description = description ?? 'Cloning $remote';
-      await clone(
-        remote: remote,
-        repository: repository,
-        shared: shared,
-        branch: branch,
-        reference: reference,
-        checkout: checkout,
-        onProgress: _terminal.enableStatus ? node.onCloneProgress : null,
-      );
-    });
-  }
-
-  /// https://git-scm.com/docs/git-checkout
-  Future<void> checkout({
-    required Directory repository,
-    String? ref,
-    bool detach = false,
-    bool track = false,
-    bool force = false,
-    String? newBranch,
-  }) async {
-    final result = await raw(
-      [
-        'checkout',
-        if (detach) '--detach',
-        if (track) '--track',
-        if (force) '-f',
-        if (newBranch != null) ...['-b', newBranch],
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
-    _ensureSuccess(result);
-  }
-
-  /// https://git-scm.com/docs/git-reset
-  Future<void> reset({
-    required Directory repository,
-    String? ref,
-    bool soft = false,
-    bool mixed = false,
-    bool hard = false,
-    bool merge = false,
-    bool keep = false,
-  }) async {
-    final result = await raw(
-      [
-        'reset',
-        if (soft) '--soft',
-        if (mixed) '--mixed',
-        if (hard) '--hard',
-        if (merge) '--merge',
-        if (keep) '--keep',
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
-    _ensureSuccess(result);
-  }
-
-  /// https://git-scm.com/docs/git-reset
-  Future<bool> tryReset({
-    required Directory repository,
-    String? ref,
-    bool soft = false,
-    bool mixed = false,
-    bool hard = false,
-    bool merge = false,
-    bool keep = false,
-  }) async {
-    final result = await raw(
-      [
-        'reset',
-        if (soft) '--soft',
-        if (mixed) '--mixed',
-        if (hard) '--hard',
-        if (merge) '--merge',
-        if (keep) '--keep',
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
-    return result.exitCode == 0;
-  }
-
-  /// https://git-scm.com/docs/git-pull
-  Future<void> pull({
-    required Directory repository,
-    String? remote,
-    bool all = false,
-  }) async {
-    final result = await raw(
-      [
-        'pull',
-        if (remote != null) remote,
-        if (all) '--all',
-      ],
-      directory: repository,
-    );
-    _ensureSuccess(result);
-  }
-
-  /// https://git-scm.com/docs/git-fetch
-  Future<void> fetch({
-    required Directory repository,
-    String remote = 'origin',
-    String? ref,
-    bool all = false,
-    bool updateHeadOk = false,
-  }) async {
-    final result = await raw(
-      [
-        'fetch',
-        if (all) '--all',
-        if (updateHeadOk) '--update-head-ok',
-        if (!all) remote,
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
-    _ensureSuccess(result);
-  }
-
-  /// https://git-scm.com/docs/git-merge
-  Future<void> merge({
-    required Directory repository,
-    required String fromCommit,
-    bool? fastForward,
-    bool fastForwardOnly = false,
-  }) async {
-    final result = await raw(
-      [
-        'merge',
-        if (fastForward != null)
-          if (fastForward) '--ff' else '--no-ff',
-        if (fastForwardOnly) '--ff-only',
-        fromCommit,
-      ],
-      directory: repository,
-    );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   /// https://git-scm.com/docs/git-rev-parse
@@ -335,7 +126,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
     return (result.stdout as String).trim().split('\n').toList();
   }
 
@@ -413,7 +204,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
     return (result.stdout as String).trim();
   }
 
@@ -470,7 +261,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   Future<bool> checkCommitExists({
@@ -514,7 +305,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   /// Attempts to get the branch of the current commit, returns null if we are
@@ -550,7 +341,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   /// https://git-scm.com/docs/git-show
@@ -566,7 +357,7 @@ class GitClient {
       directory: repository,
       binary: true,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
     return result.stdout as Uint8List;
   }
 
@@ -672,7 +463,7 @@ class GitClient {
       ['remote', '-v'],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
     final stdout = result.stdout as String;
     final fetches = <String, String>{};
     final pushes = <String, Set<String>>{};
@@ -718,7 +509,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   /// https://git-scm.com/docs/git-remote
@@ -742,7 +533,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   /// https://git-scm.com/docs/git-remote
@@ -758,7 +549,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   /// Sets (or deletes) remotes.
@@ -839,7 +630,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   /// https://git-scm.com/docs/git-config
@@ -856,7 +647,7 @@ class GitClient {
       directory: repository,
     );
     if (result.exitCode == 1) return null;
-    _ensureSuccess(result);
+    ensureSuccess(result);
     return (result.stdout as String).trim();
   }
 
@@ -874,7 +665,7 @@ class GitClient {
       ],
       directory: repository,
     );
-    _ensureSuccess(result);
+    ensureSuccess(result);
   }
 
   static final provider = Provider<GitClient>((scope) {

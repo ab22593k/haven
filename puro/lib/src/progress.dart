@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:neoansi/neoansi.dart';
 
 import 'git.dart';
+import 'git/git_clone.dart';
 import 'logger.dart';
 import 'provider.dart';
 import 'terminal.dart';
