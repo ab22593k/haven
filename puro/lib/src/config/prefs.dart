@@ -6,6 +6,7 @@ import 'package:protobuf/protobuf.dart';
 
 import '../../models.dart';
 import '../file_lock.dart';
+import '../logger.dart';
 import '../provider.dart';
 import 'config.dart';
 
@@ -83,12 +84,17 @@ Future<PuroGlobalPrefsModel> _updateGlobalPrefs({
     scope,
     jsonFile,
     (handle) async {
-      final model = PuroGlobalPrefsModel();
-      String? contents;
-      if (handle.lengthSync() > 0) {
-        contents = utf8.decode(handle.readSync(handle.lengthSync()));
-        model.mergeFromProto3Json(jsonDecode(contents));
-      }
+       final model = PuroGlobalPrefsModel();
+       String? contents;
+       if (handle.lengthSync() > 0) {
+         contents = utf8.decode(handle.readSync(handle.lengthSync()));
+         try {
+           model.mergeFromProto3Json(jsonDecode(contents));
+         } catch (e) {
+           // If JSON is corrupted, start with empty model
+           scope.read(PuroLogger.provider).w('Failed to parse prefs.json, starting with empty prefs: $e');
+         }
+       }
       await fn(model);
       if (!model.hasLegacyPubCache()) {
         model.legacyPubCache = !scope.read(isFirstRunProvider);
