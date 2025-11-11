@@ -668,6 +668,21 @@ class GitClient {
     ensureSuccess(result);
   }
 
+  /// Validates a git URL for security.
+  static void validateGitUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme || uri.scheme != 'https') {
+      throw ArgumentError('Invalid or insecure git URL: $url. Only HTTPS URLs are allowed.');
+    }
+  }
+
+  /// Validates a repository path for security.
+  static void validateRepositoryPath(String path) {
+    if (path.contains('..') || path.startsWith('/') || path.contains('\\')) {
+      throw ArgumentError('Invalid repository path: $path. Paths must be relative and safe.');
+    }
+  }
+
   static final provider = Provider<GitClient>((scope) {
     return GitClient(scope: scope);
   });

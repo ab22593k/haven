@@ -217,6 +217,7 @@ class AllowIncompleteClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
+    validateHttpsUrl(request.url);
     final response = await innerClient.send(request);
     return response.copyWith(
       stream: response.stream.handleError((Object e) {
@@ -259,6 +260,22 @@ extension UriExtensions on Uri {
       queryParameters: strQueryParameters.isEmpty ? null : strQueryParameters,
       fragment: fragment,
     );
+  }
+}
+
+/// Validates and enforces HTTPS for URLs to prevent insecure connections.
+void validateHttpsUrl(Uri url) {
+  if (url.scheme != 'https') {
+    throw ArgumentError.value(
+      url,
+      'url',
+      'Only HTTPS URLs are allowed for security reasons. Got: ${url.scheme}',
+    );
+  }
+  // Additional validation: ensure no suspicious characters or patterns
+  final host = url.host;
+  if (host.isEmpty || host.contains('..') || host.startsWith('.') || host.endsWith('.')) {
+    throw ArgumentError.value(url, 'url', 'Invalid host in URL');
   }
 }
 
