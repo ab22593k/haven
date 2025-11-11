@@ -153,21 +153,7 @@ abstract class PuroCommand extends Command<CommandResult> {
   }
 }
 
-class PuroCommandRunner extends CommandRunner<CommandResult> {
-  PuroCommandRunner(
-    super.executableName,
-    super.description, {
-    required this.scope,
-    required this.isJson,
-  });
-
-  final Scope scope;
-
-  late final log = PuroLogger.of(scope);
-  late final terminal = Terminal.of(scope);
-  final bool isJson;
-
-  // CLI args
+class PuroCommandContext {
   String? pubCacheOverride;
   bool? legacyPubCache;
   String? gitExecutableOverride;
@@ -183,6 +169,23 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
   bool? shouldInstallOverride;
   bool? shouldSkipCacheSyncOverride;
   bool? allowUpdateCheckOverride;
+}
+
+class PuroCommandRunner extends CommandRunner<CommandResult> {
+  PuroCommandRunner(
+    super.executableName,
+    super.description, {
+    required this.scope,
+    required this.context,
+    required this.isJson,
+  });
+
+  final Scope scope;
+  final PuroCommandContext context;
+
+  late final log = PuroLogger.of(scope);
+  late final terminal = Terminal.of(scope);
+  final bool isJson;
 
   late List<String> args;
   ArgResults? results;
@@ -349,26 +352,26 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
       final firstRun = !prefsJson.existsSync() || prefsJson.statSync().size == 0;
       scope.add(isFirstRunProvider, firstRun);
       log.d('firstRun: $firstRun');
-      log.d('legacyPubCache: $legacyPubCache');
+      log.d('legacyPubCache: ${context.legacyPubCache}');
 
       final config = await PuroConfig.fromCommandLine(
         scope: scope,
         fileSystem: fileSystem,
-        gitExecutable: gitExecutableOverride,
+        gitExecutable: context.gitExecutableOverride,
         puroRoot: puroRoot,
         homeDir: homeDir,
-        pubCache: pubCacheOverride,
-        legacyPubCache: legacyPubCache,
-        workingDir: workingDirOverride,
-        projectDir: projectDirOverride,
-        flutterGitUrl: flutterGitUrlOverride,
-        engineGitUrl: engineGitUrlOverride,
-        dartSdkGitUrl: dartSdkGitUrlOverride,
-        releasesJsonUrl: versionsJsonUrlOverride,
-        flutterStorageBaseUrl: flutterStorageBaseUrlOverride,
-        environmentOverride: environmentOverride,
-        shouldInstall: shouldInstallOverride,
-        shouldSkipCacheSync: shouldSkipCacheSyncOverride,
+        pubCache: context.pubCacheOverride,
+        legacyPubCache: context.legacyPubCache,
+        workingDir: context.workingDirOverride,
+        projectDir: context.projectDirOverride,
+        flutterGitUrl: context.flutterGitUrlOverride,
+        engineGitUrl: context.engineGitUrlOverride,
+        dartSdkGitUrl: context.dartSdkGitUrlOverride,
+        releasesJsonUrl: context.versionsJsonUrlOverride,
+        flutterStorageBaseUrl: context.flutterStorageBaseUrlOverride,
+        environmentOverride: context.environmentOverride,
+        shouldInstall: context.shouldInstallOverride,
+        shouldSkipCacheSync: context.shouldSkipCacheSyncOverride,
         firstRun: firstRun,
       );
       scope.add(
@@ -381,7 +384,7 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
       final command = commandName == null ? null : commands[commandName];
       if (command is PuroCommand &&
           command.allowUpdateCheck &&
-          (allowUpdateCheckOverride ?? true)) {
+          (context.allowUpdateCheckOverride ?? true)) {
         final message = await checkIfUpdateAvailable(
           scope: scope,
           runner: this,

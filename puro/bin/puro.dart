@@ -1,5 +1,5 @@
-import 'package:puro/cli.dart' as cli;
+import 'package:puro/cli.dart' as app;
 
 void main(List<String> args) {
-  cli.main(args);
+  app.main(args);
 }

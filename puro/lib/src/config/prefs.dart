@@ -61,6 +61,64 @@ class GlobalPrefsConfig {
   }
 }
 
+/// Parses prefs JSON content tolerantly.
+/// Returns the parsed Map if valid, or null if corrupted/empty.
+/// Handles concatenated JSON by using the first valid object.
+Map<String, dynamic>? parsePrefsJson(String contents, PuroLogger log) {
+  final trimmed = contents.trim();
+  if (trimmed.isEmpty) {
+    return null;
+  }
+
+  try {
+    final result = jsonDecode(trimmed);
+    if (result is Map<String, dynamic>) {
+      return result;
+    } else {
+      log.w('Prefs JSON is not a valid object, using defaults');
+      return null;
+    }
+  } on FormatException catch (e) {
+    // Try to find the first complete JSON object
+    int braceCount = 0;
+    bool inString = false;
+    int start = 0;
+    for (int i = 0; i < trimmed.length; i++) {
+      final char = trimmed[i];
+      if (inString) {
+        if (char == '"' && (i == 0 || trimmed[i - 1] != '\\')) {
+          inString = false;
+        }
+      } else {
+        if (char == '"') {
+          inString = true;
+        } else if (char == '{') {
+          if (braceCount == 0) start = i;
+          braceCount++;
+        } else if (char == '}') {
+          braceCount--;
+          if (braceCount == 0) {
+            // Found a complete object
+            final candidate = trimmed.substring(start, i + 1);
+            try {
+              final result = jsonDecode(candidate);
+              if (result is Map<String, dynamic>) {
+                log.w(
+                    'Prefs JSON appears concatenated or has trailing data, using first valid object');
+                return result;
+              }
+            } catch (_) {
+              // Not a valid object, continue
+            }
+          }
+        }
+      }
+    }
+    log.w('Prefs JSON is corrupted, using defaults: $e');
+    return null;
+  }
+}
+
 Future<PuroGlobalPrefsModel> _readGlobalPrefs({
   required Scope scope,
   required File jsonFile,
@@ -68,7 +126,10 @@ Future<PuroGlobalPrefsModel> _readGlobalPrefs({
   final model = PuroGlobalPrefsModel();
   if (jsonFile.existsSync()) {
     final contents = await readAtomic(scope: scope, file: jsonFile);
-    model.mergeFromProto3Json(jsonDecode(contents));
+    final parsed = parsePrefsJson(contents, scope.read(PuroLogger.provider));
+    if (parsed != null) {
+      model.mergeFromProto3Json(parsed);
+    }
   }
   return model;
 }
@@ -84,17 +145,15 @@ Future<PuroGlobalPrefsModel> _updateGlobalPrefs({
     scope,
     jsonFile,
     (handle) async {
-       final model = PuroGlobalPrefsModel();
-       String? contents;
-       if (handle.lengthSync() > 0) {
-         contents = utf8.decode(handle.readSync(handle.lengthSync()));
-         try {
-           model.mergeFromProto3Json(jsonDecode(contents));
-         } catch (e) {
-           // If JSON is corrupted, start with empty model
-           scope.read(PuroLogger.provider).w('Failed to parse prefs.json, starting with empty prefs: $e');
-         }
-       }
+      final model = PuroGlobalPrefsModel();
+      String? contents;
+      if (handle.lengthSync() > 0) {
+        contents = utf8.decode(handle.readSync(handle.lengthSync()));
+        final parsed = parsePrefsJson(contents, scope.read(PuroLogger.provider));
+        if (parsed != null) {
+          model.mergeFromProto3Json(parsed);
+        }
+      }
       await fn(model);
       if (!model.hasLegacyPubCache()) {
         model.legacyPubCache = !scope.read(isFirstRunProvider);
@@ -102,7 +161,9 @@ Future<PuroGlobalPrefsModel> _updateGlobalPrefs({
       final newContents =
           const JsonEncoder.withIndent('  ').convert(model.toProto3Json());
       if (contents != newContents) {
+        handle.setPositionSync(0);
         handle.writeStringSync(newContents);
+        handle.truncateSync(newContents.length);
       }
       return model;
     },

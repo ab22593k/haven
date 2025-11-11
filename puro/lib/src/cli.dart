@@ -41,10 +41,13 @@ void main(List<String> args) async {
   final puroArgs = index >= 0 ? args.take(index) : args;
   final isJson = puroArgs.contains('--json');
 
+  final context = PuroCommandContext();
+
   final runner = PuroCommandRunner(
     'puro',
     'A powerful tool for installing and upgrading Flutter versions',
     scope: scope,
+    context: context,
     isJson: isJson,
   );
 
@@ -74,7 +77,7 @@ void main(List<String> args) async {
       help: 'Overrides the pub cache directory',
       valueHelp: 'dir',
       callback: runner.wrapCallback((dir) {
-        runner.pubCacheOverride = dir;
+        context.pubCacheOverride = dir;
       }),
     )
     ..addFlag(
@@ -82,7 +85,7 @@ void main(List<String> args) async {
       help: 'Whether to use the legacy pub cache directory',
       callback: runner.wrapCallback((flag) {
         if (runner.results!.wasParsed('legacy-pub-cache')) {
-          runner.legacyPubCache = flag;
+          context.legacyPubCache = flag;
         }
       }),
     )
@@ -91,7 +94,7 @@ void main(List<String> args) async {
       help: 'Overrides the path to the git executable',
       valueHelp: 'exe',
       callback: runner.wrapCallback((exe) {
-        runner.gitExecutableOverride = exe;
+        context.gitExecutableOverride = exe;
       }),
     )
     ..addOption(
@@ -100,7 +103,7 @@ void main(List<String> args) async {
           'Overrides the global puro root directory. (defaults to `~/.puro` or \$PURO_ROOT)',
       valueHelp: 'dir',
       callback: runner.wrapCallback((dir) {
-        runner.rootDirOverride = dir;
+        context.rootDirOverride = dir;
       }),
     )
     ..addOption(
@@ -108,7 +111,7 @@ void main(List<String> args) async {
       help: 'Overrides the current working directory',
       valueHelp: 'dir',
       callback: runner.wrapCallback((dir) {
-        runner.workingDirOverride = dir;
+        context.workingDirOverride = dir;
       }),
     )
     ..addOption(
@@ -117,7 +120,7 @@ void main(List<String> args) async {
       help: 'Overrides the selected flutter project',
       valueHelp: 'dir',
       callback: runner.wrapCallback((dir) {
-        runner.projectDirOverride = dir;
+        context.projectDirOverride = dir;
       }),
     )
     ..addOption(
@@ -126,7 +129,7 @@ void main(List<String> args) async {
       help: 'Overrides the selected environment',
       valueHelp: 'name',
       callback: runner.wrapCallback((name) {
-        runner.environmentOverride = name?.toLowerCase();
+        context.environmentOverride = name?.toLowerCase();
       }),
     )
     ..addOption(
@@ -134,7 +137,7 @@ void main(List<String> args) async {
       help: 'Overrides the Flutter SDK git url',
       valueHelp: 'url',
       callback: runner.wrapCallback((url) {
-        runner.flutterGitUrlOverride = url;
+        context.flutterGitUrlOverride = url;
       }),
     )
     ..addOption(
@@ -142,7 +145,7 @@ void main(List<String> args) async {
       help: 'Overrides the Flutter Engine git url',
       valueHelp: 'url',
       callback: runner.wrapCallback((url) {
-        runner.engineGitUrlOverride = url;
+        context.engineGitUrlOverride = url;
       }),
     )
     ..addOption(
@@ -150,7 +153,7 @@ void main(List<String> args) async {
       help: 'Overrides the Dart SDK git url',
       valueHelp: 'url',
       callback: runner.wrapCallback((url) {
-        runner.dartSdkGitUrlOverride = url;
+        context.dartSdkGitUrlOverride = url;
       }),
     )
     ..addOption(
@@ -158,7 +161,7 @@ void main(List<String> args) async {
       help: 'Overrides the Flutter releases json url',
       valueHelp: 'url',
       callback: runner.wrapCallback((url) {
-        runner.versionsJsonUrlOverride = url;
+        context.versionsJsonUrlOverride = url;
       }),
     )
     ..addOption(
@@ -166,7 +169,7 @@ void main(List<String> args) async {
       help: 'Overrides the Flutter storage base url',
       valueHelp: 'url',
       callback: runner.wrapCallback((url) {
-        runner.flutterStorageBaseUrlOverride = url;
+        context.flutterStorageBaseUrlOverride = url;
       }),
     )
     ..addOption(
@@ -233,7 +236,7 @@ void main(List<String> args) async {
       help: 'Whether to attempt to install puro',
       callback: runner.wrapCallback((flag) {
         if (runner.results!.wasParsed('install')) {
-          runner.shouldInstallOverride = runner.results!['install'] as bool;
+          context.shouldInstallOverride = runner.results!['install'] as bool;
         }
       }),
     )
@@ -242,7 +245,7 @@ void main(List<String> args) async {
       help: 'Whether to skip syncing the Flutter cache',
       callback: runner.wrapCallback((flag) {
         if (runner.results!.wasParsed('skip-cache-sync')) {
-          runner.shouldSkipCacheSyncOverride = flag;
+          context.shouldSkipCacheSyncOverride = flag;
         }
       }),
     )
@@ -256,7 +259,7 @@ void main(List<String> args) async {
       help: 'Skip update check',
       negatable: false,
       callback: runner.wrapCallback((flag) {
-        runner.allowUpdateCheckOverride = !flag;
+        context.allowUpdateCheckOverride = !flag;
       }),
     );
   runner

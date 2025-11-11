@@ -82,29 +82,29 @@ class PuroInstallCommand extends PuroCommand {
         fn: (prefs) {
           if (profileOverride != null) prefs.profileOverride = profileOverride;
           if (updatePath != null) prefs.enableProfileUpdate = updatePath;
-          if (runner.pubCacheOverride != null) {
-            prefs.pubCacheDir = runner.pubCacheOverride!;
+          if (runner.context.pubCacheOverride != null) {
+            prefs.pubCacheDir = runner.context.pubCacheOverride!;
           }
-          if (runner.flutterGitUrlOverride != null) {
-            prefs.flutterGitUrl = runner.flutterGitUrlOverride!;
+          if (runner.context.flutterGitUrlOverride != null) {
+            prefs.flutterGitUrl = runner.context.flutterGitUrlOverride!;
           }
-          if (runner.engineGitUrlOverride != null) {
-            prefs.engineGitUrl = runner.engineGitUrlOverride!;
+          if (runner.context.engineGitUrlOverride != null) {
+            prefs.engineGitUrl = runner.context.engineGitUrlOverride!;
           }
-          if (runner.dartSdkGitUrlOverride != null) {
-            prefs.dartSdkGitUrl = runner.dartSdkGitUrlOverride!;
+          if (runner.context.dartSdkGitUrlOverride != null) {
+            prefs.dartSdkGitUrl = runner.context.dartSdkGitUrlOverride!;
           }
-          if (runner.versionsJsonUrlOverride != null) {
-            prefs.releasesJsonUrl = runner.versionsJsonUrlOverride!;
+          if (runner.context.versionsJsonUrlOverride != null) {
+            prefs.releasesJsonUrl = runner.context.versionsJsonUrlOverride!;
           }
-          if (runner.flutterStorageBaseUrlOverride != null) {
-            prefs.flutterStorageBaseUrl = runner.flutterStorageBaseUrlOverride!;
+          if (runner.context.flutterStorageBaseUrlOverride != null) {
+            prefs.flutterStorageBaseUrl = runner.context.flutterStorageBaseUrlOverride!;
           }
-          if (runner.shouldInstallOverride != null) {
-            prefs.shouldInstall = runner.shouldInstallOverride!;
+          if (runner.context.shouldInstallOverride != null) {
+            prefs.shouldInstall = runner.context.shouldInstallOverride!;
           }
-          if (runner.legacyPubCache != null) {
-            prefs.legacyPubCache = runner.legacyPubCache!;
+          if (runner.context.legacyPubCache != null) {
+            prefs.legacyPubCache = runner.context.legacyPubCache!;
           }
         },
       );
