@@ -101,20 +101,7 @@
 ### Testing
 
 1. Write unit tests for business logic.
-2. Write widget tests for UI components.
-3. Aim for good test coverage.
-
-### Widgets
-
-1. Extract reusable widgets into separate components.
-2. Use `StatelessWidget` when possible.
-3. Keep build methods simple and focused.
-
-### State Management
-
-1. Choose appropriate state management based on complexity.
-2. Avoid unnecessary `StatefulWidget`s.
-3. Keep state as local as possible.
+2. Aim for good test coverage.
 
 ### Performance
 
