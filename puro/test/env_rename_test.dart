@@ -30,7 +30,7 @@ class MockPuroConfigForRename extends Mock implements PuroConfig {
 
   @override
   Link get defaultEnvLink => _defaultEnvLink;
-  
+
   // Special method to simulate environment rename for testing
   void renameEnv(String oldName, String newName) {
     if (_envs.containsKey(oldName)) {
@@ -86,17 +86,17 @@ class MockActiveProgressNode extends Mock implements ActiveProgressNode {
 
 class MockProgressNode extends Mock implements ProgressNode {
   late Scope _scope;
-  
+
   MockProgressNode() {
     _scope = RootScope();
   }
-  
+
   @override
   Scope get scope => _scope;
-  
+
   @override
   String render() => '';
-  
+
   @override
   Future<T> wrap<T>(
     Future<T> Function(Scope scope, ActiveProgressNode node) fn, {
@@ -106,7 +106,7 @@ class MockProgressNode extends Mock implements ProgressNode {
     final fakeNode = MockActiveProgressNode();
     return await fn(scope, fakeNode);
   }
-  
+
   @override
   void addNode(ProgressNode node) {}
 }
@@ -123,7 +123,7 @@ void main() {
       logger = PuroLogger();
       mockConfig = MockPuroConfigForRename();
       mockTerminal = MockTerminal();
-      
+
       // Use LocalFileSystem to create a temporary file for preferences
       const fs = LocalFileSystem();
       globalPrefsFile = fs.file(fs.systemTempDirectory.path + '/global_prefs_test.json')

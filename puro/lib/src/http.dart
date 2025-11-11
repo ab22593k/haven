@@ -274,7 +274,10 @@ void validateHttpsUrl(Uri url) {
   }
   // Additional validation: ensure no suspicious characters or patterns
   final host = url.host;
-  if (host.isEmpty || host.contains('..') || host.startsWith('.') || host.endsWith('.')) {
+  if (host.isEmpty ||
+      host.contains('..') ||
+      host.startsWith('.') ||
+      host.endsWith('.')) {
     throw ArgumentError.value(url, 'url', 'Invalid host in URL');
   }
 }

@@ -65,9 +65,10 @@ class ProjectConfig {
   PuroDotfileModel readDotfile() {
     final model = PuroDotfileModel.create();
     if (parentPuroDotfile?.existsSync() ?? false) {
-      model.mergeFromProto3Json(
-        jsonDecode(parentPuroDotfile!.readAsStringSync()),
-      );
+      final parsed =
+          jsonDecode(parentPuroDotfile!.readAsStringSync()) as Map<String, dynamic>;
+      validateJsonAgainstProto3Schema(parsed, PuroDotfileModel.create);
+      model.mergeFromProto3Json(parsed);
     }
     return model;
   }
@@ -75,9 +76,10 @@ class ProjectConfig {
   PuroDotfileModel readDotfileForWriting() {
     final model = PuroDotfileModel.create();
     if (dotfileForWriting.existsSync()) {
-      model.mergeFromProto3Json(
-        jsonDecode(dotfileForWriting.readAsStringSync()),
-      );
+      final parsed =
+          jsonDecode(dotfileForWriting.readAsStringSync()) as Map<String, dynamic>;
+      validateJsonAgainstProto3Schema(parsed, PuroDotfileModel.create);
+      model.mergeFromProto3Json(parsed);
     }
     return model;
   }
@@ -141,7 +143,8 @@ Future<Map<String, List<File>>> getAllDotfiles({
       continue;
     }
     try {
-      final data = jsonDecode(dotfile.readAsStringSync());
+      final data = jsonDecode(dotfile.readAsStringSync()) as Map<String, dynamic>;
+      validateJsonAgainstProto3Schema(data, PuroDotfileModel.create);
       final model = PuroDotfileModel.create();
       model.mergeFromProto3Json(data);
       if (model.hasEnv()) {

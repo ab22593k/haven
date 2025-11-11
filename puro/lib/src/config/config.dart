@@ -323,7 +323,9 @@ class EnvConfig {
     final model = PuroEnvPrefsModel();
     if (prefsJsonFile.existsSync()) {
       final contents = await readAtomic(scope: scope, file: prefsJsonFile);
-      model.mergeFromProto3Json(jsonDecode(contents));
+      final parsed = jsonDecode(contents) as Map<String, dynamic>;
+      validateJsonAgainstProto3Schema(parsed, PuroEnvPrefsModel.create);
+      model.mergeFromProto3Json(parsed);
     }
     return model;
   }
@@ -341,7 +343,9 @@ class EnvConfig {
         String? contents;
         if (handle.lengthSync() > 0) {
           contents = handle.readAllAsStringSync();
-          model.mergeFromProto3Json(jsonDecode(contents));
+          final parsed = jsonDecode(contents) as Map<String, dynamic>;
+          validateJsonAgainstProto3Schema(parsed, PuroEnvPrefsModel.create);
+          model.mergeFromProto3Json(parsed);
         }
         await fn(model);
         final newContents = prettyJsonEncoder.convert(model.toProto3Json());

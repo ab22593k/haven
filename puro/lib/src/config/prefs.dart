@@ -128,6 +128,7 @@ Future<PuroGlobalPrefsModel> _readGlobalPrefs({
     final contents = await readAtomic(scope: scope, file: jsonFile);
     final parsed = parsePrefsJson(contents, scope.read(PuroLogger.provider));
     if (parsed != null) {
+      validateJsonAgainstProto3Schema(parsed, PuroGlobalPrefsModel.create);
       model.mergeFromProto3Json(parsed);
     }
   }
@@ -151,6 +152,7 @@ Future<PuroGlobalPrefsModel> _updateGlobalPrefs({
         contents = utf8.decode(handle.readSync(handle.lengthSync()));
         final parsed = parsePrefsJson(contents, scope.read(PuroLogger.provider));
         if (parsed != null) {
+          validateJsonAgainstProto3Schema(parsed, PuroGlobalPrefsModel.create);
           model.mergeFromProto3Json(parsed);
         }
       }
