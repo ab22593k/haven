@@ -1,6 +1,6 @@
 import '../command.dart';
 import '../command_result.dart';
-import '../env/command.dart';
+import '../env/service.dart';
 import '../install/bin.dart';
 
 class EnvCreateCommand extends PuroCommand {
@@ -30,7 +30,7 @@ class EnvCreateCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    const service = EnvCommandService();
+    const service = EnvService();
     final channel = argResults!['channel'] as String?;
     final fork = argResults!['fork'] as String?;
     final args = unwrapArguments(atLeast: 1, atMost: 2);

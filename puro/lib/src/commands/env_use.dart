@@ -1,7 +1,7 @@
 import '../command.dart';
 import '../command_result.dart';
 import '../config/config.dart';
-import '../env/command.dart';
+import '../env/service.dart';
 import '../logger.dart';
 import '../terminal.dart';
 import '../workspace/vscode.dart';
@@ -45,7 +45,7 @@ class EnvUseCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    const service = EnvCommandService();
+    const service = EnvService();
     return withErrorRecovery(() async {
       final args = unwrapArguments(atMost: 1);
       final config = PuroConfig.of(scope);

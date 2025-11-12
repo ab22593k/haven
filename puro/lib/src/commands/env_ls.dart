@@ -1,6 +1,7 @@
 import '../command.dart';
-import '../env/command.dart';
+
 import '../env/list.dart';
+import '../env/service.dart';
 
 class EnvLsCommand extends PuroCommand {
   EnvLsCommand() {
@@ -27,7 +28,7 @@ class EnvLsCommand extends PuroCommand {
 
   @override
   Future<ListEnvironmentResult> run() async {
-    const service = EnvCommandService();
+    const service = EnvService();
     return service.listEnvs(
       scope: scope,
       showProjects: argResults!['projects'] as bool,

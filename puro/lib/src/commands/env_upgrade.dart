@@ -1,5 +1,5 @@
 import '../command.dart';
-import '../env/command.dart';
+import '../env/service.dart';
 import '../env/upgrade.dart';
 
 class EnvUpgradeCommand extends PuroCommand {
@@ -32,7 +32,7 @@ class EnvUpgradeCommand extends PuroCommand {
 
   @override
   Future<EnvUpgradeResult> run() async {
-    const service = EnvCommandService();
+    const service = EnvService();
     final channel = argResults!['channel'] as String?;
     final force = argResults!['force'] as bool;
     final args = unwrapArguments(atLeast: 1, atMost: 2);
