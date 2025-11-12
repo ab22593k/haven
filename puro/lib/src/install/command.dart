@@ -65,7 +65,8 @@ class InstallCommandService {
           prefs.releasesJsonUrl = contextOverrides['versionsJsonUrlOverride'] as String;
         }
         if (contextOverrides['flutterStorageBaseUrlOverride'] != null) {
-          prefs.flutterStorageBaseUrl = contextOverrides['flutterStorageBaseUrlOverride'] as String;
+          prefs.flutterStorageBaseUrl =
+              contextOverrides['flutterStorageBaseUrlOverride'] as String;
         }
         if (contextOverrides['shouldInstallOverride'] != null) {
           prefs.shouldInstall = contextOverrides['shouldInstallOverride'] as bool;

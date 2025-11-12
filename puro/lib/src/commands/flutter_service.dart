@@ -45,7 +45,8 @@ class FlutterCommandService {
           'Using puro to switch flutter channel',
           type: CompletionType.info,
         );
-        final channelArgs = args.where((e) => !e.startsWith('-')).skip(1).take(1).toList();
+        final channelArgs =
+            args.where((e) => !e.startsWith('-')).skip(1).take(1).toList();
         if (channelArgs.isNotEmpty) {
           await runner.run(['upgrade', channelArgs.first]);
           return 0;
