@@ -33,7 +33,7 @@ class EnvCreateCommand extends PuroCommand {
   final description = 'Sets up a new Flutter environment';
 
   @override
-  Future<EnvCreateResult> run() async {
+  Future<CommandResult> run() async {
     final channel = argResults!['channel'] as String?;
     final fork = argResults!['fork'] as String?;
     final args = unwrapArguments(atLeast: 1, atMost: 2);
@@ -50,14 +50,17 @@ class EnvCreateCommand extends PuroCommand {
             'Cannot create fixed version `$envName` with a fork',
           );
         }
-        return createEnvironment(
+        final environment = await createEnvironment(
           scope: scope,
           envName: envName,
           forkRemoteUrl: fork,
           forkRef: version,
         );
+        return BasicMessageResult(
+          'Created new environment at `${environment.flutterDir.path}`',
+        );
       } else {
-        return createEnvironment(
+        final environment = await createEnvironment(
           scope: scope,
           envName: envName,
           flutterVersion: await FlutterVersion.query(
@@ -66,6 +69,9 @@ class EnvCreateCommand extends PuroCommand {
             channel: channel,
             defaultVersion: isPseudoEnvName(envName) ? envName : 'stable',
           ),
+        );
+        return BasicMessageResult(
+          'Created new environment at `${environment.flutterDir.path}`',
         );
       }
     });

@@ -19,25 +19,7 @@ import 'flutter_tool.dart';
 import 'transaction.dart';
 import 'version.dart';
 
-class EnvCreateResult extends CommandResult {
-  EnvCreateResult({
-    required this.success,
-    required this.environment,
-    this.rollbackAttempted = false,
-  });
 
-  @override
-  final bool success;
-  final EnvConfig environment;
-  final bool rollbackAttempted;
-
-  @override
-  CommandMessage get message => CommandMessage(
-        rollbackAttempted
-            ? 'Failed to create environment; changes rolled back'
-            : 'Created new environment at `${environment.flutterDir.path}`',
-      );
-}
 
 /// Updates the engine version file, to replicate the functionality of
 /// https://github.com/flutter/flutter/blob/master/bin/internal/update_engine_version.sh
@@ -171,7 +153,7 @@ Future<String?> getEngineVersionOfCommit({
 /// This operation is transactional: on failure, any created env directory,
 /// written prefs, cloned framework, or installed shims are rolled back.
 /// No half-created environments are left behind.
-Future<EnvCreateResult> createEnvironment({
+Future<EnvConfig> createEnvironment({
   required Scope scope,
   required String envName,
   FlutterVersion? flutterVersion,
@@ -342,10 +324,7 @@ Future<EnvCreateResult> createEnvironment({
             rollback: null, // Tool setup is final, assume it succeeds or log
           );
 
-          return EnvCreateResult(
-            success: true,
-            environment: environment,
-          );
+          return environment;
         });
   });
 }
