@@ -4,30 +4,7 @@ import 'package:args/command_runner.dart';
 
 import 'command.dart';
 import 'command_result.dart';
-import 'commands/build_shell.dart';
-import 'commands/clean.dart';
-import 'commands/dart.dart';
-import 'commands/engine.dart';
-import 'commands/env_create.dart';
-import 'commands/env_ls.dart';
-import 'commands/env_rename.dart';
-import 'commands/env_rm.dart';
-import 'commands/env_upgrade.dart';
-import 'commands/env_use.dart';
-import 'commands/eval.dart';
-import 'commands/flutter.dart';
-import 'commands/gc.dart';
-import 'commands/internal_generate_ast_parser.dart';
-import 'commands/internal_generate_docs.dart';
-import 'commands/ls_versions.dart';
-import 'commands/prefs.dart';
-import 'commands/pub.dart';
-import 'commands/puro_install.dart';
-import 'commands/puro_uninstall.dart';
-import 'commands/puro_upgrade.dart';
-import 'commands/repl.dart';
-import 'commands/run.dart';
-import 'commands/version.dart';
+import 'commands/registry.dart';
 import 'logger.dart';
 import 'provider.dart';
 import 'terminal.dart';
@@ -262,31 +239,7 @@ void main(List<String> args) async {
         context.allowUpdateCheckOverride = !flag;
       }),
     );
-  runner
-    ..addCommand(VersionCommand())
-    ..addCommand(EnvCreateCommand())
-    ..addCommand(EnvUpgradeCommand())
-    ..addCommand(EnvLsCommand())
-    ..addCommand(EnvUseCommand())
-    ..addCommand(CleanCommand())
-    ..addCommand(EnvRmCommand())
-    ..addCommand(EnvRenameCommand())
-    ..addCommand(FlutterCommand())
-    ..addCommand(DartCommand())
-    ..addCommand(PubCommand())
-    ..addCommand(RunCommand())
-    ..addCommand(GenerateDocsCommand())
-    ..addCommand(GenerateASTParserCommand())
-    ..addCommand(PuroUpgradeCommand())
-    ..addCommand(PuroInstallCommand())
-    ..addCommand(PuroUninstallCommand())
-    ..addCommand(GcCommand())
-    ..addCommand(LsVersionsCommand())
-    ..addCommand(EngineCommand())
-    ..addCommand(PrefsCommand())
-    ..addCommand(EvalCommand())
-    ..addCommand(ReplCommand())
-    ..addCommand(BuildShellCommand());
+  registerPuroCommands(runner);
   try {
     final result = await runner.run(args);
     if (result == null) {
