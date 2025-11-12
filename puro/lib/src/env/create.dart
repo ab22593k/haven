@@ -19,8 +19,6 @@ import 'flutter_tool.dart';
 import 'transaction.dart';
 import 'version.dart';
 
-
-
 /// Updates the engine version file, to replicate the functionality of
 /// https://github.com/flutter/flutter/blob/master/bin/internal/update_engine_version.sh
 /// See script details at https://github.com/flutter/flutter/issues/163896

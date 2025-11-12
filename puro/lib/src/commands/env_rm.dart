@@ -1,6 +1,6 @@
 import '../command.dart';
 import '../command_result.dart';
-import '../env/delete.dart';
+import '../env/command.dart';
 
 class EnvRmCommand extends PuroCommand {
   EnvRmCommand() {
@@ -23,11 +23,12 @@ class EnvRmCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = EnvCommandService();
     final name = unwrapSingleArgument();
     return withErrorRecovery(() async {
-      await deleteEnvironment(
+      await service.deleteEnv(
         scope: scope,
-        name: name,
+        envName: name,
         force: argResults!['force'] as bool,
       );
       return BasicMessageResult('Deleted environment `$name`');

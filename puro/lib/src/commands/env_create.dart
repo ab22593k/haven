@@ -1,10 +1,6 @@
 import '../command.dart';
 import '../command_result.dart';
-import '../config/config.dart';
-import '../env/create.dart';
-import '../env/default.dart';
-import '../env/releases.dart';
-import '../env/version.dart';
+import '../env/command.dart';
 import '../install/bin.dart';
 
 class EnvCreateCommand extends PuroCommand {
@@ -34,46 +30,27 @@ class EnvCreateCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = EnvCommandService();
     final channel = argResults!['channel'] as String?;
     final fork = argResults!['fork'] as String?;
     final args = unwrapArguments(atLeast: 1, atMost: 2);
     final version = args.length > 1 ? args[1] : null;
     final envName = args.first.toLowerCase();
-    ensureValidEnvName(envName);
 
     await ensurePuroInstalled(scope: scope);
 
     return withErrorRecovery(() async {
-      if (fork != null) {
-        if (pseudoEnvironmentNames.contains(envName) || isValidVersion(envName)) {
-          throw CommandError(
-            'Cannot create fixed version `$envName` with a fork',
-          );
-        }
-        final environment = await createEnvironment(
-          scope: scope,
-          envName: envName,
-          forkRemoteUrl: fork,
-          forkRef: version,
-        );
-        return BasicMessageResult(
-          'Created new environment at `${environment.flutterDir.path}`',
-        );
-      } else {
-        final environment = await createEnvironment(
-          scope: scope,
-          envName: envName,
-          flutterVersion: await FlutterVersion.query(
-            scope: scope,
-            version: version,
-            channel: channel,
-            defaultVersion: isPseudoEnvName(envName) ? envName : 'stable',
-          ),
-        );
-        return BasicMessageResult(
-          'Created new environment at `${environment.flutterDir.path}`',
-        );
-      }
+      final environment = await service.createEnv(
+        scope: scope,
+        envName: envName,
+        channel: channel,
+        forkRemoteUrl: fork,
+        forkRef: version,
+        version: version,
+      );
+      return BasicMessageResult(
+        'Created new environment at `${environment.flutterDir.path}`',
+      );
     });
   }
 }

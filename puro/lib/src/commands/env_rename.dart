@@ -1,6 +1,6 @@
 import '../command.dart';
 import '../command_result.dart';
-import '../env/rename.dart';
+import '../env/command.dart';
 
 class EnvRenameCommand extends PuroCommand {
   @override
@@ -14,12 +14,13 @@ class EnvRenameCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = EnvCommandService();
     final args = unwrapArguments(exactly: 2);
     final name = args[0];
     final newName = args[1];
-    await renameEnvironment(
+    await service.renameEnv(
       scope: scope,
-      name: name,
+      oldName: name,
       newName: newName,
     );
     return BasicMessageResult('Renamed environment `$name` to `$newName`');

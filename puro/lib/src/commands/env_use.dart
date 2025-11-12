@@ -1,12 +1,9 @@
 import '../command.dart';
 import '../command_result.dart';
 import '../config/config.dart';
-import '../env/create.dart';
-import '../env/default.dart';
-import '../env/version.dart';
+import '../env/command.dart';
 import '../logger.dart';
 import '../terminal.dart';
-import '../workspace/install.dart';
 import '../workspace/vscode.dart';
 
 class EnvUseCommand extends PuroCommand {
@@ -48,48 +45,30 @@ class EnvUseCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = EnvCommandService();
     return withErrorRecovery(() async {
       final args = unwrapArguments(atMost: 1);
       final config = PuroConfig.of(scope);
-      final log = PuroLogger.of(scope);
       final envName = args.isEmpty ? null : args.first;
+
       if (argResults!['global'] as bool) {
-        if (envName == null) {
-          final current = await getDefaultEnvName(scope: scope);
-          return BasicMessageResult(
-            'The current global default environment is `$current`',
-            type: CompletionType.info,
-          );
-        }
-        final env = config.getEnv(envName);
-        if (!env.exists) {
-          if (isPseudoEnvName(env.name)) {
-            await createEnvironment(
-              scope: scope,
-              envName: env.name,
-              flutterVersion: await FlutterVersion.query(
-                scope: scope,
-                version: env.name,
-              ),
-            );
-          } else {
-            log.w('Environment `${env.name}` does not exist');
-          }
-        }
-        await setDefaultEnvName(
+        final message = await service.setDefaultEnv(
           scope: scope,
-          envName: env.name,
+          envName: envName,
         );
         return BasicMessageResult(
-          'Set global default environment to `${env.name}`',
+          message,
+          type: envName == null ? CompletionType.info : CompletionType.success,
         );
       }
+
       var vscodeOverride =
           argResults!.wasParsed('vscode') ? argResults!['vscode'] as bool : null;
       if (vscodeOverride == null && await isRunningInVscode(scope: scope)) {
         vscodeOverride = true;
       }
-      final environment = await switchEnvironment(
+
+      final environment = await service.switchEnv(
         scope: scope,
         envName: envName,
         vscode: vscodeOverride,

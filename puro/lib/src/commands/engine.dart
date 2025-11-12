@@ -1,8 +1,7 @@
 import '../command.dart';
 import '../command_result.dart';
 import '../config/config.dart';
-import '../engine/build_env.dart';
-import '../engine/prepare.dart';
+import '../engine/command.dart';
 
 class EngineCommand extends PuroCommand {
   EngineCommand() {
@@ -43,6 +42,7 @@ class EnginePrepareCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = EngineCommandService();
     final force = argResults!['force'] as bool;
     final fork = argResults!['fork'] as String?;
     final args = unwrapArguments(atLeast: 1, atMost: 2);
@@ -58,7 +58,7 @@ class EnginePrepareCommand extends PuroCommand {
         'Here be dragons', // rrerr
       );
     }
-    await prepareEngine(
+    await service.prepareEngine(
       scope: scope,
       environment: env,
       ref: ref,
@@ -87,14 +87,15 @@ class EngineBuildEnvCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = EngineCommandService();
     final config = PuroConfig.of(scope);
 
     final env = config.getEnv(unwrapArguments(atLeast: 1)[0]);
     final command = unwrapArguments(startingAt: 1);
 
-    await prepareEngineSystemDeps(scope: scope);
+    await service.prepareSystemDeps(scope: scope);
 
-    final exitCode = await runBuildEnvShell(
+    final exitCode = await service.runBuildShell(
       scope: scope,
       command: command,
       environment: env,
