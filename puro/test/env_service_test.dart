@@ -1,3 +1,4 @@
+import 'package:puro/src/command_result.dart';
 import 'package:puro/src/config/config.dart';
 
 import 'package:puro/src/env/service.dart';
@@ -43,5 +44,25 @@ void main() {
       final result = await service.setDefaultEnv(scope: testEnv.scope, envName: null);
       expect(result, 'stable');
     });
+
+    test('setDefaultEnv throws for non-existent env', () async {
+      await expectLater(
+        service.setDefaultEnv(scope: testEnv.scope, envName: 'non-existent-env'),
+        throwsA(isA<CommandError>()),
+      );
+    });
+
+    test('createEnv validates env name', () async {
+      // Test that createEnv calls ensureValidEnvName (indirectly tested by throwing)
+      await expectLater(
+        service.createEnv(
+          scope: testEnv.scope,
+          envName: 'invalid name with spaces',
+        ),
+        throwsA(anything), // Should throw due to invalid name
+      );
+    });
+
+
   });
 }

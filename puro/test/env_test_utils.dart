@@ -12,9 +12,13 @@ class MockPuroConfig extends Mock implements PuroConfig {
   final Map<String, MockEnvConfig> _envs = {};
   final LocalFileSystem _fs = const LocalFileSystem();
   late final Link _defaultEnvLink;
+  late final Directory _envsDir;
+  late final File _cachedReleasesJsonFile;
 
   MockPuroConfig() {
     _defaultEnvLink = _fs.link('${_fs.systemTempDirectory.path}/default_env_link');
+    _envsDir = _fs.directory('${_fs.systemTempDirectory.path}/envs');
+    _cachedReleasesJsonFile = _fs.file('${_fs.systemTempDirectory.path}/cached_releases.json');
   }
 
   void addEnv(String name, MockEnvConfig env) {
@@ -28,6 +32,12 @@ class MockPuroConfig extends Mock implements PuroConfig {
 
   @override
   Link get defaultEnvLink => _defaultEnvLink;
+
+  @override
+  Directory get envsDir => _envsDir;
+
+  @override
+  File get cachedReleasesJsonFile => _cachedReleasesJsonFile;
 
   // For rename test
   void renameEnv(String oldName, String newName) {
