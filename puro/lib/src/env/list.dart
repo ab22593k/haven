@@ -39,14 +39,17 @@ class EnvironmentInfoResult {
   }
 }
 
-class ListEnvironmentResult extends CommandResult {
+class ListEnvironmentResult extends MessageResult {
   ListEnvironmentResult({
     required this.config,
     required this.results,
     required this.projectEnvironment,
     required this.globalEnvironment,
     required this.showProjects,
-  });
+  }) : super(messages: [
+          _buildMessage(
+              config, results, projectEnvironment, globalEnvironment, showProjects)
+        ]);
 
   final PuroConfig config;
   final List<EnvironmentInfoResult> results;
@@ -54,11 +57,13 @@ class ListEnvironmentResult extends CommandResult {
   final String? globalEnvironment;
   final bool showProjects;
 
-  @override
-  bool get success => true;
-
-  @override
-  CommandMessage get message {
+  static CommandMessage _buildMessage(
+    PuroConfig config,
+    List<EnvironmentInfoResult> results,
+    String? projectEnvironment,
+    String? globalEnvironment,
+    bool showProjects,
+  ) {
     return CommandMessage.format(
       (format) {
         if (results.isEmpty) {
@@ -127,15 +132,15 @@ class ListEnvironmentResult extends CommandResult {
   }
 
   @override
-  late final model = CommandResultModel(
-    environmentList: EnvironmentListModel(
-      environments: [
-        for (final info in results) info.toModel(),
-      ],
-      projectEnvironment: projectEnvironment,
-      globalEnvironment: globalEnvironment,
-    ),
-  );
+  CommandResultModel? get model => CommandResultModel(
+        environmentList: EnvironmentListModel(
+          environments: [
+            for (final info in results) info.toModel(),
+          ],
+          projectEnvironment: projectEnvironment,
+          globalEnvironment: globalEnvironment,
+        ),
+      );
 }
 
 /// Lists all available environments

@@ -19,7 +19,8 @@ class MockPuroConfig extends Mock implements PuroConfig {
   MockPuroConfig() {
     _defaultEnvLink = _fs.link('${_fs.systemTempDirectory.path}/default_env_link');
     _envsDir = _fs.directory('${_fs.systemTempDirectory.path}/envs');
-    _cachedReleasesJsonFile = _fs.file('${_fs.systemTempDirectory.path}/cached_releases.json');
+    _cachedReleasesJsonFile =
+        _fs.file('${_fs.systemTempDirectory.path}/cached_releases.json');
   }
 
   void addEnv(String name, MockEnvConfig env) {

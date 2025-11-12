@@ -10,7 +10,7 @@ import 'flutter_tool.dart';
 import 'transaction.dart';
 import 'version.dart';
 
-class EnvUpgradeResult extends CommandResult {
+class EnvUpgradeResult extends MessageResult {
   EnvUpgradeResult({
     required this.environment,
     required this.from,
@@ -18,7 +18,7 @@ class EnvUpgradeResult extends CommandResult {
     required this.forkRemoteUrl,
     this.switchedBranch = false,
     required this.toolInfo,
-  });
+  }) : super(messages: [_buildMessage(environment, from, to, toolInfo)]);
 
   final EnvConfig environment;
   final FlutterVersion from;
@@ -27,30 +27,34 @@ class EnvUpgradeResult extends CommandResult {
   final bool switchedBranch;
   final FlutterToolInfo toolInfo;
 
-  @override
-  bool get success => true;
-
   bool get downgrade => from > to;
 
-  @override
-  CommandMessage get message => CommandMessage.format(
-        (format) => from.commit == to.commit
-            ? toolInfo.didUpdateTool || toolInfo.didUpdateEngine
-                ? 'Finished installation of $to in environment `${environment.name}`'
-                : 'Environment `${environment.name}` is already up to date'
-            : '${downgrade ? 'Downgraded' : 'Upgraded'} environment `${environment.name}`\n'
-                '${from.toString(format)} => ${to.toString(format)}',
-      );
+  static CommandMessage _buildMessage(
+    EnvConfig environment,
+    FlutterVersion from,
+    FlutterVersion to,
+    FlutterToolInfo toolInfo,
+  ) {
+    final downgrade = from > to;
+    return CommandMessage.format(
+      (format) => from.commit == to.commit
+          ? toolInfo.didUpdateTool || toolInfo.didUpdateEngine
+              ? 'Finished installation of $to in environment `${environment.name}`'
+              : 'Environment `${environment.name}` is already up to date'
+          : '${downgrade ? 'Downgraded' : 'Upgraded'} environment `${environment.name}`\n'
+              '${from.toString(format)} => ${to.toString(format)}',
+    );
+  }
 
   @override
-  late final model = CommandResultModel(
-    success: true,
-    environmentUpgrade: EnvironmentUpgradeModel(
-      name: environment.name,
-      from: from.toModel(),
-      to: to.toModel(),
-    ),
-  );
+  CommandResultModel? get model => CommandResultModel(
+        success: true,
+        environmentUpgrade: EnvironmentUpgradeModel(
+          name: environment.name,
+          from: from.toModel(),
+          to: to.toModel(),
+        ),
+      );
 }
 
 /// Upgrades an environment to a different version of flutter.

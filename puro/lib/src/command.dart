@@ -301,7 +301,7 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
           }),
         );
       } else {
-        if (model.success) {
+        if (result.exitCode == 0) {
           terminal.resetStatus();
         } else {
           terminal.preserveStatus();
@@ -312,12 +312,12 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
           CommandMessage.formatMessages(
             messages: messages.followedBy(result.messages),
             format: terminal.format,
-            success: model.success,
+            success: result.exitCode == 0,
           ),
         );
         messages.clear();
       }
-      await exitPuro(model.success ? 0 : 1);
+      await exitPuro(result.exitCode);
     } catch (exception, stackTrace) {
       stderr.writeln(
         'Exception while writing result:\n$exception\n$stackTrace',

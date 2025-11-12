@@ -23,11 +23,15 @@ extension CommandResultModelExtensions on CommandResultModel {
   }
 }
 
-class CommandErrorResult extends CommandResult {
-  CommandErrorResult(this.exception, this.stackTrace, this.logLevel);
+class CommandErrorResult extends InternalErrorResult {
+  CommandErrorResult(this.exception, StackTrace stackTrace, this.logLevel)
+      : super(
+          message: '$exception\n$stackTrace',
+          error: exception,
+          stackTrace: stackTrace,
+        );
 
   final Object exception;
-  final StackTrace stackTrace;
   final int? logLevel;
 
   @override
@@ -41,89 +45,54 @@ class CommandErrorResult extends CommandResult {
       ].join('\n')),
     ];
   }
-
-  @override
-  bool get success => false;
-
-  @override
-  CommandResultModel? get model => CommandResultModel(
-        error: CommandErrorModel(
-          exception: '$exception',
-          exceptionType: '${exception.runtimeType}',
-          stackTrace: '$stackTrace',
-        ),
-      );
 }
 
-class CommandHelpResult extends CommandResult {
+class CommandHelpResult extends HelpResult {
   CommandHelpResult({
-    required this.didRequestHelp,
-    this.help,
-    this.usage,
-  });
-
-  final bool didRequestHelp;
-  final String? help;
-  final String? usage;
-
-  @override
-  Iterable<CommandMessage> get messages => [
-        if (message != null)
-          CommandMessage(
-            help!,
-            type: CompletionType.failure,
-          ),
-        if (usage != null)
-          CommandMessage(
-            usage!,
-            type: message == null && didRequestHelp
-                ? CompletionType.plain
-                : CompletionType.info,
-          ),
-      ];
-
-  @override
-  bool get success => didRequestHelp;
-
-  @override
-  CommandResultModel? get model => CommandResultModel(usage: usage);
+    required bool didRequestHelp,
+    String? help,
+    String? usage,
+  }) : super(
+          didRequestHelp: didRequestHelp,
+          description: help,
+          usage: usage,
+        );
 }
 
-class BasicMessageResult extends CommandResult {
+class BasicMessageResult extends MessageResult {
   BasicMessageResult(
     String message, {
-    this.success = true,
+    bool success = true,
     CompletionType? type,
-    this.model,
-  }) : messages = [CommandMessage(message, type: type)];
+  }) : super(
+          messages: [CommandMessage(message, type: type)],
+          success: success,
+        );
 
   BasicMessageResult.format(
     String Function(OutputFormatter format) message, {
-    this.success = true,
+    bool success = true,
     CompletionType? type,
-    this.model,
-  }) : messages = [CommandMessage.format(message, type: type)];
+  }) : super(
+          messages: [CommandMessage.format(message, type: type)],
+          success: success,
+        );
 
   BasicMessageResult.list(
-    this.messages, {
-    this.success = true,
-    this.model,
-  });
-
-  @override
-  final bool success;
-  @override
-  final List<CommandMessage> messages;
-  @override
-  final CommandResultModel? model;
+    List<CommandMessage> messages, {
+    bool success = true,
+  }) : super(
+          messages: messages,
+          success: success,
+        );
 }
 
-abstract class CommandResult {
-  bool get success;
+sealed class CommandResult {
+  const CommandResult();
 
-  CommandMessage? get message => null;
+  int get exitCode;
 
-  Iterable<CommandMessage> get messages => [message!];
+  Iterable<CommandMessage> get messages;
 
   CommandResultModel? get model => null;
 
@@ -132,7 +101,7 @@ abstract class CommandResult {
     if (model != null) {
       result.mergeFromMessage(model!);
     }
-    result.success = success;
+    result.success = exitCode == 0;
     result.addMessages(messages, format);
     return result;
   }
@@ -143,6 +112,129 @@ abstract class CommandResult {
         format: plainFormatter,
         success: toModel().success,
       );
+}
+
+class SuccessResult extends CommandResult {
+  const SuccessResult({
+    this.messages = const [],
+  });
+
+  @override
+  int get exitCode => 0;
+
+  @override
+  final List<CommandMessage> messages;
+
+  @override
+  CommandResultModel? get model => null;
+}
+
+class HelpResult extends CommandResult {
+  const HelpResult({
+    this.usage,
+    this.description,
+    this.didRequestHelp = true,
+  });
+
+  final String? usage;
+  final String? description;
+  final bool didRequestHelp;
+
+  @override
+  int get exitCode => didRequestHelp ? 0 : 1;
+
+  @override
+  Iterable<CommandMessage> get messages => [
+        if (description != null)
+          CommandMessage(
+            description!,
+            type: CompletionType.failure,
+          ),
+        if (usage != null)
+          CommandMessage(
+            usage!,
+            type: didRequestHelp ? CompletionType.plain : CompletionType.info,
+          ),
+      ];
+
+  @override
+  CommandResultModel? get model => CommandResultModel(usage: usage);
+}
+
+class UserErrorResult extends CommandResult {
+  const UserErrorResult({
+    required this.message,
+    this.showUsage = false,
+  });
+
+  final String message;
+  final bool showUsage;
+
+  @override
+  int get exitCode => 1;
+
+  @override
+  Iterable<CommandMessage> get messages => [
+        CommandMessage(message, type: CompletionType.failure),
+        if (showUsage)
+          CommandMessage('Run with --help for usage.', type: CompletionType.info),
+      ];
+
+  @override
+  CommandResultModel? get model => null;
+}
+
+class InternalErrorResult extends CommandResult {
+  const InternalErrorResult({
+    required this.message,
+    this.error,
+    this.stackTrace,
+  });
+
+  final String message;
+  final Object? error;
+  final StackTrace? stackTrace;
+
+  @override
+  int get exitCode => 1;
+
+  @override
+  Iterable<CommandMessage> get messages => [
+        CommandMessage(message, type: CompletionType.failure),
+        if (error != null) CommandMessage('$error', type: CompletionType.failure),
+        if (stackTrace != null)
+          CommandMessage('$stackTrace', type: CompletionType.failure),
+        CommandMessage(
+          'Puro crashed! Please file an issue at https://github.com/pingbird/puro',
+          type: CompletionType.failure,
+        ),
+      ];
+
+  @override
+  CommandResultModel? get model => CommandResultModel(
+        error: CommandErrorModel(
+          exception: error?.toString() ?? message,
+          exceptionType: error?.runtimeType.toString() ?? 'Unknown',
+          stackTrace: stackTrace?.toString(),
+        ),
+      );
+}
+
+class MessageResult extends CommandResult {
+  const MessageResult({
+    required this.messages,
+    this.success = true,
+  });
+
+  @override
+  final List<CommandMessage> messages;
+  final bool success;
+
+  @override
+  int get exitCode => success ? 0 : 1;
+
+  @override
+  CommandResultModel? get model => null;
 }
 
 class CommandMessage {
@@ -178,35 +270,29 @@ class CommandError implements Exception {
   CommandError(
     String message, {
     CompletionType? type,
-    CommandResultModel? model,
     bool success = false,
   }) : result = BasicMessageResult(
           message,
           success: success,
           type: type,
-          model: model,
         );
 
   CommandError.format(
     String Function(OutputFormatter format) message, {
     CompletionType? type,
-    CommandResultModel? model,
     bool success = false,
   }) : result = BasicMessageResult.format(
           message,
           success: success,
           type: type,
-          model: model,
         );
 
   CommandError.list(
     List<CommandMessage> messages, {
-    CommandResultModel? model,
     bool success = false,
   }) : result = BasicMessageResult.list(
           messages,
           success: success,
-          model: model,
         );
 
   final CommandResult result;
