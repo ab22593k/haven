@@ -1,18 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:file/file.dart';
-
-import '../../models.dart';
 import '../command.dart';
 import '../command_result.dart';
-import '../config/config.dart';
-import '../config/prefs.dart';
-import '../env/env_shims.dart';
-import '../install/bin.dart';
-import '../install/profile.dart';
+import '../install/command.dart';
 import '../logger.dart';
-import '../version.dart';
 
 class PuroInstallCommand extends PuroCommand {
   PuroInstallCommand() {
@@ -60,120 +49,37 @@ class PuroInstallCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = InstallCommandService();
+
+    final force = argResults!['force'] as bool;
+    final promote = argResults!['promote'] as bool;
+    final profileOverride = argResults!['profile'] as String?;
+    final updatePath =
+        argResults!.wasParsed('path') ? argResults!['path'] as bool : null;
+
+    final contextOverrides = {
+      'pubCacheOverride': runner.context.pubCacheOverride,
+      'flutterGitUrlOverride': runner.context.flutterGitUrlOverride,
+      'engineGitUrlOverride': runner.context.engineGitUrlOverride,
+      'dartSdkGitUrlOverride': runner.context.dartSdkGitUrlOverride,
+      'versionsJsonUrlOverride': runner.context.versionsJsonUrlOverride,
+      'flutterStorageBaseUrlOverride': runner.context.flutterStorageBaseUrlOverride,
+      'shouldInstallOverride': runner.context.shouldInstallOverride,
+      'legacyPubCache': runner.context.legacyPubCache,
+    };
+
     return withErrorRecovery(() async {
-      final puroVersion = await PuroVersion.of(scope);
-      final config = PuroConfig.of(scope);
-      final log = PuroLogger.of(scope);
-
-      final force = argResults!['force'] as bool;
-      final promote = argResults!['promote'] as bool;
-      final profileOverride = argResults!['profile'] as String?;
-      final updatePath =
-          argResults!.wasParsed('path') ? argResults!['path'] as bool : null;
-
-      await ensurePuroInstalled(
-        scope: scope,
-        force: force,
-        promote: promote,
-      );
-
-      final PuroGlobalPrefsModel prefs = await updateGlobalPrefs(
-        scope: scope,
-        fn: (prefs) {
-          if (profileOverride != null) prefs.profileOverride = profileOverride;
-          if (updatePath != null) prefs.enableProfileUpdate = updatePath;
-          if (runner.context.pubCacheOverride != null) {
-            prefs.pubCacheDir = runner.context.pubCacheOverride!;
-          }
-          if (runner.context.flutterGitUrlOverride != null) {
-            prefs.flutterGitUrl = runner.context.flutterGitUrlOverride!;
-          }
-          if (runner.context.engineGitUrlOverride != null) {
-            prefs.engineGitUrl = runner.context.engineGitUrlOverride!;
-          }
-          if (runner.context.dartSdkGitUrlOverride != null) {
-            prefs.dartSdkGitUrl = runner.context.dartSdkGitUrlOverride!;
-          }
-          if (runner.context.versionsJsonUrlOverride != null) {
-            prefs.releasesJsonUrl = runner.context.versionsJsonUrlOverride!;
-          }
-          if (runner.context.flutterStorageBaseUrlOverride != null) {
-            prefs.flutterStorageBaseUrl = runner.context.flutterStorageBaseUrlOverride!;
-          }
-          if (runner.context.shouldInstallOverride != null) {
-            prefs.shouldInstall = runner.context.shouldInstallOverride!;
-          }
-          if (runner.context.legacyPubCache != null) {
-            prefs.legacyPubCache = runner.context.legacyPubCache!;
-          }
-        },
-      );
-
-      log.d(() =>
-          'prefs: ${const JsonEncoder.withIndent('  ').convert(prefs.toProto3Json())}');
-
-      // Update the PATH by default if this is a distribution install.
-      String? profilePath;
-      var updatedWindowsRegistry = false;
-      final homeDir = config.homeDir.path;
-      if ((updatePath ?? false) ||
-          ((puroVersion.type == PuroInstallationType.distribution || promote) &&
-                  !prefs.hasEnableProfileUpdate() ||
-              prefs.enableProfileUpdate)) {
-        if (Platform.isLinux || Platform.isMacOS) {
-          final profile = await installProfileEnv(
-            scope: scope,
-            profileOverride: prefs.hasProfileOverride() ? prefs.profileOverride : null,
-          );
-          profilePath = profile?.path;
-          _updatedProfilePath = profilePath;
-          if (profilePath != null && profilePath.startsWith(homeDir)) {
-            profilePath = '~' + profilePath.substring(homeDir.length);
-          }
-        } else if (Platform.isWindows) {
-          updatedWindowsRegistry = await tryUpdateWindowsPath(
-            scope: scope,
-          );
-        }
-      }
-
-      // Environment shims may have changed, update all of them to be safe
-      config.envsDir.createSync(recursive: true);
-      for (final envDir in config.envsDir.listSync().whereType<Directory>()) {
-        if (envDir.basename == 'default') continue;
-        final environment = config.getEnv(envDir.basename);
-        if (!environment.flutterDir.childDirectory('.git').existsSync()) continue;
-        await runOptional(
-          scope,
-          '`${environment.name}` post-upgrade',
-          () async {
-            await installEnvShims(scope: scope, environment: environment);
-          },
-        );
-      }
-
-      final externalMessage = await detectExternalFlutterInstallations(scope: scope);
-
-      final updateMessage = await checkIfUpdateAvailable(
+      final (result, profilePath) = await service.installPuro(
         scope: scope,
         runner: runner,
-        alwaysNotify: true,
+        force: force,
+        promote: promote,
+        profileOverride: profileOverride,
+        updatePath: updatePath,
+        contextOverrides: contextOverrides,
       );
-
-      return BasicMessageResult.list([
-        if (externalMessage != null) externalMessage,
-        if (updateMessage != null) updateMessage,
-        if (profilePath != null)
-          CommandMessage(
-              'Updated PATH in $profilePath, reopen your terminal or `source $profilePath` for it to take effect'),
-        if (updatedWindowsRegistry)
-          CommandMessage(
-            'Updated PATH in the Windows registry, reopen your terminal for it to take effect',
-          ),
-        CommandMessage(
-          'Successfully installed Puro ${puroVersion.semver} to `${config.puroRoot.path}`',
-        ),
-      ]);
+      _updatedProfilePath = profilePath;
+      return result;
     });
   }
 }

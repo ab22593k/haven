@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:args/args.dart';
 
 import '../command.dart';
 import '../command_result.dart';
-import '../env/command.dart';
-import '../env/default.dart';
+import 'dart_service.dart';
 
 class DartCommand extends PuroCommand {
   @override
@@ -22,12 +19,10 @@ class DartCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    final environment = await getProjectEnvOrDefault(scope: scope);
-    final exitCode = await runDartCommand(
+    const service = DartCommandService();
+    final exitCode = await service.executeDartCommand(
       scope: scope,
-      environment: environment,
       args: argResults!.arguments,
-      mode: ProcessStartMode.inheritStdio,
     );
     await runner.exitPuro(exitCode);
   }

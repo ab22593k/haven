@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:args/args.dart';
 
 import '../command.dart';
 import '../command_result.dart';
-import '../env/command.dart';
-import '../env/default.dart';
+import 'run_service.dart';
 
 class RunCommand extends PuroCommand {
   @override
@@ -22,13 +19,13 @@ class RunCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    final environment = await getProjectEnvOrDefault(scope: scope);
-    final exitCode = await runDartCommand(
+    const service = RunCommandService();
+    await service.runScript(
       scope: scope,
-      environment: environment,
-      args: ['run', ...argResults!.arguments],
-      mode: ProcessStartMode.inheritStdio,
+      runner: runner,
+      args: argResults!.arguments,
     );
-    await runner.exitPuro(exitCode);
+    // This won't be reached as exitPuro terminates the program
+    throw UnimplementedError('Unreachable code');
   }
 }

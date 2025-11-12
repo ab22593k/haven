@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:args/args.dart';
 
 import '../command.dart';
 import '../command_result.dart';
-import '../env/command.dart';
-import '../env/default.dart';
+import 'pub_service.dart';
 
 class PubCommand extends PuroCommand {
   @override
@@ -22,12 +19,10 @@ class PubCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    final environment = await getProjectEnvOrDefault(scope: scope);
-    final exitCode = await runFlutterCommand(
+    const service = PubCommandService();
+    final exitCode = await service.executePubCommand(
       scope: scope,
-      environment: environment,
-      args: ['pub', ...argResults!.arguments],
-      mode: ProcessStartMode.inheritStdio,
+      args: argResults!.arguments,
     );
     await runner.exitPuro(exitCode);
   }

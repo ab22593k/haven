@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import '../command.dart';
 import '../command_result.dart';
-import '../install/profile.dart';
-import '../terminal.dart';
-import '../version.dart';
+import 'version_service.dart';
 
 class VersionCommand extends PuroCommand {
   VersionCommand() {
@@ -31,29 +27,18 @@ class VersionCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
+    const service = VersionCommandService();
     final plain = argResults!['plain'] as bool;
-    final puroVersion = await PuroVersion.of(scope);
     if (plain) {
-      Terminal.of(scope).flushStatus();
-      await stderr.flush();
-      stdout.write('${puroVersion.semver}');
-      await runner.exitPuro(0);
+      await service.printPlainVersion(
+        scope: scope,
+        runner: runner,
+      );
+      // This won't be reached as exitPuro terminates the program
     }
-    final externalMessage = await detectExternalFlutterInstallations(scope: scope);
-    final updateMessage = await checkIfUpdateAvailable(
+    return service.getVersionInfo(
       scope: scope,
       runner: runner,
-      alwaysNotify: true,
     );
-    return BasicMessageResult.list([
-      if (externalMessage != null) externalMessage,
-      if (updateMessage != null) updateMessage,
-      CommandMessage(
-        'Puro ${puroVersion.semver} '
-        '(${puroVersion.type.name}/${puroVersion.target.name})\n'
-        'Dart ${Platform.version}',
-        type: CompletionType.info,
-      ),
-    ]);
   }
 }

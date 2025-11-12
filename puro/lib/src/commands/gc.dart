@@ -1,7 +1,6 @@
 import '../command.dart';
 import '../command_result.dart';
-import '../env/gc.dart';
-import '../extensions.dart';
+import 'gc_service.dart';
 
 class GcCommand extends PuroCommand {
   @override
@@ -12,17 +11,11 @@ class GcCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    final bytes = await collectGarbage(
+    const service = GcCommandService();
+    return service.performGarbageCollection(
       scope: scope,
       maxUnusedCaches: 0,
       maxUnusedFlutterTools: 0,
     );
-    if (bytes == 0) {
-      return BasicMessageResult('Nothing to clean up');
-    } else {
-      return BasicMessageResult(
-        'Cleaned up caches and reclaimed ${bytes.prettyAbbr(metric: true)}B',
-      );
-    }
   }
 }
