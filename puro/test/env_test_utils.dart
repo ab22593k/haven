@@ -3,6 +3,7 @@ import 'package:file/local.dart';
 import 'package:mockito/mockito.dart';
 import 'package:puro/src/config/config.dart';
 import 'package:puro/src/config/prefs.dart';
+import 'package:puro/src/config/project.dart';
 import 'package:puro/src/logger.dart';
 import 'package:puro/src/progress.dart';
 import 'package:puro/src/provider.dart';
@@ -89,6 +90,8 @@ class MockActiveProgressNode extends Mock implements ActiveProgressNode {
     scope = RootScope();
   }
 }
+
+class MockProjectConfig extends Mock implements ProjectConfig {}
 
 class MockProgressNode extends Mock implements ProgressNode {
   late Scope _scope;
