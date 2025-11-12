@@ -126,7 +126,8 @@ TestEnvSetup setupTestEnv() {
   final mockTerminal = MockTerminal();
 
   const fs = LocalFileSystem();
-  final prefsFile = fs.file(fs.systemTempDirectory.path + '/global_prefs_test.json')
+  final prefsFile = fs.file(
+      '${fs.systemTempDirectory.path}/global_prefs_test_${DateTime.now().millisecondsSinceEpoch}.json')
     ..createSync()
     ..writeAsStringSync('{"defaultEnvironment": "stable"}');
 

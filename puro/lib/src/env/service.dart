@@ -4,7 +4,7 @@ import '../config/project.dart';
 import '../provider.dart';
 import '../workspace/install.dart';
 import 'create.dart';
-import 'default.dart';
+import 'default.dart' as default_lib;
 import 'delete.dart';
 import 'list.dart';
 import 'releases.dart';
@@ -49,7 +49,7 @@ class EnvService {
         scope: scope,
         version: version,
         channel: channel,
-        defaultVersion: isPseudoEnvName(envName) ? envName : 'stable',
+        defaultVersion: default_lib.isPseudoEnvName(envName) ? envName : 'stable',
       );
       return await createEnvironment(
         scope: scope,
@@ -95,7 +95,7 @@ class EnvService {
   Future<String> getDefaultEnvName({
     required Scope scope,
   }) async {
-    return await getDefaultEnvName(scope: scope);
+    return await default_lib.getDefaultEnvName(scope: scope);
   }
 
   /// Sets the global default environment.
@@ -107,13 +107,13 @@ class EnvService {
     String? envName,
   }) async {
     if (envName == null) {
-      return await getDefaultEnvName(scope: scope);
+      return await default_lib.getDefaultEnvName(scope: scope);
     }
 
     final config = PuroConfig.of(scope);
     final env = config.getEnv(envName);
     if (!env.exists) {
-      if (isPseudoEnvName(env.name)) {
+      if (default_lib.isPseudoEnvName(env.name)) {
         await createEnvironment(
           scope: scope,
           envName: env.name,
@@ -126,7 +126,7 @@ class EnvService {
         throw CommandError('Environment `${env.name}` does not exist');
       }
     }
-    await setDefaultEnvName(scope: scope, envName: env.name);
+    await default_lib.setDefaultEnvName(scope: scope, envName: env.name);
     return 'Set global default environment to `${env.name}`';
   }
 

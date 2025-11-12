@@ -186,5 +186,3 @@ Future<void> Function() _setupExitSignals(ProcessStartMode mode) {
     await sigTermSub?.cancel();
   };
 }
-
-
