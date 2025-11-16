@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:async/async.dart';
+import 'package:cli_completion/cli_completion.dart';
 import 'package:clock/clock.dart';
 import 'package:file/local.dart';
 
@@ -171,7 +172,7 @@ class PuroCommandContext {
   bool? allowUpdateCheckOverride;
 }
 
-class PuroCommandRunner extends CommandRunner<CommandResult> {
+class PuroCommandRunner extends CompletionCommandRunner<CommandResult> {
   PuroCommandRunner(
     super.executableName,
     super.description, {
@@ -335,6 +336,12 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
   @override
   Future<CommandResult?> runCommand(ArgResults topLevelResults) async {
     results = topLevelResults;
+
+    // Fast track completion commands to skip initialization
+    if (topLevelResults.command?.name == 'completion' ||
+        topLevelResults.command?.name == 'install-completion-files') {
+      return super.runCommand(topLevelResults);
+    }
 
     if (!initialized) {
       for (final callback in callbackQueue) {
