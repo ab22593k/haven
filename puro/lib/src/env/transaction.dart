@@ -41,8 +41,12 @@ class EnvTransaction {
       tx._completed = true;
       tx.logger.v('Transaction completed successfully');
       return result;
+    } on FileSystemException catch (e) {
+      tx.logger.w('File system error in transaction: $e');
+      await tx._rollbackAll();
+      rethrow;
     } catch (e) {
-      tx.logger.w('Transaction failed: $e');
+      tx.logger.w('Error in transaction: $e');
       await tx._rollbackAll();
       rethrow;
     }
@@ -65,8 +69,11 @@ class EnvTransaction {
         _rollbacks.add(rollback);
         logger.d('Registered rollback for step: $label');
       }
+    } on FileSystemException catch (e) {
+      logger.w('File system error in step "$label": $e');
+      rethrow;
     } catch (e) {
-      logger.w('Step "$label" failed: $e');
+      logger.w('Error in step "$label": $e');
       rethrow;
     }
   }
@@ -87,14 +94,17 @@ class EnvTransaction {
     for (final rollback in _rollbacks.reversed) {
       try {
         await rollback();
+      } on FileSystemException catch (e) {
+        logger.w('File system error during rollback: $e');
       } catch (e) {
-        logger.w('Rollback failed: $e');
+        logger.w('Error during rollback: $e');
       }
     }
   }
 
   // Helper: Create directory with rollback.
   Future<void> createDir(Directory dir) async {
+    // ignore: avoid_slow_async_io
     final existed = await dir.exists();
     await step(
       label: 'create directory ${dir.path}',
@@ -106,6 +116,7 @@ class EnvTransaction {
   // Helper: Write file with backup.
   Future<void> writeFile(File file, String contents) async {
     String? backup;
+    // ignore: avoid_slow_async_io
     if (await file.exists()) {
       backup = await file.readAsString();
     }
@@ -139,6 +150,7 @@ class EnvTransaction {
     required FileSystemEntity next,
   }) async {
     final tempPath = '${current.path}.tmp';
+    // ignore: avoid_slow_async_io
     final temp = await FileSystemEntity.type(current.path) == FileSystemEntityType.link
         ? Link(tempPath)
         : Directory(tempPath);

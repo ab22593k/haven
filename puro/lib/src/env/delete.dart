@@ -87,8 +87,8 @@ Future<void> deleteEnvironment({
           action: () async {
             try {
               await trash.delete(recursive: true);
-            } catch (e) {
-              if (!env.flutter.cache.dartSdk.dartExecutable.existsSync()) {
+            } on FileSystemException {
+              if (!await env.flutter.cache.dartSdk.dartExecutable.exists()) {
                 rethrow;
               }
 
@@ -101,7 +101,7 @@ Future<void> deleteEnvironment({
                   [
                     'process',
                     'where',
-                    'path="${env.flutter.cache.dartSdk.dartExecutable.resolveSymbolicLinksSync().replaceAll('\\', '\\\\')}"',
+                    'path="${(await env.flutter.cache.dartSdk.dartExecutable.resolveSymbolicLinks()).replaceAll('\\', '\\\\')}"',
                     'delete',
                   ],
                 );

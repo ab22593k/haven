@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:file/file.dart';
@@ -416,6 +417,22 @@ Future<void> cloneFlutterWithSharedRefs({
     await uninstallEnvShims(scope: scope, environment: environment);
     try {
       await fn();
+    } on FileSystemException catch (exception, stackTrace) {
+      throw CommandError.list([
+        CommandMessage(
+          'File system error during checkout. To overwrite local changes, try passing --force',
+          type: CompletionType.info,
+        ),
+        CommandMessage('$exception\n$stackTrace'),
+      ]);
+    } on ProcessException catch (exception, stackTrace) {
+      throw CommandError.list([
+        CommandMessage(
+          'Git process error during checkout. To overwrite local changes, try passing --force',
+          type: CompletionType.info,
+        ),
+        CommandMessage('$exception\n$stackTrace'),
+      ]);
     } catch (exception, stackTrace) {
       throw CommandError.list([
         CommandMessage(
