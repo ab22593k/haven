@@ -15,6 +15,7 @@ import '../progress.dart';
 import '../provider.dart';
 import 'create.dart';
 import 'engine.dart';
+import 'engine_cache_manager.dart';
 
 class FlutterToolInfo {
   FlutterToolInfo({
