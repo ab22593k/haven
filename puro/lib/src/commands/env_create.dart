@@ -30,7 +30,7 @@ class EnvCreateCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    const service = EnvService();
+    final service = scope.read(envServiceProvider);
     final channel = argResults!['channel'] as String?;
     final fork = argResults!['fork'] as String?;
     final args = unwrapArguments(atLeast: 1, atMost: 2);

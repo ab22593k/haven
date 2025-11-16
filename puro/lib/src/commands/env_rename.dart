@@ -14,7 +14,7 @@ class EnvRenameCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    const service = EnvService();
+    final service = scope.read(envServiceProvider);
     final args = unwrapArguments(exactly: 2);
     final name = args[0];
     final newName = args[1];

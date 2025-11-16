@@ -23,7 +23,7 @@ class EnvRmCommand extends PuroCommand {
 
   @override
   Future<CommandResult> run() async {
-    const service = EnvService();
+    final service = scope.read(envServiceProvider);
     final name = unwrapSingleArgument();
     return withErrorRecovery(() async {
       await service.deleteEnv(

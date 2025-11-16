@@ -28,7 +28,7 @@ class EnvLsCommand extends PuroCommand {
 
   @override
   Future<ListEnvironmentResult> run() async {
-    const service = EnvService();
+    final service = scope.read(envServiceProvider);
     return service.listEnvs(
       scope: scope,
       showProjects: argResults!['projects'] as bool,

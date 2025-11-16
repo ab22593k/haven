@@ -12,16 +12,89 @@ import 'rename.dart';
 import 'upgrade.dart';
 import 'version.dart';
 
+/// Provider for EnvServiceInterface.
+final envServiceProvider = Provider<EnvServiceInterface>((scope) => const EnvService());
+
 /// Unified service for environment operations.
 ///
 /// This service provides a clean API for all environment lifecycle operations,
 /// decoupling the business logic from CLI parsing and command handling.
-class EnvService {
+abstract class EnvServiceInterface {
+  /// Creates a new Flutter environment.
+  ///
+  /// Returns the created environment configuration.
+  Future<EnvConfig> createEnv({
+    required Scope scope,
+    required String envName,
+    String? channel,
+    String? forkRemoteUrl,
+    String? forkRef,
+    String? version,
+  });
+
+  /// Lists all available environments.
+  Future<ListEnvironmentResult> listEnvs({
+    required Scope scope,
+    bool showProjects = false,
+    bool showDartVersion = false,
+  });
+
+  /// Switches to a different environment for the current project.
+  ///
+  /// Returns the switched-to environment configuration.
+  Future<EnvConfig> switchEnv({
+    required Scope scope,
+    String? envName,
+    bool? vscode,
+    bool? intellij,
+    required ProjectConfig projectConfig,
+  });
+
+  /// Gets the current global default environment name.
+  Future<String> getDefaultEnvName({
+    required Scope scope,
+  });
+
+  /// Sets the global default environment.
+  ///
+  /// If [envName] is null, returns the current default name.
+  /// Otherwise, sets the default and returns a success message.
+  Future<String> setDefaultEnv({
+    required Scope scope,
+    String? envName,
+  });
+
+  /// Deletes an environment.
+  Future<void> deleteEnv({
+    required Scope scope,
+    required String envName,
+    required bool force,
+  });
+
+  /// Renames an environment.
+  Future<void> renameEnv({
+    required Scope scope,
+    required String oldName,
+    required String newName,
+  });
+
+  /// Upgrades an environment to a new Flutter version.
+  Future<EnvUpgradeResult> upgradeEnv({
+    required Scope scope,
+    required String envName,
+    String? channel,
+    String? version,
+    bool force = false,
+  });
+}
+
+class EnvService implements EnvServiceInterface {
   const EnvService();
 
   /// Creates a new Flutter environment.
   ///
   /// Returns the created environment configuration.
+  @override
   Future<EnvConfig> createEnv({
     required Scope scope,
     required String envName,
@@ -60,6 +133,7 @@ class EnvService {
   }
 
   /// Lists all available environments.
+  @override
   Future<ListEnvironmentResult> listEnvs({
     required Scope scope,
     bool showProjects = false,
@@ -75,6 +149,7 @@ class EnvService {
   /// Switches to a different environment for the current project.
   ///
   /// Returns the switched-to environment configuration.
+  @override
   Future<EnvConfig> switchEnv({
     required Scope scope,
     String? envName,
@@ -92,6 +167,7 @@ class EnvService {
   }
 
   /// Gets the current global default environment name.
+  @override
   Future<String> getDefaultEnvName({
     required Scope scope,
   }) async {
@@ -102,6 +178,7 @@ class EnvService {
   ///
   /// If [envName] is null, returns the current default name.
   /// Otherwise, sets the default and returns a success message.
+  @override
   Future<String> setDefaultEnv({
     required Scope scope,
     String? envName,
@@ -131,6 +208,7 @@ class EnvService {
   }
 
   /// Deletes an environment.
+  @override
   Future<void> deleteEnv({
     required Scope scope,
     required String envName,
@@ -144,6 +222,7 @@ class EnvService {
   }
 
   /// Renames an environment.
+  @override
   Future<void> renameEnv({
     required Scope scope,
     required String oldName,
@@ -157,6 +236,7 @@ class EnvService {
   }
 
   /// Upgrades an environment to a new Flutter version.
+  @override
   Future<EnvUpgradeResult> upgradeEnv({
     required Scope scope,
     required String envName,
