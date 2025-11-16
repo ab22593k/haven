@@ -95,26 +95,26 @@ class EnvTransaction {
 
   // Helper: Create directory with rollback.
   Future<void> createDir(Directory dir) async {
-    final existed = dir.existsSync();
+    final existed = await dir.exists();
     await step(
       label: 'create directory ${dir.path}',
       action: () => dir.create(recursive: true),
-      rollback: existed ? null : () async => dir.deleteSync(recursive: true),
+      rollback: existed ? null : () async => await dir.delete(recursive: true),
     );
   }
 
   // Helper: Write file with backup.
   Future<void> writeFile(File file, String contents) async {
     String? backup;
-    if (file.existsSync()) {
-      backup = file.readAsStringSync();
+    if (await file.exists()) {
+      backup = await file.readAsString();
     }
     await step(
       label: 'write file ${file.path}',
       action: () => file.writeAsString(contents),
       rollback: backup != null
-          ? () async => file.writeAsString(backup!)
-          : () async => file.deleteSync(),
+          ? () async => await file.writeAsString(backup!)
+          : () async => await file.delete(),
     );
   }
 
@@ -139,7 +139,7 @@ class EnvTransaction {
     required FileSystemEntity next,
   }) async {
     final tempPath = '${current.path}.tmp';
-    final temp = FileSystemEntity.typeSync(current.path) == FileSystemEntityType.link
+    final temp = await FileSystemEntity.type(current.path) == FileSystemEntityType.link
         ? Link(tempPath)
         : Directory(tempPath);
     await step(

@@ -110,10 +110,10 @@ Future<EnvUpgradeResult> upgradeEnvironment({
             (toVersion.branch != null && branch != toVersion.branch)) {
           // Update prefs
           final prefsFile = environment.prefsJsonFile;
-          final prefsExisted = prefsFile.existsSync();
+          final prefsExisted = await prefsFile.exists();
           String? oldPrefsContent;
           if (prefsExisted) {
-            oldPrefsContent = prefsFile.readAsStringSync();
+            oldPrefsContent = await prefsFile.readAsString();
           }
           await tx.step(
             label: 'update environment prefs',
@@ -127,9 +127,9 @@ Future<EnvUpgradeResult> upgradeEnvironment({
             },
             rollback: () async {
               if (oldPrefsContent != null) {
-                prefsFile.writeAsStringSync(oldPrefsContent);
-              } else if (prefsFile.existsSync()) {
-                prefsFile.deleteSync();
+                await prefsFile.writeAsString(oldPrefsContent);
+              } else if (await prefsFile.exists()) {
+                await prefsFile.delete();
               }
             },
           );
@@ -229,10 +229,10 @@ Future<EnvUpgradeResult> upgradeEnvironment({
           environment: environment,
         );
 
-        if (environment.flutter.legacyVersionFile.existsSync()) {
+        if (await environment.flutter.legacyVersionFile.exists()) {
           await tx.step(
             label: 'delete legacy version file',
-            action: () async => environment.flutter.legacyVersionFile.deleteSync(),
+            action: () async => await environment.flutter.legacyVersionFile.delete(),
             rollback: null, // No rollback needed for deletion
           );
         }

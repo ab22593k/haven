@@ -36,7 +36,7 @@ Future<void> ensurePuroInstalled({
 }) async {
   final config = PuroConfig.of(scope);
   if (!config.shouldInstall) return;
-  if (!config.globalPrefsJsonFile.existsSync()) {
+  if (!await config.globalPrefsJsonFile.exists()) {
     await updateGlobalPrefs(scope: scope, fn: (prefs) async {});
   }
   if (promote) {
@@ -62,17 +62,17 @@ Future<void> _promoteStandalone({required Scope scope}) async {
   final executableFile = config.puroExecutableFile;
   final trampolineFile = config.puroTrampolineFile;
   final executableIsTrampoline = executableFile.pathEquals(trampolineFile);
-  if (!executableIsTrampoline && trampolineFile.existsSync()) {
-    trampolineFile.deleteSync();
+  if (!executableIsTrampoline && await trampolineFile.exists()) {
+    await trampolineFile.delete();
   }
   final currentExecutableFile = version.puroExecutable!;
-  executableFile.parent.createSync(recursive: true);
-  if (!executableFile.parent.existsSync()) {
+  await executableFile.parent.create(recursive: true);
+  if (!await executableFile.parent.exists()) {
     throw AssertionError(
       'Failed to create ${currentExecutableFile.parent.path}',
     );
   }
-  if (!currentExecutableFile.existsSync()) {
+  if (!await currentExecutableFile.exists()) {
     throw CommandError.list([
       CommandMessage(
         'Failed to install puro because the executable `${currentExecutableFile.path}` is missing',
@@ -86,8 +86,8 @@ Future<void> _promoteStandalone({required Scope scope}) async {
         ),
     ]);
   }
-  executableFile.deleteOrRenameSync();
-  currentExecutableFile.moveSync(executableFile.path);
+  await executableFile.deleteOrRename();
+  await currentExecutableFile.move(executableFile.path);
 }
 
 Future<void> _installTrampoline({
@@ -105,8 +105,8 @@ Future<void> _installTrampoline({
   final String installLocation;
   switch (version.type) {
     case PuroInstallationType.distribution:
-      if (!executableIsTrampoline && trampolineFile.existsSync()) {
-        trampolineFile.deleteSync();
+      if (!executableIsTrampoline && await trampolineFile.exists()) {
+        await trampolineFile.delete();
       }
       // Already installed
       return;
@@ -136,13 +136,13 @@ Future<void> _installTrampoline({
       ? '$trampolineHeader\n$command %* & exit /B !ERRORLEVEL!'
       : '$trampolineHeader\n$command "\$@"';
 
-  final trampolineExists = trampolineFile.existsSync();
+  final trampolineExists = await trampolineFile.exists();
   final executableExists =
-      executableIsTrampoline ? trampolineExists : executableFile.existsSync();
+      executableIsTrampoline ? trampolineExists : await executableFile.exists();
   final installed = trampolineExists || executableExists;
 
   if (installed) {
-    final trampolineStat = trampolineFile.statSync();
+    final trampolineStat = await trampolineFile.stat();
     final exists = trampolineStat.type == FileSystemEntityType.file;
     // --x--x--x -> 0b001001001 -> 0x49
     final needsChmod = !Platform.isWindows && trampolineStat.mode & 0x49 != 0x49;
@@ -172,10 +172,10 @@ Future<void> _installTrampoline({
     }
   }
 
-  executableFile.deleteOrRenameSync();
-  trampolineFile.deleteOrRenameSync();
-  trampolineFile.parent.createSync(recursive: true);
-  trampolineFile.writeAsStringSync(trampolineScript);
+  await executableFile.deleteOrRename();
+  await trampolineFile.deleteOrRename();
+  await trampolineFile.parent.create(recursive: true);
+  await trampolineFile.writeAsString(trampolineScript);
   if (!Platform.isWindows) {
     await runProcess(scope, 'chmod', ['+x', trampolineFile.path]);
   }
@@ -229,11 +229,11 @@ Future<void> _installShims({
       );
     }
   } else {
-    if (config.puroDartShimFile.existsSync()) {
-      config.puroDartShimFile.deleteSync();
+    if (await config.puroDartShimFile.exists()) {
+      await config.puroDartShimFile.delete();
     }
-    if (config.puroFlutterShimFile.existsSync()) {
-      config.puroFlutterShimFile.deleteSync();
+    if (await config.puroFlutterShimFile.exists()) {
+      await config.puroFlutterShimFile.delete();
     }
   }
 }

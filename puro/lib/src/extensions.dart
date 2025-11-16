@@ -99,6 +99,24 @@ extension FileExtensions on File {
     }
   }
 
+  Future<void> deleteOrRename() async {
+    final oldFile = parent.childFile('$basename.old');
+    if (await oldFile.exists()) {
+      try {
+        await oldFile.delete();
+      } catch (exception) {
+        // Might fail if its still open, idk
+      }
+    }
+    try {
+      await delete();
+    } catch (exception) {
+      if (await exists()) {
+        await rename(oldFile.path);
+      }
+    }
+  }
+
   File resolve() {
     return fileSystem.file(resolveSymbolicLinksSync());
   }
@@ -115,6 +133,16 @@ extension FileExtensions on File {
       final data = readAsBytesSync();
       fileSystem.file(newPath).writeAsBytesSync(data);
       deleteSync();
+    }
+  }
+
+  Future<void> move(String newPath) async {
+    try {
+      await rename(newPath);
+    } catch (e) {
+      final data = await readAsBytes();
+      await fileSystem.file(newPath).writeAsBytes(data);
+      await delete();
     }
   }
 }

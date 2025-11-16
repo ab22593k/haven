@@ -56,7 +56,7 @@ Future<void> updateEngineVersionFile({
         repository: flutterConfig.sdkDir, ref1: 'HEAD', ref2: 'origin/master');
   }
 
-  flutterConfig.engineVersionFile.writeAsStringSync('$commit\n');
+  await flutterConfig.engineVersionFile.writeAsString('$commit\n');
 }
 
 Future<String?> getEngineVersion({
@@ -180,9 +180,9 @@ Future<EnvConfig> createEnvironment({
 
   log.v('Creating a new environment in ${environment.envDir.path}');
 
-  final existing = environment.envDir.existsSync();
+  final existing = await environment.envDir.exists();
 
-  if (existing && environment.flutterDir.existsSync()) {
+  if (existing && await environment.flutterDir.exists()) {
     final commit = await git.tryGetCurrentCommitHash(
       repository: environment.flutterDir,
     );
@@ -194,7 +194,7 @@ Future<EnvConfig> createEnvironment({
     }
   }
 
-  environment.updateLockFile.parent.createSync(recursive: true);
+  await environment.updateLockFile.parent.create(recursive: true);
   return await lockFile(scope, environment.updateLockFile, (lockHandle) async {
     return await EnvTransaction.run(
         scope: scope,
@@ -202,16 +202,16 @@ Future<EnvConfig> createEnvironment({
           // Create env directory
           await tx.step(
             label: 'create environment directory',
-            action: () async => environment.envDir.createSync(recursive: true),
-            rollback: () async => environment.envDir.deleteSync(recursive: true),
+            action: () async => await environment.envDir.create(recursive: true),
+            rollback: () async => await environment.envDir.delete(recursive: true),
           );
 
           // Update prefs
           final prefsFile = environment.prefsJsonFile;
-          final prefsExisted = prefsFile.existsSync();
+          final prefsExisted = await prefsFile.exists();
           String? oldPrefsContent;
           if (prefsExisted) {
-            oldPrefsContent = prefsFile.readAsStringSync();
+            oldPrefsContent = await prefsFile.readAsString();
           }
           await tx.step(
             label: 'update environment prefs',
@@ -228,9 +228,9 @@ Future<EnvConfig> createEnvironment({
             },
             rollback: () async {
               if (oldPrefsContent != null) {
-                prefsFile.writeAsStringSync(oldPrefsContent);
-              } else if (prefsFile.existsSync()) {
-                prefsFile.deleteSync();
+                await prefsFile.writeAsString(oldPrefsContent);
+              } else if (await prefsFile.exists()) {
+                await prefsFile.delete();
               }
             },
           );
@@ -274,7 +274,7 @@ Future<EnvConfig> createEnvironment({
                 forkRef: forkRef,
               );
             },
-            rollback: () async => environment.flutterDir.deleteSync(recursive: true),
+            rollback: () async => await environment.flutterDir.delete(recursive: true),
           );
 
           // Replace flutter/dart with shims
@@ -334,7 +334,7 @@ Future<void> fetchOrCloneShared({
   required String remoteUrl,
 }) async {
   final git = GitClient.of(scope);
-  if (repository.existsSync()) {
+  if (await repository.exists()) {
     await ProgressNode.of(scope).wrap((scope, node) async {
       node.description = 'Fetching $remoteUrl';
       await git.fetch(repository: repository);
@@ -387,8 +387,8 @@ Future<void> cloneFlutterWithSharedRefs({
       'origin': GitRemoteUrls.single(origin),
     };
 
-    if (!repository.childDirectory('.git').existsSync()) {
-      repository.createSync(recursive: true);
+    if (!await repository.childDirectory('.git').exists()) {
+      await repository.create(recursive: true);
       await git.init(repository: repository);
     }
     final alternatesFile = repository
@@ -398,15 +398,15 @@ Future<void> cloneFlutterWithSharedRefs({
         .childFile('alternates');
     final sharedObjects =
         sharedRepository.childDirectory('.git').childDirectory('objects');
-    alternatesFile.writeAsStringSync('${sharedObjects.path}\n');
+    await alternatesFile.writeAsString('${sharedObjects.path}\n');
     await git.syncRemotes(repository: repository, remotes: remotes);
 
     // Delete the cache when we switch versions so the new version doesn't
     // accidentally corrupt the shared engine.
     final cacheDir = repository.childDirectory('bin').childDirectory('cache');
-    if (cacheDir.existsSync()) {
+    if (await cacheDir.exists()) {
       log.d('Deleting ${cacheDir.path} from previous version');
-      cacheDir.deleteSync(recursive: true);
+      await cacheDir.delete(recursive: true);
     }
   }
 
