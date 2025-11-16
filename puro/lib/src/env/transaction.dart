@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:file/file.dart';
+
 import '../logger.dart';
 import '../provider.dart';
 
@@ -131,11 +133,11 @@ class EnvTransaction {
 
   // Helper: Move directory to trash for safe deletion.
   Future<Directory> moveToTrash(Directory dir) async {
-    final trashDir = Directory('${dir.parent.path}/.puro-trash');
+    final trashDir = dir.fileSystem.directory('${dir.parent.path}/.puro-trash');
     await trashDir.create(recursive: true);
     final uniqueName = '${dir.basename}_${DateTime.now().millisecondsSinceEpoch}';
     final trashPath = '${trashDir.path}/$uniqueName';
-    final trash = Directory(trashPath);
+    final trash = dir.fileSystem.directory(trashPath);
     await step(
       label: 'move to trash ${dir.path} -> ${trash.path}',
       action: () => dir.rename(trashPath),
@@ -151,9 +153,9 @@ class EnvTransaction {
   }) async {
     final tempPath = '${current.path}.tmp';
     // ignore: avoid_slow_async_io
-    final temp = await FileSystemEntity.type(current.path) == FileSystemEntityType.link
-        ? Link(tempPath)
-        : Directory(tempPath);
+    final temp = await current.fileSystem.type(current.path) == FileSystemEntityType.link
+        ? current.fileSystem.link(tempPath)
+        : current.fileSystem.directory(tempPath);
     await step(
       label: 'swap paths ${current.path} <-> ${next.path}',
       action: () async {
