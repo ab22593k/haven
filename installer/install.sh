@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-if [ -z "${PURO_ROOT-}" ]; then
-  PURO_ROOT=${HOME}/.puro
+if [ -z "${HAVEN_ROOT-}" ]; then
+  HAVEN_ROOT=${HOME}/.haven
 fi
 
-if [ -z "${PURO_VERSION-}" ]; then
-  PURO_VERSION="master"
+if [ -z "${HAVEN_VERSION-}" ]; then
+  HAVEN_VERSION="main"
 fi
 
-PURO_BIN="$PURO_ROOT/bin"
-PURO_EXE="$PURO_BIN/puro.new"
+HAVEN_BIN="$HAVEN_ROOT/bin"
+HAVEN_EXE="$HAVEN_BIN/haven.new"
 
 is_sourced() {
   if [ -n "$ZSH_VERSION" ]; then
@@ -38,9 +38,9 @@ if [ "$OS" = 'Darwin' ]; then
       softwareupdate --install-rosetta
     fi
   fi
-  DOWNLOAD_URL="https://puro.dev/builds/${PURO_VERSION}/darwin-x64/puro"
+  DOWNLOAD_URL="https://puro.dev/builds/${HAVEN_VERSION}/darwin-x64/puro"
 elif [ "$OS" = 'Linux' ]; then
-  DOWNLOAD_URL="https://puro.dev/builds/${PURO_VERSION}/linux-x64/puro"
+  DOWNLOAD_URL="https://puro.dev/builds/${HAVEN_VERSION}/linux-x64/puro"
 else
   >&2 echo "Error: Unknown OS: $OS"
   $ret 1
@@ -59,11 +59,11 @@ command -v curl > /dev/null 2>&1 || {
   $ret 1
 }
 
-mkdir -p "$PURO_BIN"
-curl -f --retry 3 --output "$PURO_EXE" "$DOWNLOAD_URL" || {
+mkdir -p "$HAVEN_BIN"
+curl -f --retry 3 --output "$HAVEN_EXE" "$DOWNLOAD_URL" || {
   >&2 echo "Error downloading $DOWNLOAD_URL"
   $ret $?
 }
-chmod +x "$PURO_EXE" || $ret $?
+chmod +x "$HAVEN_EXE" || $ret $?
 
-"$PURO_EXE" install-puro --promote
+"$HAVEN_EXE" install-haven --promote

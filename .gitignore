@@ -1,13 +1,13 @@
 # IntelliJ related
-
 .idea/
 *.iml
 .genkit/
 
 # VSCode
-
 .vscode/
 
 # Obsidian
-
 .obsidian/
+
+.dart_tool/
+build/
