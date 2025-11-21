@@ -38,10 +38,7 @@ Future<String> getEngineDartCommit({
     }
   }
 
-  final depsUrl = config.tryGetEngineGitDownloadUrl(
-    commit: engineCommit,
-    path: 'DEPS',
-  );
+  final depsUrl = config.tryGetEngineGitDownloadUrl(commit: engineCommit, path: 'DEPS');
 
   if (depsUrl != null) {
     final response = await http.get(depsUrl);
@@ -56,8 +53,5 @@ Future<String> getEngineDartCommit({
   );
 
   // Try again after cloning the repository
-  return getEngineDartCommit(
-    scope: scope,
-    engineCommit: engineCommit,
-  );
+  return getEngineDartCommit(scope: scope, engineCommit: engineCommit);
 }

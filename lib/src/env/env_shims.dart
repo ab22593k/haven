@@ -19,12 +19,7 @@ const _sharedScripts = {
   'bin/internal/update_dart_sdk.sh',
 };
 
-const _binFiles = {
-  'bin/dart',
-  'bin/dart.bat',
-  'bin/flutter',
-  'bin/flutter.bat',
-};
+const _binFiles = {'bin/dart', 'bin/dart.bat', 'bin/flutter', 'bin/flutter.bat'};
 
 final _ignoredFiles = {
   'bin/cache',
@@ -73,7 +68,8 @@ Future<void> installEnvShims({
   await writePassiveAtomic(
     scope: scope,
     file: flutterConfig.binDir.childFile('dart'),
-    content: '$bashShimHeader\n'
+    content:
+        '$bashShimHeader\n'
         'export HAVEN_FLUTTER_BIN="\$(cd "\${PROG_NAME%/*}" ; pwd -P)"\n'
         'HAVEN_BIN="\$HAVEN_FLUTTER_BIN/../../../../bin"\n' // Backing out of envs/<name>/flutter/bin
         '"\$HAVEN_BIN/haven" dart "\$@"\n',
@@ -81,28 +77,26 @@ Future<void> installEnvShims({
   await writePassiveAtomic(
     scope: scope,
     file: flutterConfig.binDir.childFile('flutter'),
-    content: '$bashShimHeader\n'
+    content:
+        '$bashShimHeader\n'
         'export HAVEN_FLUTTER_BIN="\$(cd "\${PROG_NAME%/*}" ; pwd -P)"\n'
         'HAVEN_BIN="\$HAVEN_FLUTTER_BIN/../../../../bin"\n' // Backing out of envs/<name>/flutter/bin
         '"\$HAVEN_BIN/haven" flutter "\$@"\n',
   );
 
   if (!Platform.isWindows) {
-    await runProcess(
-      scope,
-      'chmod',
-      [
-        '+x',
-        flutterConfig.binDir.childFile('dart').path,
-        flutterConfig.binDir.childFile('flutter').path,
-      ],
-    );
+    await runProcess(scope, 'chmod', [
+      '+x',
+      flutterConfig.binDir.childFile('dart').path,
+      flutterConfig.binDir.childFile('flutter').path,
+    ]);
   }
 
   await writePassiveAtomic(
     scope: scope,
     file: flutterConfig.binDir.childFile('dart.bat'),
-    content: '@echo off\n'
+    content:
+        '@echo off\n'
         'SETLOCAL ENABLEDELAYEDEXPANSION\n'
         'FOR %%i IN ("%~dp0.") DO SET HAVEN_FLUTTER_BIN=%%~fi\n'
         'SET HAVEN_BIN=%HAVEN_FLUTTER_BIN%\\..\\..\\..\\..\\bin\n'
@@ -111,7 +105,8 @@ Future<void> installEnvShims({
   await writePassiveAtomic(
     scope: scope,
     file: flutterConfig.binDir.childFile('flutter.bat'),
-    content: '@echo off\n'
+    content:
+        '@echo off\n'
         'SETLOCAL ENABLEDELAYEDEXPANSION\n'
         'FOR %%i IN ("%~dp0.") DO SET HAVEN_FLUTTER_BIN=%%~fi\n'
         'SET HAVEN_BIN=%HAVEN_FLUTTER_BIN%\\..\\..\\..\\..\\bin\n'
@@ -128,10 +123,7 @@ Future<void> installEnvShims({
 
   log.d('assumeUnchanged: $assumeUnchanged');
 
-  await git.assumeUnchanged(
-    repository: flutterConfig.sdkDir,
-    files: assumeUnchanged,
-  );
+  await git.assumeUnchanged(repository: flutterConfig.sdkDir, files: assumeUnchanged);
 
   await updateGitAttributes(
     scope: scope,

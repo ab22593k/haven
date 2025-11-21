@@ -18,9 +18,6 @@ class CleanCommand extends HavenCommand {
   Future<CommandResult> run() async {
     final config = HavenConfig.of(scope);
     const service = WorkspaceCommandService();
-    return service.cleanWorkspace(
-      scope: scope,
-      projectConfig: config.project,
-    );
+    return service.cleanWorkspace(scope: scope, projectConfig: config.project);
   }
 }

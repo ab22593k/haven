@@ -11,7 +11,9 @@ void main() {
     test('has correct description', () {
       final command = EnvUseCommand();
       expect(
-          command.description, 'Selects an environment to use in the current project');
+        command.description,
+        'Selects an environment to use in the current project',
+      );
     });
 
     test('parses vscode option', () {

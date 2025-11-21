@@ -11,9 +11,7 @@ import 'windows_sdk_manager.dart';
 ///
 /// Mostly borrowed from https://github.com/flutter/flutter/blob/master/packages/flutter_tools/lib/src/windows/visual_studio.dart
 class VisualStudio {
-  VisualStudio({
-    required this.scope,
-  });
+  VisualStudio({required this.scope});
 
   final Scope scope;
   late final config = HavenConfig.of(scope);
@@ -69,7 +67,7 @@ class VisualStudio {
     if (_bestVisualStudioDetails == null) {
       return false;
     }
-    return _bestVisualStudioDetails!.isComplete ?? true;
+    return _bestVisualStudioDetails.isComplete ?? true;
   }
 
   /// True if Visual Studio is launchable.
@@ -79,7 +77,7 @@ class VisualStudio {
     if (_bestVisualStudioDetails == null) {
       return false;
     }
-    return _bestVisualStudioDetails!.isLaunchable ?? true;
+    return _bestVisualStudioDetails.isLaunchable ?? true;
   }
 
   /// True if the Visual Studio installation is a pre-release version.
@@ -164,8 +162,8 @@ class VisualStudio {
   /// If there's a version that has all the required components, that
   /// will be returned, otherwise returns the latest installed version regardless
   /// of components and version, or null if no such installation is found.
-  late final VswhereDetails? _bestVisualStudioDetails =
-      vswhereManager.getBestVisualStudioDetails();
+  late final VswhereDetails? _bestVisualStudioDetails = vswhereManager
+      .getBestVisualStudioDetails();
 
   /// Returns the installation location of the Windows 10 SDKs, or null if the
   /// registry doesn't contain that information.

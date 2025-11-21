@@ -51,18 +51,13 @@ abstract class EnvServiceInterface {
   });
 
   /// Gets the current global default environment name.
-  Future<String> getDefaultEnvName({
-    required Scope scope,
-  });
+  Future<String> getDefaultEnvName({required Scope scope});
 
   /// Sets the global default environment.
   ///
   /// If [envName] is null, returns the current default name.
   /// Otherwise, sets the default and returns a success message.
-  Future<String> setDefaultEnv({
-    required Scope scope,
-    String? envName,
-  });
+  Future<String> setDefaultEnv({required Scope scope, String? envName});
 
   /// Deletes an environment.
   Future<void> deleteEnv({
@@ -107,9 +102,7 @@ class EnvService implements EnvServiceInterface {
 
     if (forkRemoteUrl != null) {
       if (pseudoEnvironmentNames.contains(envName) || isValidVersion(envName)) {
-        throw CommandError(
-          'Cannot create fixed version `$envName` with a fork',
-        );
+        throw CommandError('Cannot create fixed version `$envName` with a fork');
       }
       return await createEnvironment(
         scope: scope,
@@ -168,9 +161,7 @@ class EnvService implements EnvServiceInterface {
 
   /// Gets the current global default environment name.
   @override
-  Future<String> getDefaultEnvName({
-    required Scope scope,
-  }) async {
+  Future<String> getDefaultEnvName({required Scope scope}) async {
     return await default_lib.getDefaultEnvName(scope: scope);
   }
 
@@ -179,10 +170,7 @@ class EnvService implements EnvServiceInterface {
   /// If [envName] is null, returns the current default name.
   /// Otherwise, sets the default and returns a success message.
   @override
-  Future<String> setDefaultEnv({
-    required Scope scope,
-    String? envName,
-  }) async {
+  Future<String> setDefaultEnv({required Scope scope, String? envName}) async {
     if (envName == null) {
       return await default_lib.getDefaultEnvName(scope: scope);
     }
@@ -194,10 +182,7 @@ class EnvService implements EnvServiceInterface {
         await createEnvironment(
           scope: scope,
           envName: env.name,
-          flutterVersion: await FlutterVersion.query(
-            scope: scope,
-            version: env.name,
-          ),
+          flutterVersion: await FlutterVersion.query(scope: scope, version: env.name),
         );
       } else {
         throw CommandError('Environment `${env.name}` does not exist');
@@ -214,11 +199,7 @@ class EnvService implements EnvServiceInterface {
     required String envName,
     required bool force,
   }) async {
-    return await deleteEnvironment(
-      scope: scope,
-      name: envName,
-      force: force,
-    );
+    return await deleteEnvironment(scope: scope, name: envName, force: force);
   }
 
   /// Renames an environment.
@@ -228,11 +209,7 @@ class EnvService implements EnvServiceInterface {
     required String oldName,
     required String newName,
   }) async {
-    return await renameEnvironment(
-      scope: scope,
-      name: oldName,
-      newName: newName,
-    );
+    return await renameEnvironment(scope: scope, name: oldName, newName: newName);
   }
 
   /// Upgrades an environment to a new Flutter version.

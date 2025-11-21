@@ -7,9 +7,7 @@ import '../git.dart';
 import '../provider.dart';
 
 class GitOperations {
-  GitOperations({
-    required this.scope,
-  });
+  GitOperations({required this.scope});
 
   final Scope scope;
   late final config = HavenConfig.of(scope);
@@ -22,15 +20,20 @@ class GitOperations {
       '--format=%H',
       '8dbe716085d4942ce87bd34e933cfccf2d0f70ae..main',
       '--',
-      'pkg/kernel/binary.md'
+      'pkg/kernel/binary.md',
     ], directory: sharedRepository);
-    final commits =
-        (binaryMdResult.stdout as String).trim().split('\n').reversed.toList();
+    final commits = (binaryMdResult.stdout as String)
+        .trim()
+        .split('\n')
+        .reversed
+        .toList();
     commits.add(
-        await git.getCurrentCommitHash(repository: sharedRepository, branch: 'main'));
+      await git.getCurrentCommitHash(repository: sharedRepository, branch: 'main'),
+    );
 
-    final binaryMdDir =
-        config.fileSystem.directory('temp_ast_gen').childDirectory('binary-md');
+    final binaryMdDir = config.fileSystem
+        .directory('temp_ast_gen')
+        .childDirectory('binary-md');
     if (!binaryMdDir.existsSync()) {
       binaryMdDir.createSync(recursive: true);
       for (final line in (binaryMdResult.stdout as String).trim().split('\n')) {
@@ -39,8 +42,9 @@ class GitOperations {
           path: 'tools/VERSION',
           ref: line,
         );
-        final major =
-            RegExp(r'MAJOR (\d+)').firstMatch(utf8.decode(versionContents))![1]!;
+        final major = RegExp(
+          r'MAJOR (\d+)',
+        ).firstMatch(utf8.decode(versionContents))![1]!;
         if (major == '1') continue;
         final contents = await git.cat(
           repository: sharedRepository,

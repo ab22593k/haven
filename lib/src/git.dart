@@ -18,9 +18,7 @@ export 'git/git_clone.dart';
 export 'git/git_operations.dart';
 
 class GitClient {
-  GitClient({
-    required this.scope,
-  });
+  GitClient({required this.scope});
 
   final Scope scope;
   late final _havenConfig = HavenConfig.of(scope);
@@ -57,24 +55,24 @@ class GitClient {
     if (binary) {
       stdout = process.stdout.toBytes();
     } else {
-      stdout =
-          const LineSplitter().bind(systemEncoding.decoder.bind(process.stdout)).map(
-        (e) {
-          _log.d('git: $e');
-          if (onStdout != null) onStdout(e);
-          return e;
-        },
-      ).join('\n');
+      stdout = const LineSplitter()
+          .bind(systemEncoding.decoder.bind(process.stdout))
+          .map((e) {
+            _log.d('git: $e');
+            if (onStdout != null) onStdout(e);
+            return e;
+          })
+          .join('\n');
     }
 
-    final stderr =
-        const LineSplitter().bind(systemEncoding.decoder.bind(process.stderr)).map(
-      (e) {
-        _log.d('git: $e');
-        if (onStderr != null) onStderr(e);
-        return e;
-      },
-    ).join('\n');
+    final stderr = const LineSplitter()
+        .bind(systemEncoding.decoder.bind(process.stderr))
+        .map((e) {
+          _log.d('git: $e');
+          if (onStderr != null) onStderr(e);
+          return e;
+        })
+        .join('\n');
 
     final exitCode = await process.exitCode;
 
@@ -82,12 +80,7 @@ class GitClient {
       _log.v('git failed with exit code $exitCode');
     }
 
-    return ProcessResult(
-      process.pid,
-      exitCode,
-      await stdout,
-      await stderr,
-    );
+    return ProcessResult(process.pid, exitCode, await stdout, await stderr);
   }
 
   void ensureSuccess(ProcessResult result) {
@@ -95,18 +88,13 @@ class GitClient {
       if (_log.level == null || _log.level! < LogLevel.debug) {
         _log.e('git: ${result.stderr}');
       }
-      throw StateError(
-        'git subprocess failed with exit code ${result.exitCode}',
-      );
+      throw StateError('git subprocess failed with exit code ${result.exitCode}');
     }
   }
 
   /// https://git-scm.com/docs/git-init
   Future<void> init({required Directory repository}) async {
-    final result = await raw(
-      ['init'],
-      directory: repository,
-    );
+    final result = await raw(['init'], directory: repository);
     ensureSuccess(result);
   }
 
@@ -117,15 +105,12 @@ class GitClient {
     bool short = false,
     bool abbreviation = false,
   }) async {
-    final result = await raw(
-      [
-        'rev-parse',
-        if (short) '--short',
-        if (abbreviation) '--abbrev-ref',
-        ...args,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'rev-parse',
+      if (short) '--short',
+      if (abbreviation) '--abbrev-ref',
+      ...args,
+    ], directory: repository);
     ensureSuccess(result);
     return (result.stdout as String).trim().split('\n').toList();
   }
@@ -154,16 +139,13 @@ class GitClient {
     bool abbreviation = false,
     bool verify = false,
   }) async {
-    final result = await raw(
-      [
-        'rev-parse',
-        if (short) '--short',
-        if (abbreviation) '--abbrev-ref',
-        if (verify) '--verify',
-        ...args,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'rev-parse',
+      if (short) '--short',
+      if (abbreviation) '--abbrev-ref',
+      if (verify) '--verify',
+      ...args,
+    ], directory: repository);
     if (result.exitCode != 0) {
       return null;
     }
@@ -196,22 +178,13 @@ class GitClient {
     required String ref1,
     required String ref2,
   }) async {
-    final result = await raw(
-      [
-        'merge-base',
-        ref1,
-        ref2,
-      ],
-      directory: repository,
-    );
+    final result = await raw(['merge-base', ref1, ref2], directory: repository);
     ensureSuccess(result);
     return (result.stdout as String).trim();
   }
 
   /// Returns true if the repository has uncomitted changes.
-  Future<bool> hasUncomittedChanges({
-    required Directory repository,
-  }) async {
+  Future<bool> hasUncomittedChanges({required Directory repository}) async {
     await raw(['git update-index', '--refresh']);
     final result = await raw(['diff-index', '--quiet', 'HEAD', '--']);
     return result.exitCode != 0;
@@ -223,11 +196,7 @@ class GitClient {
     bool short = false,
     String branch = 'HEAD',
   }) async {
-    return await revParseSingle(
-      repository: repository,
-      short: short,
-      arg: branch,
-    );
+    return await revParseSingle(repository: repository, short: short, arg: branch);
   }
 
   /// Same as [getCurrentCommitHash] but returns null on failure.
@@ -236,11 +205,7 @@ class GitClient {
     bool short = false,
     String branch = 'HEAD',
   }) {
-    return tryRevParseSingle(
-      repository: repository,
-      short: short,
-      arg: branch,
-    );
+    return tryRevParseSingle(repository: repository, short: short, arg: branch);
   }
 
   /// https://git-scm.com/docs/git-branch
@@ -251,16 +216,13 @@ class GitClient {
     bool force = false,
     bool delete = false,
   }) async {
-    final result = await raw(
-      [
-        'branch',
-        if (force) '-f',
-        if (delete) '-d',
-        if (setUpstream != null) ...['-u', setUpstream],
-        branch,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'branch',
+      if (force) '-f',
+      if (delete) '-d',
+      if (setUpstream != null) ...['-u', setUpstream],
+      branch,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -282,13 +244,7 @@ class GitClient {
     required Directory repository,
     required String branch,
   }) async {
-    final result = await raw(
-      [
-        'show-ref',
-        'refs/heads/$branch',
-      ],
-      directory: repository,
-    );
+    final result = await raw(['show-ref', 'refs/heads/$branch'], directory: repository);
     return result.exitCode == 0;
   }
 
@@ -297,14 +253,7 @@ class GitClient {
     required Directory repository,
     required String branch,
   }) async {
-    final result = await raw(
-      [
-        'branch',
-        '-D',
-        branch,
-      ],
-      directory: repository,
-    );
+    final result = await raw(['branch', '-D', branch], directory: repository);
     ensureSuccess(result);
   }
 
@@ -333,14 +282,11 @@ class GitClient {
     required String name,
     required String? ref,
   }) async {
-    final result = await raw(
-      [
-        'symbolic-ref',
-        name,
-        if (ref == null) '--delete' else ref,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'symbolic-ref',
+      name,
+      if (ref == null) '--delete' else ref,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -349,14 +295,7 @@ class GitClient {
     required Directory repository,
     required List<String> objects,
   }) async {
-    final result = await raw(
-      [
-        'show',
-        ...objects,
-      ],
-      directory: repository,
-      binary: true,
-    );
+    final result = await raw(['show', ...objects], directory: repository, binary: true);
     ensureSuccess(result);
     return result.stdout as Uint8List;
   }
@@ -366,14 +305,7 @@ class GitClient {
     required Directory repository,
     required List<String> objects,
   }) async {
-    final result = await raw(
-      [
-        'show',
-        ...objects,
-      ],
-      directory: repository,
-      binary: true,
-    );
+    final result = await raw(['show', ...objects], directory: repository, binary: true);
     if (result.exitCode != 0) return null;
     return result.stdout as Uint8List;
   }
@@ -384,10 +316,7 @@ class GitClient {
     String ref = 'HEAD',
     required String path,
   }) {
-    return show(
-      repository: repository,
-      objects: ['$ref:$path'],
-    );
+    return show(repository: repository, objects: ['$ref:$path']);
   }
 
   /// Checks if a file exists in the repository.
@@ -410,10 +339,7 @@ class GitClient {
     String ref = 'HEAD',
     required String path,
   }) {
-    return tryShow(
-      repository: repository,
-      objects: ['$ref:$path'],
-    );
+    return tryShow(repository: repository, objects: ['$ref:$path']);
   }
 
   /// Gets all of the names of tags containing the provided ref.
@@ -423,10 +349,7 @@ class GitClient {
     required Directory repository,
     required String ref,
   }) async {
-    final result = await raw(
-      ['tag', '--points-at', ref],
-      directory: repository,
-    );
+    final result = await raw(['tag', '--points-at', ref], directory: repository);
     return (result.stdout as String).trim().split('\n');
   }
 
@@ -438,16 +361,13 @@ class GitClient {
     String? match,
     bool long = false,
   }) async {
-    final result = await raw(
-      [
-        'describe',
-        if (tags) '--tags',
-        if (long) '--long',
-        if (match != null) ...['--match', match],
-        ref,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'describe',
+      if (tags) '--tags',
+      if (long) '--long',
+      if (match != null) ...['--match', match],
+      ref,
+    ], directory: repository);
     return (result.stdout as String).trim();
   }
 
@@ -456,13 +376,8 @@ class GitClient {
   /// Gets all git remotes.
   ///
   /// https://git-scm.com/docs/git-remote
-  Future<Map<String, GitRemoteUrls>> getRemotes({
-    required Directory repository,
-  }) async {
-    final result = await raw(
-      ['remote', '-v'],
-      directory: repository,
-    );
+  Future<Map<String, GitRemoteUrls>> getRemotes({required Directory repository}) async {
+    final result = await raw(['remote', '-v'], directory: repository);
     ensureSuccess(result);
     final stdout = result.stdout as String;
     final fetches = <String, String>{};
@@ -485,10 +400,7 @@ class GitClient {
     }
     return {
       for (final origin in {...fetches.keys, ...pushes.keys})
-        origin: GitRemoteUrls(
-          fetch: fetches[origin]!,
-          push: pushes[origin] ?? {},
-        ),
+        origin: GitRemoteUrls(fetch: fetches[origin]!, push: pushes[origin] ?? {}),
     };
   }
 
@@ -499,16 +411,13 @@ class GitClient {
     required String url,
     bool fetch = false,
   }) async {
-    final result = await raw(
-      [
-        'remote',
-        'add',
-        if (fetch) '-f',
-        name,
-        url,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'remote',
+      'add',
+      if (fetch) '-f',
+      name,
+      url,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -521,18 +430,15 @@ class GitClient {
     bool add = false,
     bool delete = false,
   }) async {
-    final result = await raw(
-      [
-        'remote',
-        'set-url',
-        if (push) '--push',
-        if (delete) '--delete',
-        if (add) '--add',
-        name,
-        url,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'remote',
+      'set-url',
+      if (push) '--push',
+      if (delete) '--delete',
+      if (add) '--add',
+      name,
+      url,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -541,14 +447,7 @@ class GitClient {
     required Directory repository,
     required String name,
   }) async {
-    final result = await raw(
-      [
-        'remote',
-        'remove',
-        name,
-      ],
-      directory: repository,
-    );
+    final result = await raw(['remote', 'remove', name], directory: repository);
     ensureSuccess(result);
   }
 
@@ -568,18 +467,11 @@ class GitClient {
       }
       if (currentRemotes.containsKey(remoteName)) {
         // Delete existing remote
-        await removeRemote(
-          repository: repository,
-          name: remoteName,
-        );
+        await removeRemote(repository: repository, name: remoteName);
       }
       final newRemote = entry.value;
       if (newRemote != null) {
-        await addRemote(
-          repository: repository,
-          name: remoteName,
-          url: newRemote.fetch,
-        );
+        await addRemote(repository: repository, name: remoteName, url: newRemote.fetch);
         final push = newRemote.push.toList();
         if (push.isNotEmpty && push.first != newRemote.fetch) {
           await setRemote(
@@ -621,15 +513,12 @@ class GitClient {
     required Iterable<String> files,
     bool value = true,
   }) async {
-    final result = await raw(
-      [
-        'update-index',
-        if (value) '--assume-unchanged' else '--no-assume-unchanged',
-        '--',
-        ...files,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'update-index',
+      if (value) '--assume-unchanged' else '--no-assume-unchanged',
+      '--',
+      ...files,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -638,14 +527,7 @@ class GitClient {
     required Directory repository,
     required String name,
   }) async {
-    final result = await raw(
-      [
-        'config',
-        '--get',
-        name,
-      ],
-      directory: repository,
-    );
+    final result = await raw(['config', '--get', name], directory: repository);
     if (result.exitCode == 1) return null;
     ensureSuccess(result);
     return (result.stdout as String).trim();
@@ -657,14 +539,7 @@ class GitClient {
     required String name,
     required String value,
   }) async {
-    final result = await raw(
-      [
-        'config',
-        name,
-        value,
-      ],
-      directory: repository,
-    );
+    final result = await raw(['config', name, value], directory: repository);
     ensureSuccess(result);
   }
 
@@ -673,7 +548,8 @@ class GitClient {
     final uri = Uri.tryParse(url);
     if (uri == null || !uri.hasScheme || uri.scheme != 'https') {
       throw ArgumentError(
-          'Invalid or insecure git URL: $url. Only HTTPS URLs are allowed.');
+        'Invalid or insecure git URL: $url. Only HTTPS URLs are allowed.',
+      );
     }
   }
 
@@ -681,7 +557,8 @@ class GitClient {
   static void validateRepositoryPath(String path) {
     if (path.contains('..') || path.startsWith('/') || path.contains('\\')) {
       throw ArgumentError(
-          'Invalid repository path: $path. Paths must be relative and safe.');
+        'Invalid repository path: $path. Paths must be relative and safe.',
+      );
     }
   }
 
@@ -693,14 +570,9 @@ class GitClient {
 
 @immutable
 class GitRemoteUrls {
-  const GitRemoteUrls({
-    required this.fetch,
-    required this.push,
-  });
+  const GitRemoteUrls({required this.fetch, required this.push});
 
-  GitRemoteUrls.single(String url)
-      : fetch = url,
-        push = {url};
+  GitRemoteUrls.single(String url) : fetch = url, push = {url};
 
   final String fetch;
   final Set<String> push;
@@ -773,10 +645,7 @@ class GitTagVersion {
   }) async {
     final git = GitClient.of(scope);
 
-    final tags = await git.getTagsContainingRef(
-      repository: repository,
-      ref: gitRef,
-    );
+    final tags = await git.getTagsContainingRef(repository: repository, ref: gitRef);
 
     // Check first for a stable tag
     final RegExp stableTagPattern = RegExp(r'^\d+\.\d+\.\d+$');
@@ -812,8 +681,9 @@ class GitTagVersion {
   /// for commit abc123 that is 6 commits after tag 1.2.3-4.5.pre, git would
   /// return '1.2.3-4.5.pre-6-gabc123').
   static GitTagVersion parse(String version) {
-    final RegExp versionPattern =
-        RegExp(r'^(\d+)\.(\d+)\.(\d+)(-\d+\.\d+\.pre)?(?:-(\d+)-g([a-f0-9]+))?$');
+    final RegExp versionPattern = RegExp(
+      r'^(\d+)\.(\d+)\.(\d+)(-\d+\.\d+\.pre)?(?:-(\d+)-g([a-f0-9]+))?$',
+    );
     final Match? match = versionPattern.firstMatch(version.trim());
     if (match == null) {
       return unknown;

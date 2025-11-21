@@ -39,17 +39,19 @@ Future<void> updateEngineVersionFile({
       repository: flutterConfig.sdkDir,
       commit: 'upstream/master',
     )) {
-      await git.fetch(
-        repository: flutterConfig.sdkDir,
-        remote: 'upstream',
-        all: true,
-      );
+      await git.fetch(repository: flutterConfig.sdkDir, remote: 'upstream', all: true);
     }
     commit = await git.mergeBase(
-        repository: flutterConfig.sdkDir, ref1: 'HEAD', ref2: 'upstream/master');
+      repository: flutterConfig.sdkDir,
+      ref1: 'HEAD',
+      ref2: 'upstream/master',
+    );
   } else {
     commit = await git.mergeBase(
-        repository: flutterConfig.sdkDir, ref1: 'HEAD', ref2: 'origin/master');
+      repository: flutterConfig.sdkDir,
+      ref1: 'HEAD',
+      ref2: 'origin/master',
+    );
   }
 
   await flutterConfig.engineVersionFile.writeAsString('$commit\n');
@@ -127,113 +129,114 @@ class EnvironmentCreator {
     await environment.updateLockFile.parent.create(recursive: true);
     return await lockFile(scope, environment.updateLockFile, (lockHandle) async {
       return await EnvTransaction.run(
-          scope: scope,
-          body: (tx) async {
-            // Create env directory
-            await tx.step(
-              label: 'create environment directory',
-              action: () async => await const FileSystemService()
-                  .createEnvironmentDirectory(environment.envDir),
-              rollback: () async => await environment.envDir.delete(recursive: true),
-            );
+        scope: scope,
+        body: (tx) async {
+          // Create env directory
+          await tx.step(
+            label: 'create environment directory',
+            action: () async => await const FileSystemService()
+                .createEnvironmentDirectory(environment.envDir),
+            rollback: () async => await environment.envDir.delete(recursive: true),
+          );
 
-            // Update prefs
-            final prefsUpdate = await const FileSystemService().preparePrefsUpdate(
-              scope: scope,
-              environment: environment,
-              flutterVersion: flutterVersion,
-            );
-            await tx.step(
-              label: 'update environment prefs',
-              action: prefsUpdate.action,
-              rollback: prefsUpdate.rollback,
-            );
+          // Update prefs
+          final prefsUpdate = await const FileSystemService().preparePrefsUpdate(
+            scope: scope,
+            environment: environment,
+            flutterVersion: flutterVersion,
+          );
+          await tx.step(
+            label: 'update environment prefs',
+            action: prefsUpdate.action,
+            rollback: prefsUpdate.rollback,
+          );
 
-            final startTime = clock.now();
-            DateTime? cacheEngineTime;
+          final startTime = clock.now();
+          DateTime? cacheEngineTime;
 
-            final engineTask = runOptional(
-              scope,
-              'Pre-caching engine',
-              () async {
-                await const EnginePrecacheService().precacheEngine(
-                  scope: scope,
-                  commit: flutterVersion!.commit,
-                );
-                cacheEngineTime = clock.now();
-              },
-              // The user probably already has flutter cached so cloning forks will be
-              // fast, no point in optimizing this.
-              skip: forkRemoteUrl != null,
-            );
-
-            // Clone flutter
-            await tx.step(
-              label: 'clone flutter repository',
-              action: () async {
-                await const GitOperationsService().cloneFlutterWithSharedRefs(
-                  scope: scope,
-                  repository: environment.flutterDir,
-                  environment: environment,
-                  flutterVersion: flutterVersion,
-                  forkRemoteUrl: forkRemoteUrl,
-                  forkRef: forkRef,
-                );
-              },
-              rollback: () async =>
-                  await environment.flutterDir.delete(recursive: true),
-            );
-
-            // Replace flutter/dart with shims
-            await tx.step(
-              label: 'install environment shims',
-              action: () async {
-                await const ShimService().installShims(
-                  scope: scope,
-                  environment: environment,
-                );
-              },
-              rollback: () async {
-                await const ShimService().uninstallShims(
-                  scope: scope,
-                  environment: environment,
-                );
-              },
-            );
-
-            final cloneTime = clock.now();
-
-            await engineTask;
-
-            if (cacheEngineTime != null) {
-              final wouldveTaken = (cloneTime.difference(startTime)) +
-                  (cacheEngineTime!.difference(startTime));
-              final took = clock.now().difference(startTime);
-              log.v(
-                'Saved ${(wouldveTaken - took).inMilliseconds}ms by pre-caching engine',
+          final engineTask = runOptional(
+            scope,
+            'Pre-caching engine',
+            () async {
+              await const EnginePrecacheService().precacheEngine(
+                scope: scope,
+                commit: flutterVersion!.commit,
               );
-            }
+              cacheEngineTime = clock.now();
+            },
+            // The user probably already has flutter cached so cloning forks will be
+            // fast, no point in optimizing this.
+            skip: forkRemoteUrl != null,
+          );
 
-            // In case we are creating the default environment
-            await tx.step(
-              label: 'update default env symlink',
-              action: () async => await updateDefaultEnvSymlink(scope: scope),
-              rollback:
-                  null, // Symlink update might not need rollback, or implement if possible
-            );
+          // Clone flutter
+          await tx.step(
+            label: 'clone flutter repository',
+            action: () async {
+              await const GitOperationsService().cloneFlutterWithSharedRefs(
+                scope: scope,
+                repository: environment.flutterDir,
+                environment: environment,
+                flutterVersion: flutterVersion,
+                forkRemoteUrl: forkRemoteUrl,
+                forkRef: forkRef,
+              );
+            },
+            rollback: () async => await environment.flutterDir.delete(recursive: true),
+          );
 
-            // Set up engine and compile tool
-            await tx.step(
-              label: 'set up flutter tool',
-              action: () async => await const FlutterToolService().setUpTool(
+          // Replace flutter/dart with shims
+          await tx.step(
+            label: 'install environment shims',
+            action: () async {
+              await const ShimService().installShims(
                 scope: scope,
                 environment: environment,
-              ),
-              rollback: null, // Tool setup is final, assume it succeeds or log
-            );
+              );
+            },
+            rollback: () async {
+              await const ShimService().uninstallShims(
+                scope: scope,
+                environment: environment,
+              );
+            },
+          );
 
-            return environment;
-          });
+          final cloneTime = clock.now();
+
+          await engineTask;
+
+          if (cacheEngineTime != null) {
+            final wouldveTaken =
+                (cloneTime.difference(startTime)) +
+                (cacheEngineTime!.difference(startTime));
+            final took = clock.now().difference(startTime);
+            log.v(
+              'Saved ${(wouldveTaken - took).inMilliseconds}ms by pre-caching engine',
+            );
+          }
+
+          // In case we are creating the default environment
+          await tx.step(
+            label: 'update default env symlink',
+            action: () async => await updateDefaultEnvSymlink(scope: scope),
+            rollback:
+                null, // Symlink update might not need rollback, or implement if possible
+          );
+
+          // Set up engine and compile tool
+          await tx.step(
+            label: 'set up flutter tool',
+            action: () async => await const FlutterToolService().setUpTool(
+              scope: scope,
+              environment: environment,
+            ),
+            rollback: null, // Tool setup is final, assume it succeeds or log
+          );
+
+          return environment;
+        },
+      );
     });
   }
 }

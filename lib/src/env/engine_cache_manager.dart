@@ -25,17 +25,16 @@ class EngineCacheManager {
     final log = HVLogger.of(scope);
     final config = HavenConfig.of(scope);
     final fs = config.fileSystem;
-    final engineVersion =
-        await getEngineVersion(scope: scope, flutterConfig: environment.flutter);
+    final engineVersion = await getEngineVersion(
+      scope: scope,
+      flutterConfig: environment.flutter,
+    );
     if (engineVersion == null) {
       return;
     }
     environmentPrefs ??= await environment.readPrefs(scope: scope);
     final sharedCacheDir = config
-        .getFlutterCache(
-          engineVersion,
-          patched: environmentPrefs.isPatched,
-        )
+        .getFlutterCache(engineVersion, patched: environmentPrefs.isPatched)
         .cacheDir;
     if (!sharedCacheDir.existsSync()) {
       return;
@@ -65,8 +64,10 @@ class EngineCacheManager {
         // Delete the link if it doesn't point to the file we want.
         final link = fs.link(file.path);
         if (link.targetSync() != sharedFile.path) {
-          log.d('Deleting ${file.basename} symlink because it points to '
-              '`${link.targetSync()}` instead of `${sharedFile.path}`');
+          log.d(
+            'Deleting ${file.basename} symlink because it points to '
+            '`${link.targetSync()}` instead of `${sharedFile.path}`',
+          );
           link.deleteSync();
         }
         continue;
@@ -75,8 +76,10 @@ class EngineCacheManager {
       if (fs.file(sharedPath).existsSync()) {
         // Delete local copy and link to shared copy, perhaps we could
         // merge them instead?
-        log.d('Deleting ${file.basename} because it already exists in the '
-            'shared cache');
+        log.d(
+          'Deleting ${file.basename} because it already exists in the '
+          'shared cache',
+        );
         file.deleteSync(recursive: true);
       } else {
         // Move it to the shared cache.
@@ -109,16 +112,10 @@ class EngineCacheManager {
     required EnvConfig environment,
   }) async {
     await runOptional(scope, 'Syncing flutter cache', () async {
-      await syncFlutterCache(
-        scope: scope,
-        environment: environment,
-      );
+      await syncFlutterCache(scope: scope, environment: environment);
     });
   }
 }
 
 /// These files shouldn't be shared between flutter installs.
-const cacheBlacklist = {
-  'flutter_version_check.stamp',
-  'flutter.version.json',
-};
+const cacheBlacklist = {'flutter_version_check.stamp', 'flutter.version.json'};

@@ -9,10 +9,7 @@ import '../workspace/vscode.dart';
 
 class EnvUseCommand extends HavenCommand {
   EnvUseCommand() {
-    argParser.addFlag(
-      'vscode',
-      help: 'Enable or disable generation of VSCode configs',
-    );
+    argParser.addFlag('vscode', help: 'Enable or disable generation of VSCode configs');
     argParser.addFlag(
       'intellij',
       help: 'Enable or disable generation of IntelliJ (or Android Studio) configs',
@@ -30,8 +27,9 @@ class EnvUseCommand extends HavenCommand {
   @override
   void cleanup() {
     if (_switchedEnvName != null) {
-      HVLogger.of(scope).w(
-          'Switch to $_switchedEnvName failed; environment state may be inconsistent');
+      HVLogger.of(
+        scope,
+      ).w('Switch to $_switchedEnvName failed; environment state may be inconsistent');
     }
   }
 
@@ -53,18 +51,16 @@ class EnvUseCommand extends HavenCommand {
       final envName = args.isEmpty ? null : args.first;
 
       if (argResults!['global'] as bool) {
-        final message = await service.setDefaultEnv(
-          scope: scope,
-          envName: envName,
-        );
+        final message = await service.setDefaultEnv(scope: scope, envName: envName);
         return BasicMessageResult(
           message,
           type: envName == null ? CompletionType.info : CompletionType.success,
         );
       }
 
-      var vscodeOverride =
-          argResults!.wasParsed('vscode') ? argResults!['vscode'] as bool : null;
+      var vscodeOverride = argResults!.wasParsed('vscode')
+          ? argResults!['vscode'] as bool
+          : null;
       if (vscodeOverride == null && await isRunningInVscode(scope: scope)) {
         vscodeOverride = true;
       }
@@ -73,14 +69,13 @@ class EnvUseCommand extends HavenCommand {
         scope: scope,
         envName: envName,
         vscode: vscodeOverride,
-        intellij:
-            argResults!.wasParsed('intellij') ? argResults!['intellij'] as bool : null,
+        intellij: argResults!.wasParsed('intellij')
+            ? argResults!['intellij'] as bool
+            : null,
         projectConfig: config.project,
       );
       _switchedEnvName = environment.name;
-      return BasicMessageResult(
-        'Switched to environment `${environment.name}`',
-      );
+      return BasicMessageResult('Switched to environment `${environment.name}`');
     });
   }
 }

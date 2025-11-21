@@ -11,16 +11,17 @@ void main() {
       scope.add(HVLogger.provider, log);
       var executed = false;
       await EnvTransaction.run(
-          scope: scope,
-          body: (tx) async {
-            await tx.step(
-              label: 'test',
-              action: () async {
-                executed = true;
-              },
-              rollback: null,
-            );
-          });
+        scope: scope,
+        body: (tx) async {
+          await tx.step(
+            label: 'test',
+            action: () async {
+              executed = true;
+            },
+            rollback: null,
+          );
+        },
+      );
       expect(executed, true);
     });
 
@@ -31,23 +32,24 @@ void main() {
       var rolledBack = false;
       try {
         await EnvTransaction.run(
-            scope: scope,
-            body: (tx) async {
-              await tx.step(
-                label: 'success step',
-                action: () async {},
-                rollback: () async {
-                  rolledBack = true;
-                },
-              );
-              await tx.step(
-                label: 'fail step',
-                action: () async {
-                  throw Exception('fail');
-                },
-                rollback: null,
-              );
-            });
+          scope: scope,
+          body: (tx) async {
+            await tx.step(
+              label: 'success step',
+              action: () async {},
+              rollback: () async {
+                rolledBack = true;
+              },
+            );
+            await tx.step(
+              label: 'fail step',
+              action: () async {
+                throw Exception('fail');
+              },
+              rollback: null,
+            );
+          },
+        );
       } catch (e) {
         expect(e.toString(), contains('fail'));
       }
@@ -62,30 +64,31 @@ void main() {
       var step2RolledBack = false;
       try {
         await EnvTransaction.run(
-            scope: scope,
-            body: (tx) async {
-              await tx.step(
-                label: 'step 1',
-                action: () async {},
-                rollback: () async {
-                  step1RolledBack = true;
-                },
-              );
-              await tx.step(
-                label: 'step 2',
-                action: () async {},
-                rollback: () async {
-                  step2RolledBack = true;
-                },
-              );
-              await tx.step(
-                label: 'fail step',
-                action: () async {
-                  throw Exception('fail');
-                },
-                rollback: null,
-              );
-            });
+          scope: scope,
+          body: (tx) async {
+            await tx.step(
+              label: 'step 1',
+              action: () async {},
+              rollback: () async {
+                step1RolledBack = true;
+              },
+            );
+            await tx.step(
+              label: 'step 2',
+              action: () async {},
+              rollback: () async {
+                step2RolledBack = true;
+              },
+            );
+            await tx.step(
+              label: 'fail step',
+              action: () async {
+                throw Exception('fail');
+              },
+              rollback: null,
+            );
+          },
+        );
       } catch (e) {
         expect(e.toString(), contains('fail'));
       }

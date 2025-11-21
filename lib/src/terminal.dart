@@ -74,18 +74,8 @@ class OutputFormatter {
     ].join('\n');
   }
 
-  String complete(
-    String content, {
-    CompletionType type = CompletionType.success,
-  }) {
-    return prefix(
-      color(
-        type.prefix,
-        foregroundColor: type.color,
-        bold: true,
-      ),
-      content,
-    );
+  String complete(String content, {CompletionType type = CompletionType.success}) {
+    return prefix(color(type.prefix, foregroundColor: type.color, bold: true), content);
   }
 
   String success(String content) => complete(content, type: CompletionType.success);
@@ -122,12 +112,11 @@ class ColorOutputFormatter extends OutputFormatter {
 }
 
 class Terminal implements StringSink {
-  Terminal({
-    required this.stdout,
-  });
+  Terminal({required this.stdout});
 
   final Stdout stdout;
-  late var enableColor = stdout.supportsAnsiEscapes ||
+  late var enableColor =
+      stdout.supportsAnsiEscapes ||
       (Platform.isWindows &&
           (Platform.environment['TERM']?.contains('xterm') ?? false));
   late var enableStatus = enableColor;

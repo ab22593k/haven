@@ -64,13 +64,10 @@ Future<CommandMessage?> detectExternalFlutterInstallations({
 
   if (offending.isNotEmpty) {
     return CommandMessage.format(
-      (format) => 'Other Flutter or Dart installations detected\n'
+      (format) =>
+          'Other Flutter or Dart installations detected\n'
           'Haven recommends removing the following from your PATH:\n'
-          '${offending.map((e) => '${format.color(
-                '*',
-                bold: true,
-                foregroundColor: Ansi8BitColor.red,
-              )} $e').join('\n')}',
+          '${offending.map((e) => '${format.color('*', bold: true, foregroundColor: Ansi8BitColor.red)} $e').join('\n')}',
       type: CompletionType.alert,
     );
   } else {
@@ -80,10 +77,7 @@ Future<CommandMessage?> detectExternalFlutterInstallations({
 
 const _kProfileComment = '# Added by Haven';
 
-Future<File?> findProfileFile({
-  required Scope scope,
-  String? profileOverride,
-}) async {
+Future<File?> findProfileFile({required Scope scope, String? profileOverride}) async {
   final config = HavenConfig.of(scope);
   return profileOverride == null
       ? await detectProfile(scope: scope)
@@ -96,44 +90,33 @@ Future<bool> updateProfile({
   required Iterable<String> lines,
 }) {
   final export = lines.map((e) => '$e $_kProfileComment').join('\n');
-  return lockFile(
-    scope,
-    file,
-    (handle) async {
-      final contents = await handle.readAllAsString();
-      if (export.isNotEmpty && contents.contains(export)) {
-        // Already exported
-        return false;
-      }
-      final lines = contents.split('\n');
-      final originalLines = lines.length;
-      lines.removeWhere((e) => e.endsWith(_kProfileComment));
-      if (export.isEmpty && lines.length == originalLines) {
-        // Not exporting anything
-        return false;
-      }
-      while (lines.isNotEmpty && lines.last.isEmpty) {
-        lines.removeLast();
-      }
-      lines.add('');
-      lines.add(export);
-      await handle.writeAllString('${lines.join('\n')}\n');
-      return true;
-    },
-    mode: FileMode.append,
-  );
+  return lockFile(scope, file, (handle) async {
+    final contents = await handle.readAllAsString();
+    if (export.isNotEmpty && contents.contains(export)) {
+      // Already exported
+      return false;
+    }
+    final lines = contents.split('\n');
+    final originalLines = lines.length;
+    lines.removeWhere((e) => e.endsWith(_kProfileComment));
+    if (export.isEmpty && lines.length == originalLines) {
+      // Not exporting anything
+      return false;
+    }
+    while (lines.isNotEmpty && lines.last.isEmpty) {
+      lines.removeLast();
+    }
+    lines.add('');
+    lines.add(export);
+    await handle.writeAllString('${lines.join('\n')}\n');
+    return true;
+  }, mode: FileMode.append);
 }
 
-Future<File?> installProfileEnv({
-  required Scope scope,
-  String? profileOverride,
-}) async {
+Future<File?> installProfileEnv({required Scope scope, String? profileOverride}) async {
   final log = HVLogger.of(scope);
   final config = HavenConfig.of(scope);
-  final file = await findProfileFile(
-    scope: scope,
-    profileOverride: profileOverride,
-  );
+  final file = await findProfileFile(scope: scope, profileOverride: profileOverride);
   log.d('detected profile: ${file?.path}');
   if (file == null) {
     return null;
@@ -146,7 +129,7 @@ Future<File?> installProfileEnv({
       for (final path in config.desiredEnvPaths)
         'export PATH="\$PATH:${path.replaceAll(home, '\$HOME')}"',
       'export HAVEN_ROOT="${config.havenRoot.path}"',
-      if (config.legacyPubCache) 'export PUB_CACHE="${config.legacyPubCacheDir.path}"'
+      if (config.legacyPubCache) 'export PUB_CACHE="${config.legacyPubCacheDir.path}"',
     ],
   );
   return result ? file : null;
@@ -157,19 +140,12 @@ Future<File?> uninstallProfileEnv({
   String? profileOverride,
 }) async {
   final log = HVLogger.of(scope);
-  final file = await findProfileFile(
-    scope: scope,
-    profileOverride: profileOverride,
-  );
+  final file = await findProfileFile(scope: scope, profileOverride: profileOverride);
   log.d('detected profile: ${file?.path}');
   if (file == null) {
     return null;
   }
-  final result = await updateProfile(
-    scope: scope,
-    file: file,
-    lines: [],
-  );
+  final result = await updateProfile(scope: scope, file: file, lines: []);
   return result ? file : null;
 }
 
@@ -246,11 +222,7 @@ Future<String?> readWindowsRegistryValue({
   required String valueName,
 }) async {
   // This is horrible.
-  final result = await runProcess(
-    scope,
-    'reg',
-    ['query', key, '/v', valueName],
-  );
+  final result = await runProcess(scope, 'reg', ['query', key, '/v', valueName]);
   if (result.exitCode != 0) {
     return null;
   }
@@ -273,31 +245,15 @@ Future<bool> writeWindowsRegistryValue({
   required String value,
   bool elevated = false,
 }) async {
-  final args = [
-    'add',
-    key,
-    '/v',
-    valueName,
-    '/t',
-    'REG_EXPAND_SZ',
-    '/d',
-    value,
-    '/f',
-  ];
+  final args = ['add', key, '/v', valueName, '/t', 'REG_EXPAND_SZ', '/d', value, '/f'];
 
   final log = HVLogger.of(scope);
   final ProcessResult result;
   if (elevated) {
-    final startProc = 'Start-Process reg -Wait -Verb runAs -ArgumentList '
+    final startProc =
+        'Start-Process reg -Wait -Verb runAs -ArgumentList '
         '${args.map(escapePowershellString).map((e) => '"$e"').join(',')}';
-    result = await runProcess(
-      scope,
-      'powershell',
-      [
-        '-command',
-        startProc,
-      ],
-    );
+    result = await runProcess(scope, 'powershell', ['-command', startProc]);
   } else {
     result = await runProcess(scope, 'reg', args);
   }
@@ -313,27 +269,15 @@ Future<bool> deleteWindowsRegistryValue({
   required String valueName,
   bool elevated = false,
 }) async {
-  final args = [
-    'delete',
-    key,
-    '/v',
-    valueName,
-    '/f',
-  ];
+  final args = ['delete', key, '/v', valueName, '/f'];
 
   final log = HVLogger.of(scope);
   final ProcessResult result;
   if (elevated) {
-    final startProc = 'Start-Process reg -Wait -Verb runAs -ArgumentList '
+    final startProc =
+        'Start-Process reg -Wait -Verb runAs -ArgumentList '
         '${args.map(escapePowershellString).map((e) => '"$e"').join(',')}';
-    result = await runProcess(
-      scope,
-      'powershell',
-      [
-        '-command',
-        startProc,
-      ],
-    );
+    result = await runProcess(scope, 'powershell', ['-command', startProc]);
   } else {
     result = await runProcess(scope, 'reg', args);
   }
@@ -390,9 +334,7 @@ Future<bool> tryDeleteWindowsEnv({
   );
 }
 
-Future<bool> tryUpdateWindowsPath({
-  required Scope scope,
-}) async {
+Future<bool> tryUpdateWindowsPath({required Scope scope}) async {
   final config = HavenConfig.of(scope);
 
   final env = <String, String>{
@@ -415,10 +357,7 @@ Future<bool> tryUpdateWindowsPath({
 
   var result = false;
 
-  if (await tryUpdateWindowsEnv(
-    scope: scope,
-    env: env,
-  )) {
+  if (await tryUpdateWindowsEnv(scope: scope, env: env)) {
     result = true;
   }
 
@@ -434,9 +373,7 @@ Future<bool> tryUpdateWindowsPath({
   return result;
 }
 
-Future<bool> tryCleanWindowsPath({
-  required Scope scope,
-}) async {
+Future<bool> tryCleanWindowsPath({required Scope scope}) async {
   final config = HavenConfig.of(scope);
   final currentPath = await readWindowsRegistryValue(
     scope: scope,
@@ -446,10 +383,7 @@ Future<bool> tryCleanWindowsPath({
   final paths = (currentPath ?? '').split(';');
   paths.removeWhere(config.desiredEnvPaths.contains);
 
-  var result = await tryUpdateWindowsEnv(
-    scope: scope,
-    env: {'Path': paths.join(';')},
-  );
+  var result = await tryUpdateWindowsEnv(scope: scope, env: {'Path': paths.join(';')});
 
   if (await tryDeleteWindowsEnv(
     scope: scope,

@@ -1,16 +1,9 @@
 import '../provider.dart';
 import 'engine_platform_detector.dart';
 
-enum EngineOS {
-  windows,
-  macOS,
-  linux,
-}
+enum EngineOS { windows, macOS, linux }
 
-enum EngineArch {
-  x64,
-  arm64,
-}
+enum EngineArch { x64, arm64 }
 
 enum EngineBuildTarget {
   windowsX64('dart-sdk-windows-x64.zip', EngineOS.windows, EngineArch.x64),
@@ -19,11 +12,7 @@ enum EngineBuildTarget {
   macosX64('dart-sdk-darwin-x64.zip', EngineOS.macOS, EngineArch.x64),
   macosArm64('dart-sdk-darwin-arm64.zip', EngineOS.macOS, EngineArch.arm64);
 
-  const EngineBuildTarget(
-    this.zipName,
-    this.os,
-    this.arch,
-  );
+  const EngineBuildTarget(this.zipName, this.os, this.arch);
 
   final String zipName;
   final EngineOS os;
@@ -57,12 +46,11 @@ enum EngineBuildTarget {
     throw AssertionError('Unsupported build target: $os $arch');
   }
 
-  static Future<EngineBuildTarget> query({
-    required Scope scope,
-  }) async {
+  static Future<EngineBuildTarget> query({required Scope scope}) async {
     return const EnginePlatformDetector().queryBuildTarget(scope: scope);
   }
 
-  static final Provider<Future<EngineBuildTarget>> provider =
-      Provider((scope) => query(scope: scope));
+  static final Provider<Future<EngineBuildTarget>> provider = Provider(
+    (scope) => query(scope: scope),
+  );
 }

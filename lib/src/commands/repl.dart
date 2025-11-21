@@ -56,26 +56,22 @@ class ReplCommand extends HavenCommand {
       throw CommandError('$e');
     }
 
-    final worker = await EvalWorker.spawn(
-      scope: scope,
-      context: context,
-      extra: extra,
-    );
+    final worker = await EvalWorker.spawn(scope: scope, context: context, extra: extra);
 
-    unawaited(worker.onExit.then((exitCode) async {
-      if (exitCode != 0) {
-        CommandMessage(
-          'Subprocess exited with code $exitCode',
-          type: CompletionType.alert,
-        ).queue(scope);
-      }
-      await runner.exitHaven(exitCode);
-    }));
+    unawaited(
+      worker.onExit.then((exitCode) async {
+        if (exitCode != 0) {
+          CommandMessage(
+            'Subprocess exited with code $exitCode',
+            type: CompletionType.alert,
+          ).queue(scope);
+        }
+        await runner.exitHaven(exitCode);
+      }),
+    );
 
     final terminal = Terminal.of(scope);
-    final console = Console.scrolling(
-      recordBlanks: false,
-    );
+    final console = Console.scrolling(recordBlanks: false);
 
     var didBreak = false;
     while (true) {
@@ -102,10 +98,12 @@ class ReplCommand extends HavenCommand {
           stdout.writeln(result);
         }
       } catch (e, bt) {
-        stdout.writeln(terminal.format.complete(
-          '$e${e is EvalError ? '' : '\n$bt'}',
-          type: CompletionType.failure,
-        ));
+        stdout.writeln(
+          terminal.format.complete(
+            '$e${e is EvalError ? '' : '\n$bt'}',
+            type: CompletionType.failure,
+          ),
+        );
       }
     }
 

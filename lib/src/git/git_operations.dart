@@ -12,17 +12,14 @@ extension GitOperations on GitClient {
     bool force = false,
     String? newBranch,
   }) async {
-    final result = await raw(
-      [
-        'checkout',
-        if (detach) '--detach',
-        if (track) '--track',
-        if (force) '-f',
-        if (newBranch != null) ...['-b', newBranch],
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'checkout',
+      if (detach) '--detach',
+      if (track) '--track',
+      if (force) '-f',
+      if (newBranch != null) ...['-b', newBranch],
+      if (ref != null) ref,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -36,18 +33,15 @@ extension GitOperations on GitClient {
     bool merge = false,
     bool keep = false,
   }) async {
-    final result = await raw(
-      [
-        'reset',
-        if (soft) '--soft',
-        if (mixed) '--mixed',
-        if (hard) '--hard',
-        if (merge) '--merge',
-        if (keep) '--keep',
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'reset',
+      if (soft) '--soft',
+      if (mixed) '--mixed',
+      if (hard) '--hard',
+      if (merge) '--merge',
+      if (keep) '--keep',
+      if (ref != null) ref,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -61,18 +55,15 @@ extension GitOperations on GitClient {
     bool merge = false,
     bool keep = false,
   }) async {
-    final result = await raw(
-      [
-        'reset',
-        if (soft) '--soft',
-        if (mixed) '--mixed',
-        if (hard) '--hard',
-        if (merge) '--merge',
-        if (keep) '--keep',
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'reset',
+      if (soft) '--soft',
+      if (mixed) '--mixed',
+      if (hard) '--hard',
+      if (merge) '--merge',
+      if (keep) '--keep',
+      if (ref != null) ref,
+    ], directory: repository);
     return result.exitCode == 0;
   }
 
@@ -82,14 +73,11 @@ extension GitOperations on GitClient {
     String? remote,
     bool all = false,
   }) async {
-    final result = await raw(
-      [
-        'pull',
-        if (remote != null) remote,
-        if (all) '--all',
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'pull',
+      if (remote != null) remote,
+      if (all) '--all',
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -101,16 +89,13 @@ extension GitOperations on GitClient {
     bool all = false,
     bool updateHeadOk = false,
   }) async {
-    final result = await raw(
-      [
-        'fetch',
-        if (all) '--all',
-        if (updateHeadOk) '--update-head-ok',
-        if (!all) remote,
-        if (ref != null) ref,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'fetch',
+      if (all) '--all',
+      if (updateHeadOk) '--update-head-ok',
+      if (!all) remote,
+      if (ref != null) ref,
+    ], directory: repository);
     ensureSuccess(result);
   }
 
@@ -121,16 +106,13 @@ extension GitOperations on GitClient {
     bool? fastForward,
     bool fastForwardOnly = false,
   }) async {
-    final result = await raw(
-      [
-        'merge',
-        if (fastForward != null)
-          if (fastForward) '--ff' else '--no-ff',
-        if (fastForwardOnly) '--ff-only',
-        fromCommit,
-      ],
-      directory: repository,
-    );
+    final result = await raw([
+      'merge',
+      if (fastForward != null)
+        if (fastForward) '--ff' else '--no-ff',
+      if (fastForwardOnly) '--ff-only',
+      fromCommit,
+    ], directory: repository);
     ensureSuccess(result);
   }
 }

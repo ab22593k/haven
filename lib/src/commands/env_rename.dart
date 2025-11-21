@@ -18,11 +18,7 @@ class EnvRenameCommand extends HavenCommand {
     final args = unwrapArguments(exactly: 2);
     final name = args[0];
     final newName = args[1];
-    await service.renameEnv(
-      scope: scope,
-      oldName: name,
-      newName: newName,
-    );
+    await service.renameEnv(scope: scope, oldName: name, newName: newName);
     return BasicMessageResult('Renamed environment `$name` to `$newName`');
   }
 }

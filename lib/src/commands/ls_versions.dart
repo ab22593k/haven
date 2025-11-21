@@ -53,8 +53,9 @@ class LsVersionsCommand extends HavenCommand {
       ..sort((a, b) {
         return parsedVersions
             .putIfAbsent(b.version, () => tryParseVersion(b.version)!)
-            .compareTo(parsedVersions.putIfAbsent(
-                a.version, () => tryParseVersion(a.version)!));
+            .compareTo(
+              parsedVersions.putIfAbsent(a.version, () => tryParseVersion(a.version)!),
+            );
       });
     final now = clock.now();
 
@@ -68,7 +69,8 @@ class LsVersionsCommand extends HavenCommand {
         // Can contain duplicates for each architecture
         if (version == lastVersion) continue;
 
-        final isPreviousPatch = lastVersion != null &&
+        final isPreviousPatch =
+            lastVersion != null &&
             version.major == lastVersion.major &&
             version.minor == lastVersion.minor;
         lastVersion = version;
@@ -86,53 +88,48 @@ class LsVersionsCommand extends HavenCommand {
       'beta': latestReleasesFor('beta'),
     };
 
-    return BasicMessageResult.format(
-      (format) {
-        List<List<String>> formatReleases(List<FlutterReleaseModel> releases) {
-          return [
-            for (final release in releases)
-              [
-                'Flutter ${release.version}',
-                format.color(' | ', foregroundColor: Ansi8BitColor.grey),
-                DateTime.parse(release.releaseDate).difference(now).pretty(
-                      before: '',
-                      abbr: true,
-                    ),
-                format.color(' | ', foregroundColor: Ansi8BitColor.grey),
-                release.hash.substring(0, 10),
-                format.color(' | ', foregroundColor: Ansi8BitColor.grey),
-                'Dart ${release.dartSdkVersion.split(' ').first}',
-              ],
-          ];
-        }
-
-        final formattedReleases = <String, List<List<String>>>{
-          for (final entry in channelReleases.entries)
-            entry.key: formatReleases(entry.value),
-        };
-
-        final colWidths = List.generate(
-          formattedReleases.values.first.first.length,
-          (index) {
-            return formattedReleases.values.fold<int>(0, (n, rows) {
-              return max(
-                  n,
-                  rows.fold(
-                      0, (n, row) => max(n, stripAnsiEscapes(row[index]).length)));
-            });
-          },
-        );
-
+    return BasicMessageResult.format((format) {
+      List<List<String>> formatReleases(List<FlutterReleaseModel> releases) {
         return [
-          for (final entry in formattedReleases.entries) ...[
-            'Latest ${entry.key} releases:',
-            for (final row in entry.value)
-              '${row.mapWithIndex((s, i) => padRightColored(s, colWidths[i])).join()}',
-            '',
-          ],
-        ].join('\n').trim();
-      },
-      type: CompletionType.info,
-    );
+          for (final release in releases)
+            [
+              'Flutter ${release.version}',
+              format.color(' | ', foregroundColor: Ansi8BitColor.grey),
+              DateTime.parse(
+                release.releaseDate,
+              ).difference(now).pretty(before: '', abbr: true),
+              format.color(' | ', foregroundColor: Ansi8BitColor.grey),
+              release.hash.substring(0, 10),
+              format.color(' | ', foregroundColor: Ansi8BitColor.grey),
+              'Dart ${release.dartSdkVersion.split(' ').first}',
+            ],
+        ];
+      }
+
+      final formattedReleases = <String, List<List<String>>>{
+        for (final entry in channelReleases.entries)
+          entry.key: formatReleases(entry.value),
+      };
+
+      final colWidths = List.generate(formattedReleases.values.first.first.length, (
+        index,
+      ) {
+        return formattedReleases.values.fold<int>(0, (n, rows) {
+          return max(
+            n,
+            rows.fold(0, (n, row) => max(n, stripAnsiEscapes(row[index]).length)),
+          );
+        });
+      });
+
+      return [
+        for (final entry in formattedReleases.entries) ...[
+          'Latest ${entry.key} releases:',
+          for (final row in entry.value)
+            '${row.mapWithIndex((s, i) => padRightColored(s, colWidths[i])).join()}',
+          '',
+        ],
+      ].join('\n').trim();
+    }, type: CompletionType.info);
   }
 }

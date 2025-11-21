@@ -17,9 +17,7 @@ import '../provider.dart';
 import 'version.dart';
 
 /// Fetches all of the available Flutter releases.
-Future<FlutterReleasesModel> fetchFlutterReleases({
-  required Scope scope,
-}) async {
+Future<FlutterReleasesModel> fetchFlutterReleases({required Scope scope}) async {
   return ProgressNode.of(scope).wrap((scope, node) async {
     final client = scope.read(clientProvider);
     final config = HavenConfig.of(scope);
@@ -48,10 +46,7 @@ Future<FlutterReleasesModel?> getCachedFlutterReleases({
           clock.now().difference(stat.modified) > const Duration(hours: 1))) {
     return null;
   }
-  final content = await readAtomic(
-    scope: scope,
-    file: config.cachedReleasesJsonFile,
-  );
+  final content = await readAtomic(scope: scope, file: config.cachedReleasesJsonFile);
   return FlutterReleasesModel.create()..mergeFromProto3Json(jsonDecode(content));
 }
 
@@ -110,21 +105,17 @@ Future<FlutterReleaseModel?> findFrameworkRelease({
   // release.
   if (hasCache && (!isChannelOnly || cacheIsFresh)) {
     FlutterReleasesModel? cachedReleases;
-    await lockFile(
-      scope,
-      config.cachedReleasesJsonFile,
-      (handle) async {
-        final contents = await handle.readAllAsString();
-        try {
-          cachedReleases = FlutterReleasesModel.create()
-            ..mergeFromProto3Json(jsonDecode(contents));
-        } catch (exception, stackTrace) {
-          log.w('Error while parsing cached releases');
-          log.w('$exception\n$stackTrace');
-          cacheIsFresh = false;
-        }
-      },
-    );
+    await lockFile(scope, config.cachedReleasesJsonFile, (handle) async {
+      final contents = await handle.readAllAsString();
+      try {
+        cachedReleases = FlutterReleasesModel.create()
+          ..mergeFromProto3Json(jsonDecode(contents));
+      } catch (exception, stackTrace) {
+        log.w('Error while parsing cached releases');
+        log.w('$exception\n$stackTrace');
+        cacheIsFresh = false;
+      }
+    });
     if (cachedReleases != null) {
       final foundRelease = searchFlutterVersions(
         releases: cachedReleases!,
@@ -147,15 +138,11 @@ Future<FlutterReleaseModel?> findFrameworkRelease({
 
   if (version == null) {
     channel ??= FlutterChannel.stable;
-    throw CommandError(
-      'Could not find latest version of the ${channel.name} channel',
-    );
+    throw CommandError('Could not find latest version of the ${channel.name} channel');
   } else if (channel == null) {
     return null;
   } else {
-    throw CommandError(
-      'Could not find version $version in the $channel channel',
-    );
+    throw CommandError('Could not find version $version in the $channel channel');
   }
 }
 

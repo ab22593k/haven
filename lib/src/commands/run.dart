@@ -20,11 +20,7 @@ class RunCommand extends HavenCommand {
   @override
   Future<CommandResult> run() async {
     const service = RunCommandService();
-    await service.runScript(
-      scope: scope,
-      runner: runner,
-      args: argResults!.arguments,
-    );
+    await service.runScript(scope: scope, runner: runner, args: argResults!.arguments);
     // This won't be reached as exitHaven terminates the program
     throw UnimplementedError('Unreachable code');
   }

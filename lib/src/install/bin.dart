@@ -42,10 +42,7 @@ Future<void> ensureHavenInstalled({
   if (promote) {
     await _promoteStandalone(scope: scope);
   } else {
-    await _installTrampoline(
-      scope: scope,
-      force: force,
-    );
+    await _installTrampoline(scope: scope, force: force);
   }
   await _installShims(scope: scope);
   await updateDefaultEnvSymlink(scope: scope);
@@ -68,9 +65,7 @@ Future<void> _promoteStandalone({required Scope scope}) async {
   final currentExecutableFile = version.havenExecutable!;
   await executableFile.parent.create(recursive: true);
   if (!await executableFile.parent.exists()) {
-    throw AssertionError(
-      'Failed to create ${currentExecutableFile.parent.path}',
-    );
+    throw AssertionError('Failed to create ${currentExecutableFile.parent.path}');
   }
   if (!await currentExecutableFile.exists()) {
     throw CommandError.list([
@@ -90,10 +85,7 @@ Future<void> _promoteStandalone({required Scope scope}) async {
   await currentExecutableFile.move(executableFile.path);
 }
 
-Future<void> _installTrampoline({
-  required Scope scope,
-  bool force = false,
-}) async {
+Future<void> _installTrampoline({required Scope scope, bool force = false}) async {
   final version = await HavenVersion.of(scope);
   final config = HavenConfig.of(scope);
   final log = HVLogger.of(scope);
@@ -115,8 +107,9 @@ Future<void> _installTrampoline({
       installLocation = Platform.executable;
       break;
     case HavenInstallationType.development:
-      final havenDartFile =
-          version.packageRoot!.childDirectory('bin').childFile('haven.dart');
+      final havenDartFile = version.packageRoot!
+          .childDirectory('bin')
+          .childFile('haven.dart');
       command = '"${Platform.executable}" "${havenDartFile.path}"';
       installLocation = havenDartFile.path;
       break;
@@ -137,8 +130,9 @@ Future<void> _installTrampoline({
       : '$trampolineHeader\n$command "\$@"';
 
   final trampolineExists = await trampolineFile.exists();
-  final executableExists =
-      executableIsTrampoline ? trampolineExists : await executableFile.exists();
+  final executableExists = executableIsTrampoline
+      ? trampolineExists
+      : await executableFile.exists();
   final installed = trampolineExists || executableExists;
 
   if (installed) {
@@ -146,7 +140,8 @@ Future<void> _installTrampoline({
     final exists = trampolineStat.type == FileSystemEntityType.file;
     // --x--x--x -> 0b001001001 -> 0x49
     final needsChmod = !Platform.isWindows && trampolineStat.mode & 0x49 != 0x49;
-    final upToDate = exists &&
+    final upToDate =
+        exists &&
         await compareFileAtomic(
           scope: scope,
           file: trampolineFile,
@@ -181,16 +176,15 @@ Future<void> _installTrampoline({
   }
 }
 
-Future<void> _installShims({
-  required Scope scope,
-}) async {
+Future<void> _installShims({required Scope scope}) async {
   final config = HavenConfig.of(scope);
   if (config.enableShims) {
     if (Platform.isWindows) {
       await writePassiveAtomic(
         scope: scope,
         file: config.havenDartShimFile,
-        content: '@echo off\n'
+        content:
+            '@echo off\n'
             'SETLOCAL ENABLEDELAYEDEXPANSION\n'
             'FOR %%i IN ("%~dp0.") DO SET HAVEN_BIN=%%~fi\n'
             '"%HAVEN_BIN%\\haven.exe" dart %* & exit /B !ERRORLEVEL!',
@@ -198,7 +192,8 @@ Future<void> _installShims({
       await writePassiveAtomic(
         scope: scope,
         file: config.havenFlutterShimFile,
-        content: '@echo off\n'
+        content:
+            '@echo off\n'
             'SETLOCAL ENABLEDELAYEDEXPANSION\n'
             'FOR %%i IN ("%~dp0.") DO SET HAVEN_BIN=%%~fi\n'
             '"%HAVEN_BIN%\\haven.exe" flutter %* & exit /B !ERRORLEVEL!',
@@ -207,26 +202,24 @@ Future<void> _installShims({
       await writePassiveAtomic(
         scope: scope,
         file: config.havenDartShimFile,
-        content: '$bashShimHeader\n'
+        content:
+            '$bashShimHeader\n'
             'HAVEN_BIN="\$(cd "\${PROG_NAME%/*}" ; pwd -P)"\n'
             '"\$HAVEN_BIN/haven" dart "\$@"',
       );
       await writePassiveAtomic(
         scope: scope,
         file: config.havenFlutterShimFile,
-        content: '$bashShimHeader\n'
+        content:
+            '$bashShimHeader\n'
             'HAVEN_BIN="\$(cd "\${PROG_NAME%/*}" ; pwd -P)"\n'
             '"\$HAVEN_BIN/haven" flutter "\$@"',
       );
-      await runProcess(
-        scope,
-        'chmod',
-        [
-          '+x',
-          config.havenDartShimFile.path,
-          config.havenFlutterShimFile.path,
-        ],
-      );
+      await runProcess(scope, 'chmod', [
+        '+x',
+        config.havenDartShimFile.path,
+        config.havenFlutterShimFile.path,
+      ]);
     }
   } else {
     if (await config.havenDartShimFile.exists()) {

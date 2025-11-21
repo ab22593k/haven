@@ -94,9 +94,7 @@ abstract class EnvironmentCommandRunner {
       environmentPrefs: environmentPrefs,
     );
 
-    log.v(
-      'Setting up tool took ${clock.now().difference(start).inMilliseconds}ms',
-    );
+    log.v('Setting up tool took ${clock.now().difference(start).inMilliseconds}ms');
 
     await preRunSetup(scope, environment, args);
 
@@ -108,7 +106,13 @@ abstract class EnvironmentCommandRunner {
     }
 
     final commandArgs = await getCommandArgs(
-        scope, environment, flutterConfig, environmentPrefs, toolInfo, args);
+      scope,
+      environment,
+      flutterConfig,
+      environmentPrefs,
+      toolInfo,
+      args,
+    );
 
     final process = await startProcess(
       scope,
@@ -126,10 +130,12 @@ abstract class EnvironmentCommandRunner {
       if (stdin != null) {
         unawaited(process.stdin.addStream(stdin));
       }
-      final stdoutFuture =
-          onStdout == null ? null : process.stdout.listen(onStdout).asFuture<void>();
-      final stderrFuture =
-          onStderr == null ? null : process.stderr.listen(onStderr).asFuture<void>();
+      final stdoutFuture = onStdout == null
+          ? null
+          : process.stdout.listen(onStdout).asFuture<void>();
+      final stderrFuture = onStderr == null
+          ? null
+          : process.stderr.listen(onStderr).asFuture<void>();
       final exitCode = await process.exitCode;
       await stdoutFuture;
       await stderrFuture;

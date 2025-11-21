@@ -47,12 +47,9 @@ extension GitClone on GitClient {
           if (percentIndex < 0) {
             continue;
           }
-          final percent = int.tryParse(line
-              .substring(
-                prefix.length,
-                percentIndex,
-              )
-              .trimLeft());
+          final percent = int.tryParse(
+            line.substring(prefix.length, percentIndex).trimLeft(),
+          );
           if (percent == null) continue;
           onProgress(step, percent / 100);
         }

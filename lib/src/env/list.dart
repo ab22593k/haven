@@ -46,10 +46,17 @@ class ListEnvironmentResult extends MessageResult {
     required this.projectEnvironment,
     required this.globalEnvironment,
     required this.showProjects,
-  }) : super(messages: [
-          _buildMessage(
-              config, results, projectEnvironment, globalEnvironment, showProjects)
-        ]);
+  }) : super(
+         messages: [
+           _buildMessage(
+             config,
+             results,
+             projectEnvironment,
+             globalEnvironment,
+             showProjects,
+           ),
+         ],
+       );
 
   final HavenConfig config;
   final List<EnvironmentInfoResult> results;
@@ -64,83 +71,65 @@ class ListEnvironmentResult extends MessageResult {
     String? globalEnvironment,
     bool showProjects,
   ) {
-    return CommandMessage.format(
-      (format) {
-        if (results.isEmpty) {
-          return 'No environments, use `haven create` to create one';
+    return CommandMessage.format((format) {
+      if (results.isEmpty) {
+        return 'No environments, use `haven create` to create one';
+      }
+      final lines = <List<String>>[];
+
+      for (final result in results) {
+        final name = result.environment.name;
+        final resultLines = <String>[];
+        if (name == projectEnvironment) {
+          resultLines.add(
+            format.color('* $name', foregroundColor: Ansi8BitColor.green, bold: true),
+          );
+        } else if (name == globalEnvironment && projectEnvironment == null) {
+          resultLines.add(
+            format.color('~ $name', foregroundColor: Ansi8BitColor.green, bold: true),
+          );
+        } else if (name == globalEnvironment) {
+          resultLines.add('~ $name');
+        } else {
+          resultLines.add('  $name');
         }
-        final lines = <List<String>>[];
-
-        for (final result in results) {
-          final name = result.environment.name;
-          final resultLines = <String>[];
-          if (name == projectEnvironment) {
-            resultLines.add(
-              format.color(
-                '* $name',
-                foregroundColor: Ansi8BitColor.green,
-                bold: true,
-              ),
-            );
-          } else if (name == globalEnvironment && projectEnvironment == null) {
-            resultLines.add(
-              format.color(
-                '~ $name',
-                foregroundColor: Ansi8BitColor.green,
-                bold: true,
-              ),
-            );
-          } else if (name == globalEnvironment) {
-            resultLines.add('~ $name');
-          } else {
-            resultLines.add('  $name');
+        if (showProjects && result.projects.isNotEmpty) {
+          for (final project in result.projects) {
+            resultLines.add('  | ${config.shortenHome(project.path)}');
           }
-          if (showProjects && result.projects.isNotEmpty) {
-            for (final project in result.projects) {
-              resultLines.add('  | ${config.shortenHome(project.path)}');
-            }
-          }
-          lines.add(resultLines);
         }
+        lines.add(resultLines);
+      }
 
-        final linePadding =
-            lines.fold<int>(0, (v, e) => max(v, stripAnsiEscapes(e[0]).length));
+      final linePadding = lines.fold<int>(
+        0,
+        (v, e) => max(v, stripAnsiEscapes(e[0]).length),
+      );
 
-        return [
-          'Environments:',
-          for (var i = 0; i < lines.length; i++) ...[
-            padRightColored(lines[i][0], linePadding) +
-                format.color(
-                  ' (${[
-                    if (results[i].environment.exists)
-                      results[i].version ?? 'unknown'
-                    else
-                      'not installed',
-                    if (results[i].dartVersion != null && results[i].showDartVersion)
-                      'Dart ${results[i].dartVersion}',
-                  ].join(' / ')})',
-                  foregroundColor: Ansi8BitColor.grey,
-                ),
-            ...lines[i].skip(1),
-          ],
-          '',
-          'Use `haven create <name>` to create an environment, or `haven use <name>` to switch',
-        ].join('\n');
-      },
-      type: CompletionType.info,
-    );
+      return [
+        'Environments:',
+        for (var i = 0; i < lines.length; i++) ...[
+          padRightColored(lines[i][0], linePadding) +
+              format.color(
+                ' (${[if (results[i].environment.exists) results[i].version ?? 'unknown' else 'not installed', if (results[i].dartVersion != null && results[i].showDartVersion) 'Dart ${results[i].dartVersion}'].join(' / ')})',
+                foregroundColor: Ansi8BitColor.grey,
+              ),
+          ...lines[i].skip(1),
+        ],
+        '',
+        'Use `haven create <name>` to create an environment, or `haven use <name>` to switch',
+      ].join('\n');
+    }, type: CompletionType.info);
   }
 
   @override
   CommandResultModel? get model => CommandResultModel(
-        environmentList: EnvironmentListModel(
-          environments: [
-            for (final info in results) info.toModel(),
-          ],
-          projectEnvironment: projectEnvironment,
-          globalEnvironment: globalEnvironment,
-        ),
-      );
+    environmentList: EnvironmentListModel(
+      environments: [for (final info in results) info.toModel()],
+      projectEnvironment: projectEnvironment,
+      globalEnvironment: globalEnvironment,
+    ),
+  );
 }
 
 /// Lists all available environments
@@ -170,10 +159,18 @@ Future<ListEnvironmentResult> listEnvironments({
           ? dartVersionFile.readAsStringSync().trim()
           : null;
     }
-    final projects =
-        (allDotfiles[environment.name] ?? []).map((e) => e.parent).toList();
-    results.add(EnvironmentInfoResult(
-        environment, version, dartVersion, projects, showDartVersion));
+    final projects = (allDotfiles[environment.name] ?? [])
+        .map((e) => e.parent)
+        .toList();
+    results.add(
+      EnvironmentInfoResult(
+        environment,
+        version,
+        dartVersion,
+        projects,
+        showDartVersion,
+      ),
+    );
   }
 
   if (config.envsDir.existsSync()) {
@@ -193,10 +190,18 @@ Future<ListEnvironmentResult> listEnvironments({
       final dartVersion = dartVersionFile.existsSync()
           ? dartVersionFile.readAsStringSync().trim()
           : null;
-      final projects =
-          (allDotfiles[environment.name] ?? []).map((e) => e.parent).toList();
-      results.add(EnvironmentInfoResult(
-          environment, version, dartVersion, projects, showDartVersion));
+      final projects = (allDotfiles[environment.name] ?? [])
+          .map((e) => e.parent)
+          .toList();
+      results.add(
+        EnvironmentInfoResult(
+          environment,
+          version,
+          dartVersion,
+          projects,
+          showDartVersion,
+        ),
+      );
     }
   }
 

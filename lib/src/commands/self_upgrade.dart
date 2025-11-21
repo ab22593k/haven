@@ -19,10 +19,7 @@ class SelfUpgradeCommand extends HavenCommand {
       help: 'Installs a new haven executable even if it wont replace an existing one',
       negatable: false,
     );
-    argParser.addFlag(
-      'path',
-      help: 'Whether or not to update the PATH automatically',
-    );
+    argParser.addFlag('path', help: 'Whether or not to update the PATH automatically');
   }
 
   @override
@@ -50,21 +47,18 @@ class SelfUpgradeCommand extends HavenCommand {
     var targetVersionString = unwrapSingleOptionalArgument();
 
     if (havenVersion.type == HavenInstallationType.pub) {
-      final result = await runProcess(
-        scope,
-        Platform.resolvedExecutable,
-        ['pub', 'global', 'activate', 'haven'],
-      );
+      final result = await runProcess(scope, Platform.resolvedExecutable, [
+        'pub',
+        'global',
+        'activate',
+        'haven',
+      ]);
       if (result.exitCode == 0) {
         final stdout = result.stdout as String;
         if (stdout.contains('already activated at newest available version')) {
-          return BasicMessageResult(
-            'Haven is up to date with $currentVersion',
-          );
+          return BasicMessageResult('Haven is up to date with $currentVersion');
         } else {
-          return BasicMessageResult(
-            'Upgraded haven to latest pub version',
-          );
+          return BasicMessageResult('Upgraded haven to latest pub version');
         }
       } else {
         return BasicMessageResult(
@@ -91,8 +85,9 @@ class SelfUpgradeCommand extends HavenCommand {
 
     final Version targetVersion;
     if (targetVersionString == null) {
-      final latestVersionResponse =
-          await http.get(config.havenBuildsUrl.append(path: 'latest'));
+      final latestVersionResponse = await http.get(
+        config.havenBuildsUrl.append(path: 'latest'),
+      );
       HttpException.ensureSuccess(latestVersionResponse);
       targetVersionString = latestVersionResponse.body.trim();
       targetVersion = Version.parse(targetVersionString);
@@ -107,9 +102,7 @@ class SelfUpgradeCommand extends HavenCommand {
     } else {
       targetVersion = Version.parse(targetVersionString);
       if (currentVersion == targetVersion && !force) {
-        return BasicMessageResult(
-          'Haven is the desired version $targetVersion',
-        );
+        return BasicMessageResult('Haven is the desired version $targetVersion');
       }
     }
 

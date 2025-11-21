@@ -19,16 +19,13 @@ void main() {
     });
 
     test('sets default successfully', () async {
-      final mockConfig = testEnv.scope.read(HavenConfig.provider) as MockPuroConfig;
+      final mockConfig = testEnv.scope.read(HavenConfig.provider) as MockHavenConfig;
       // Setup environment to exist - this must be done BEFORE calling the function
       final mockEnv = MockEnvConfig('default-test-env', true);
       mockConfig.addEnv('default-test-env', mockEnv);
 
       // Set as default
-      await setDefaultEnvName(
-        scope: testEnv.scope,
-        envName: 'default-test-env',
-      );
+      await setDefaultEnvName(scope: testEnv.scope, envName: 'default-test-env');
 
       // Verify
       final defaultName = await getDefaultEnvName(scope: testEnv.scope);
@@ -41,16 +38,13 @@ void main() {
     });
 
     test('rolls back on failure', () async {
-      final mockConfig = testEnv.scope.read(HavenConfig.provider) as MockPuroConfig;
+      final mockConfig = testEnv.scope.read(HavenConfig.provider) as MockHavenConfig;
       // Setup initial state - this must be done BEFORE calling the function
       final mockEnv = MockEnvConfig('default-rollback-env', true);
       mockConfig.addEnv('default-rollback-env', mockEnv);
 
       // Set as default
-      await setDefaultEnvName(
-        scope: testEnv.scope,
-        envName: 'default-rollback-env',
-      );
+      await setDefaultEnvName(scope: testEnv.scope, envName: 'default-rollback-env');
 
       // Verify
       final newDefault = await getDefaultEnvName(scope: testEnv.scope);

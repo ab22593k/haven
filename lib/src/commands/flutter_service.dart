@@ -31,10 +31,7 @@ class FlutterCommandService {
     // Handle special intercepted commands
     if (nonOptionArgs.isNotEmpty) {
       if (nonOptionArgs.first == 'upgrade') {
-        runner.addMessage(
-          'Using haven to upgrade flutter',
-          type: CompletionType.info,
-        );
+        runner.addMessage('Using haven to upgrade flutter', type: CompletionType.info);
         await runner.run(['upgrade', environment.name]);
         // Since runner.run returns a CommandResult, we need to exit with success
         // The original code used exit(exitCode), but since we're in a service,
@@ -45,8 +42,11 @@ class FlutterCommandService {
           'Using haven to switch flutter channel',
           type: CompletionType.info,
         );
-        final channelArgs =
-            args.where((e) => !e.startsWith('-')).skip(1).take(1).toList();
+        final channelArgs = args
+            .where((e) => !e.startsWith('-'))
+            .skip(1)
+            .take(1)
+            .toList();
         if (channelArgs.isNotEmpty) {
           await runner.run(['upgrade', channelArgs.first]);
           return 0;

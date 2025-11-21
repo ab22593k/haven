@@ -1,6 +1,6 @@
 //
 //  Generated code. Do not modify.
-//  source: puro.proto
+//  source: haven.proto
 //
 // @dart = 3.3
 
@@ -10,4 +10,4 @@
 // ignore_for_file: non_constant_identifier_names, prefer_final_fields
 // ignore_for_file: unnecessary_import, unnecessary_this, unused_import
 
-export 'puro.pb.dart';
+export 'haven.pb.dart';

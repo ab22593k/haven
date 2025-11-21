@@ -15,10 +15,7 @@ class SelfInstallCommand extends HavenCommand {
       help: 'Promotes a standalone executable to a full installation',
       negatable: false,
     );
-    argParser.addFlag(
-      'path',
-      help: 'Whether or not to update the PATH automatically',
-    );
+    argParser.addFlag('path', help: 'Whether or not to update the PATH automatically');
     argParser.addOption(
       'profile',
       help: 'Overrides the profile script haven appends to when updating the PATH',
@@ -31,7 +28,8 @@ class SelfInstallCommand extends HavenCommand {
   void cleanup() {
     if (_updatedProfilePath != null) {
       HVLogger.of(scope).w(
-          'Installation failed; profile at $_updatedProfilePath may need manual cleanup');
+        'Installation failed; profile at $_updatedProfilePath may need manual cleanup',
+      );
     }
   }
 
@@ -54,8 +52,9 @@ class SelfInstallCommand extends HavenCommand {
     final force = argResults!['force'] as bool;
     final promote = argResults!['promote'] as bool;
     final profileOverride = argResults!['profile'] as String?;
-    final updatePath =
-        argResults!.wasParsed('path') ? argResults!['path'] as bool : null;
+    final updatePath = argResults!.wasParsed('path')
+        ? argResults!['path'] as bool
+        : null;
 
     final contextOverrides = {
       'pubCacheOverride': runner.context.pubCacheOverride,

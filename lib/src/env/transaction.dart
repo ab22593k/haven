@@ -155,8 +155,8 @@ class EnvTransaction {
     // ignore: avoid_slow_async_io
     final temp =
         await current.fileSystem.type(current.path) == FileSystemEntityType.link
-            ? current.fileSystem.link(tempPath)
-            : current.fileSystem.directory(tempPath);
+        ? current.fileSystem.link(tempPath)
+        : current.fileSystem.directory(tempPath);
     await step(
       label: 'swap paths ${current.path} <-> ${next.path}',
       action: () async {

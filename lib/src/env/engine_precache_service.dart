@@ -23,11 +23,7 @@ Future<bool?> isCommitMonolithicEngine({
   if (result) return true;
   // 'exists' can return false if git show failed for some reason, so we also
   // check if the repository has a README.md to rule that out.
-  if (await git.exists(
-    repository: sharedRepository,
-    path: 'README.md',
-    ref: commit,
-  )) {
+  if (await git.exists(repository: sharedRepository, path: 'README.md', ref: commit)) {
     return false;
   }
   // Fall back to checking with HTTP
@@ -81,20 +77,11 @@ class EnginePrecacheService {
   const EnginePrecacheService();
 
   /// Precaches the engine for the given commit.
-  Future<void> precacheEngine({
-    required Scope scope,
-    required String commit,
-  }) async {
-    final engineVersion = await getEngineVersionOfCommit(
-      scope: scope,
-      commit: commit,
-    );
+  Future<void> precacheEngine({required Scope scope, required String commit}) async {
+    final engineVersion = await getEngineVersionOfCommit(scope: scope, commit: commit);
     if (engineVersion == null) {
       return;
     }
-    await downloadSharedEngine(
-      scope: scope,
-      engineCommit: engineVersion,
-    );
+    await downloadSharedEngine(scope: scope, engineCommit: engineVersion);
   }
 }

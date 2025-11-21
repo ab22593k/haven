@@ -55,21 +55,18 @@ class SelfUninstallCommand extends HavenCommand {
       );
       profilePath = profile?.path.replaceAll(homeDir, '~');
     } else if (Platform.isWindows) {
-      updatedWindowsRegistry = await tryCleanWindowsPath(
-        scope: scope,
-      );
+      updatedWindowsRegistry = await tryCleanWindowsPath(scope: scope);
     }
 
     if (profilePath == null && !updatedWindowsRegistry) {
-      throw CommandError(
-        'Could not find Haven in your PATH, is it still installed?',
-      );
+      throw CommandError('Could not find Haven in your PATH, is it still installed?');
     }
 
     return BasicMessageResult.list([
       if (profilePath != null)
         CommandMessage(
-            'Removed Haven from PATH in $profilePath, reopen your terminal for it to take effect'),
+          'Removed Haven from PATH in $profilePath, reopen your terminal for it to take effect',
+        ),
       if (updatedWindowsRegistry)
         CommandMessage(
           'Removed Haven from PATH in the Windows registry, reopen your terminal for it to take effect',

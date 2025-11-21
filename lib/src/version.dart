@@ -22,13 +22,13 @@ import 'logger.dart';
 import 'provider.dart';
 import 'terminal.dart';
 
-const _puroVersionDefine = String.fromEnvironment('puro_version');
+const _havenVersionDefine = String.fromEnvironment('haven_version');
 
 enum HavenInstallationType {
-  distribution('Puro is installed normally'),
-  standalone('Puro is a standalone executable'),
-  development('Puro is a development version'),
-  pub('Puro was installed with pub'),
+  distribution('Haven is installed normally'),
+  standalone('Haven is a standalone executable'),
+  development('Haven is a development version'),
+  pub('Haven was installed with pub'),
   unknown('Could not determine installation method');
 
   const HavenInstallationType(this.description);
@@ -55,9 +55,7 @@ class HavenVersion {
 
   static const _fs = LocalFileSystem();
 
-  static Future<Directory?> _getRootFromPackageConfig({
-    required Scope scope,
-  }) async {
+  static Future<Directory?> _getRootFromPackageConfig({required Scope scope}) async {
     final log = HVLogger.of(scope);
     var packageConfig = Platform.packageConfig;
     if (packageConfig == null) {
@@ -80,19 +78,17 @@ class HavenVersion {
       final packageData =
           jsonDecode(packageFile.readAsStringSync()) as Map<String, dynamic>;
       final packages = packageData['packages'] as List<dynamic>;
-      final puroPackage = packages
-          .cast<Map<String, dynamic>>()
-          .firstWhereOrNull((e) => e['name'] == 'puro');
-      if (puroPackage == null) {
+      final havenPackage = packages.cast<Map<String, dynamic>>().firstWhereOrNull(
+        (e) => e['name'] == 'haven',
+      );
+      if (havenPackage == null) {
         return null;
       }
-      final rootUri = Uri.parse(puroPackage['rootUri'] as String);
+      final rootUri = Uri.parse(havenPackage['rootUri'] as String);
       var rootPath = rootUri.toFilePath();
       if (path.isRelative(rootPath)) {
         path.isRelative(rootPath);
-        rootPath = path.normalize(
-          path.join(path.dirname(packageFile.path), rootPath),
-        );
+        rootPath = path.normalize(path.join(path.dirname(packageFile.path), rootPath));
       }
       return _fs.directory(rootPath);
     } catch (exception, stackTrace) {
@@ -114,14 +110,8 @@ class HavenVersion {
 
     final executablePath = path.canonicalize(Platform.resolvedExecutable);
     var scriptPath = Platform.script.toFilePath();
-    if (path.equals(
-          scriptPath,
-          path.join(path.current, target.executableName),
-        ) ||
-        path.equals(
-          scriptPath,
-          path.join(path.current, 'puro'),
-        ) ||
+    if (path.equals(scriptPath, path.join(path.current, target.executableName)) ||
+        path.equals(scriptPath, path.join(path.current, 'haven')) ||
         config.fileSystem.file(executablePath).parent.pathEquals(config.binDir)) {
       // A bug in dart gives an incorrect Platform.script :/
       // https://github.com/dart-lang/sdk/issues/45005
@@ -147,7 +137,7 @@ class HavenVersion {
       log.d('pubInstallBinDir: ${pubInstallBinDir.path}');
       log.d('pubInstallPackageDir: ${pubInstallPackageDir.path}');
       if (pubInstallBinDir.basename == 'bin' &&
-          pubInstallPackageDir.basename == 'puro' &&
+          pubInstallPackageDir.basename == 'haven' &&
           pubInstallPackageDir.parent.basename == 'global_packages' &&
           pubInstallPubspecLockFile.existsSync() &&
           !pubInstallPubspecYamlFile.existsSync()) {
@@ -167,8 +157,8 @@ class HavenVersion {
     log.d('scriptExtension: $scriptExtension');
 
     var installationType = HavenInstallationType.unknown;
-    File? puroExecutable;
-    if (scriptFile.basename == 'puro.dart' &&
+    File? havenExecutable;
+    if (scriptFile.basename == 'haven.dart' &&
         scriptFile.parent.basename == 'bin' &&
         scriptFile.parent.parent.parent.childDirectory('.git').existsSync()) {
       installationType = HavenInstallationType.development;
@@ -182,11 +172,8 @@ class HavenVersion {
         installationType = HavenInstallationType.development;
       }
     } else if (scriptIsExecutable) {
-      puroExecutable = config.fileSystem.file(executablePath);
-      if (path.equals(
-        executablePath,
-        config.havenExecutableFile.path,
-      )) {
+      havenExecutable = config.fileSystem.file(executablePath);
+      if (path.equals(executablePath, config.havenExecutableFile.path)) {
         installationType = HavenInstallationType.distribution;
       } else {
         installationType = HavenInstallationType.standalone;
@@ -195,12 +182,12 @@ class HavenVersion {
 
     log.d('installationType: $installationType');
 
-    /// Attempts to find the version of puro using either the `puro_version`
+    /// Attempts to find the version of haven using either the `haven_version`
     /// define or the git tag. This is a tiny bit slower in development because
     /// it has to call git a few times.
     var version = unknownSemver;
-    if (_puroVersionDefine.isNotEmpty) {
-      version = Version.parse(_puroVersionDefine);
+    if (_havenVersionDefine.isNotEmpty) {
+      version = Version.parse(_havenVersionDefine);
     } else if (packageRoot != null) {
       if (installationType == HavenInstallationType.development) {
         final gitTagVersion = await GitTagVersion.query(
@@ -214,7 +201,7 @@ class HavenVersion {
         try {
           final pubspecLock = loadYaml(pubspecLockFile.readAsStringSync()) as YamlMap;
           version = Version.parse(
-            pubspecLock['packages']['puro']['version'] as String,
+            pubspecLock['packages']['haven']['version'] as String,
           );
         } catch (exception, stackTrace) {
           log.w('Error while parsing ${pubspecLockFile.path}\n$exception\n$stackTrace');
@@ -229,7 +216,7 @@ class HavenVersion {
       type: installationType,
       target: target,
       packageRoot: packageRoot,
-      havenExecutable: puroExecutable,
+      havenExecutable: havenExecutable,
     );
   });
 
@@ -241,11 +228,7 @@ enum HavenBuildTarget {
   linuxX64('linux-x64', '', ''),
   macosX64('darwin-x64', '', '');
 
-  const HavenBuildTarget(
-    this.name,
-    this.exeSuffix,
-    this.scriptSuffix,
-  );
+  const HavenBuildTarget(this.name, this.exeSuffix, this.scriptSuffix);
 
   factory HavenBuildTarget.fromString(String str) {
     switch (str) {
@@ -264,8 +247,8 @@ enum HavenBuildTarget {
   final String exeSuffix;
   final String scriptSuffix;
 
-  String get executableName => 'puro$exeSuffix';
-  String get trampolineName => 'puro$scriptSuffix';
+  String get executableName => 'haven$exeSuffix';
+  String get trampolineName => 'haven$scriptSuffix';
   String get flutterName => 'flutter$scriptSuffix';
   String get dartName => 'dart$scriptSuffix';
 
@@ -287,9 +270,7 @@ enum HavenBuildTarget {
 const _kUpdateVersionCheckThreshold = Duration(days: 1);
 const _kUpdateNotificationThreshold = Duration(days: 1);
 
-Future<void> _fetchLatestVersionInBackground({
-  required Scope scope,
-}) async {
+Future<void> _fetchLatestVersionInBackground({required Scope scope}) async {
   final log = HVLogger.of(scope);
   final config = HavenConfig.of(scope);
   final httpClient = scope.read(clientProvider);
@@ -299,11 +280,7 @@ Future<void> _fetchLatestVersionInBackground({
   final body = response.body.trim();
   Version.parse(body);
   log.v('Latest version:');
-  await writeAtomic(
-    scope: scope,
-    file: config.havenLatestVersionFile,
-    content: body,
-  );
+  await writeAtomic(scope: scope, file: config.havenLatestVersionFile, content: body);
 }
 
 Future<CommandMessage?> checkIfUpdateAvailable({
@@ -322,14 +299,15 @@ Future<CommandMessage?> checkIfUpdateAvailable({
     log.d('Update check disabled');
     return null;
   }
-  final puroVersion = await HavenVersion.of(scope);
-  if (puroVersion.type != HavenInstallationType.distribution) {
+  final havenVersion = await HavenVersion.of(scope);
+  if (havenVersion.type != HavenInstallationType.distribution) {
     log.v('Not a distribution, skipping update check');
     return null;
   }
   log.v('Checking if update is available');
-  final lastVersionCheck =
-      prefs.hasLastUpdateCheck() ? DateTime.parse(prefs.lastUpdateCheck) : null;
+  final lastVersionCheck = prefs.hasLastUpdateCheck()
+      ? DateTime.parse(prefs.lastUpdateCheck)
+      : null;
   final lastNotification = prefs.hasLastUpdateNotification()
       ? DateTime.parse(prefs.lastUpdateNotification)
       : null;
@@ -337,13 +315,15 @@ Future<CommandMessage?> checkIfUpdateAvailable({
   final latestVersion = latestVersionFile.existsSync()
       ? tryParseVersion(await readAtomic(scope: scope, file: latestVersionFile))
       : null;
-  final isOutOfDate = latestVersion != null && latestVersion > puroVersion.semver;
+  final isOutOfDate = latestVersion != null && latestVersion > havenVersion.semver;
   final now = clock.now();
-  final willNotify = isOutOfDate &&
+  final willNotify =
+      isOutOfDate &&
       (alwaysNotify ||
           lastNotification == null ||
           now.difference(lastNotification) > _kUpdateNotificationThreshold);
-  final shouldVersionCheck = !isOutOfDate &&
+  final shouldVersionCheck =
+      !isOutOfDate &&
       (lastVersionCheck == null ||
           now.difference(lastVersionCheck) > _kUpdateVersionCheckThreshold);
   log.d('lastNotification: $lastNotification');
@@ -360,7 +340,7 @@ Future<CommandMessage?> checkIfUpdateAvailable({
       },
     );
     return CommandMessage(
-      'A new version of Puro is available, run `puro upgrade-puro` to upgrade',
+      'A new version of Haven is available, run `haven upgrade-haven` to upgrade',
       type: CompletionType.info,
     );
   } else if (shouldVersionCheck) {

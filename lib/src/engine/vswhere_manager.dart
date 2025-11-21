@@ -9,9 +9,7 @@ import 'vswhere_details.dart';
 
 /// Manages vswhere.exe queries for Visual Studio detection.
 class VswhereManager {
-  VswhereManager({
-    required this.scope,
-  });
+  VswhereManager({required this.scope});
 
   final Scope scope;
   late final config = HavenConfig.of(scope);
@@ -19,8 +17,9 @@ class VswhereManager {
   late final fileSystem = config.fileSystem;
 
   /// Matches the description property from the vswhere.exe JSON output.
-  final RegExp _vswhereDescriptionProperty =
-      RegExp(r'\s*"description"\s*:\s*".*"\s*,?');
+  final RegExp _vswhereDescriptionProperty = RegExp(
+    r'\s*"description"\s*:\s*".*"\s*,?',
+  );
 
   /// The minimum supported major version.
   static const int _minimumSupportedVersion = 16; // '16' is VS 2019.
@@ -84,9 +83,7 @@ class VswhereManager {
   String get _vswherePath {
     const String programFilesEnv = 'PROGRAMFILES(X86)';
     if (!Platform.environment.containsKey(programFilesEnv)) {
-      throw AssertionError(
-        '%$programFilesEnv% environment variable not found.',
-      );
+      throw AssertionError('%$programFilesEnv% environment variable not found.');
     }
     return fileSystem.path.join(
       Platform.environment[programFilesEnv]!,
@@ -107,10 +104,7 @@ class VswhereManager {
   }) {
     final List<String> requirementArguments = validateRequirements
         ? <String>[
-            if (requiredWorkload != null) ...<String>[
-              '-requires',
-              requiredWorkload,
-            ],
+            if (requiredWorkload != null) ...<String>['-requires', requiredWorkload],
             ...requiredComponents(_minimumSupportedVersion).keys,
           ]
         : <String>[];
@@ -124,20 +118,16 @@ class VswhereManager {
         '-latest',
       ];
 
-      final whereResult = runProcessSync(
-        scope,
-        _vswherePath,
-        <String>[
-          ...defaultArguments,
-          ...?additionalArguments,
-          ...requirementArguments,
-        ],
-        stdoutEncoding: const Utf8Codec(allowMalformed: true),
-      );
+      final whereResult = runProcessSync(scope, _vswherePath, <String>[
+        ...defaultArguments,
+        ...?additionalArguments,
+        ...requirementArguments,
+      ], stdoutEncoding: const Utf8Codec(allowMalformed: true));
 
       if (whereResult.exitCode == 0) {
-        final List<Map<String, dynamic>>? installations =
-            _tryDecodeVswhereJson(whereResult.stdout as String);
+        final List<Map<String, dynamic>>? installations = _tryDecodeVswhereJson(
+          whereResult.stdout as String,
+        );
         if (installations != null && installations.isNotEmpty) {
           return VswhereDetails.fromJson(validateRequirements, installations[0]);
         }
@@ -201,11 +191,12 @@ class VswhereManager {
     for (final bool checkForPrerelease in <bool>[false, true]) {
       for (final String requiredWorkload in _requiredWorkloads) {
         final VswhereDetails? result = _visualStudioDetails(
-            validateRequirements: true,
-            additionalArguments: checkForPrerelease
-                ? <String>[...minimumVersionArguments, _vswherePrereleaseArgument]
-                : minimumVersionArguments,
-            requiredWorkload: requiredWorkload);
+          validateRequirements: true,
+          additionalArguments: checkForPrerelease
+              ? <String>[...minimumVersionArguments, _vswherePrereleaseArgument]
+              : minimumVersionArguments,
+          requiredWorkload: requiredWorkload,
+        );
 
         if (result != null) {
           return result;
@@ -216,6 +207,7 @@ class VswhereManager {
     // An installation that satisfies requirements could not be found.
     // Fallback to the latest Visual Studio installation.
     return _visualStudioDetails(
-        additionalArguments: <String>[_vswherePrereleaseArgument, '-all']);
+      additionalArguments: <String>[_vswherePrereleaseArgument, '-all'],
+    );
   }
 }

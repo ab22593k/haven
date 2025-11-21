@@ -13,10 +13,7 @@ import 'config.dart';
 import 'prefs.dart';
 
 class ProjectConfig {
-  ProjectConfig({
-    required this.projectDir,
-    required this.parentProjectDir,
-  });
+  ProjectConfig({required this.projectDir, required this.parentProjectDir});
 
   late final HavenConfig parentConfig;
   final Directory? projectDir;
@@ -94,10 +91,7 @@ class ProjectConfig {
   }
 }
 
-Future<void> registerDotfile({
-  required Scope scope,
-  required File dotfile,
-}) async {
+Future<void> registerDotfile({required Scope scope, required File dotfile}) async {
   final prefs = await readGlobalPrefs(scope: scope);
   final canonical = dotfile.resolveIfExists().path;
   if (!prefs.projectDotfiles.contains(canonical)) {
@@ -128,9 +122,7 @@ Future<void> cleanDotfiles({required Scope scope}) {
   );
 }
 
-Future<Map<String, List<File>>> getAllDotfiles({
-  required Scope scope,
-}) async {
+Future<Map<String, List<File>>> getAllDotfiles({required Scope scope}) async {
   final log = HVLogger.of(scope);
   final config = HavenConfig.of(scope);
   final prefs = await readGlobalPrefs(scope: scope);
@@ -148,9 +140,7 @@ Future<Map<String, List<File>>> getAllDotfiles({
       final model = HavenDotfileModel.create();
       model.mergeFromProto3Json(data);
       if (model.hasEnv()) {
-        result.putIfAbsent(model.env, () => {}).add(
-              dotfile.resolveSymbolicLinksSync(),
-            );
+        result.putIfAbsent(model.env, () => {}).add(dotfile.resolveSymbolicLinksSync());
       }
     } catch (exception, stackTrace) {
       log.w('Error while reading $path');
@@ -162,10 +152,7 @@ Future<Map<String, List<File>>> getAllDotfiles({
     await cleanDotfiles(scope: scope);
   }
   return result.map(
-    (key, value) => MapEntry(
-      key,
-      value.map((e) => config.fileSystem.file(e)).toList(),
-    ),
+    (key, value) => MapEntry(key, value.map((e) => config.fileSystem.file(e)).toList()),
   );
 }
 

@@ -59,8 +59,10 @@ class HavenConfig {
       globalPrefs.engineGitUrl ?? 'https://github.com/flutter/engine.git';
   String get dartSdkGitUrl =>
       globalPrefs.dartSdkGitUrl ?? 'https://github.com/dart-lang/sdk.git';
-  Uri get releasesJsonUrl => Uri.parse(globalPrefs.releasesJsonUrl ??
-      '$flutterStorageBaseUrl/flutter_infra_release/releases/releases_${Platform.operatingSystem}.json');
+  Uri get releasesJsonUrl => Uri.parse(
+    globalPrefs.releasesJsonUrl ??
+        '$flutterStorageBaseUrl/flutter_infra_release/releases/releases_${Platform.operatingSystem}.json',
+  );
   Uri get flutterStorageBaseUrl =>
       Uri.parse(globalPrefs.flutterStorageBaseUrl ?? 'https://storage.googleapis.com');
   Uri get havenBuildsUrl =>
@@ -108,19 +110,17 @@ class HavenConfig {
       shouldSkipCacheSync: shouldSkipCacheSync,
     );
     return createHavenConfig(
-        scope: scope,
-        fileSystem: fileSystem,
-        havenRoot: havenRoot,
-        homeDir: homeDir,
-        args: args,
-        firstRun: firstRun,
-        enableShims: enableShims);
+      scope: scope,
+      fileSystem: fileSystem,
+      havenRoot: havenRoot,
+      homeDir: homeDir,
+      args: args,
+      firstRun: firstRun,
+      enableShims: enableShims,
+    );
   }
 
-  static Directory getHomeDir({
-    required Scope scope,
-    required FileSystem fileSystem,
-  }) {
+  static Directory getHomeDir({required Scope scope, required FileSystem fileSystem}) {
     return CoreConfig.getHomeDir(fileSystem: fileSystem);
   }
 
@@ -157,10 +157,10 @@ class HavenConfig {
   Directory get depotToolsDir => core.depotToolsDir;
 
   List<String> get desiredEnvPaths => [
-        binDir.path,
-        pubCacheBinDir.path,
-        getEnv('default', resolve: false).flutter.binDir.path,
-      ];
+    binDir.path,
+    pubCacheBinDir.path,
+    getEnv('default', resolve: false).flutter.binDir.path,
+  ];
 
   EnvConfig getEnv(String name, {bool resolve = true}) {
     if (resolve && name == 'default') {
@@ -192,21 +192,14 @@ class HavenConfig {
     return dir;
   }
 
-  FlutterCacheConfig getFlutterCache(
-    String engineCommit, {
-    required bool patched,
-  }) {
+  FlutterCacheConfig getFlutterCache(String engineCommit, {required bool patched}) {
     if (!isValidCommitHash(engineCommit)) {
-      throw ArgumentError.value(
-        engineCommit,
-        'engineVersion',
-        'Invalid commit hash',
-      );
+      throw ArgumentError.value(engineCommit, 'engineVersion', 'Invalid commit hash');
     }
     if (patched) {
-      return FlutterCacheConfig(sharedCachesDir.childDirectory(
-        '${engineCommit}_patched',
-      ));
+      return FlutterCacheConfig(
+        sharedCachesDir.childDirectory('${engineCommit}_patched'),
+      );
     } else {
       return FlutterCacheConfig(sharedCachesDir.childDirectory(engineCommit));
     }
@@ -214,13 +207,11 @@ class HavenConfig {
 
   DartSdkConfig getDartRelease(DartRelease release) {
     return DartSdkConfig(
-        sharedDartReleaseDir.childDirectory(release.name).childDirectory('dart-sdk'));
+      sharedDartReleaseDir.childDirectory(release.name).childDirectory('dart-sdk'),
+    );
   }
 
-  Uri? tryGetFlutterGitDownloadUrl({
-    required String commit,
-    required String path,
-  }) {
+  Uri? tryGetFlutterGitDownloadUrl({required String commit, required String path}) {
     const httpPrefix = 'https://github.com/';
     const sshPrefix = 'git@github.com:';
     final isHttp = flutterGitUrl.startsWith(httpPrefix);
@@ -228,19 +219,13 @@ class HavenConfig {
         flutterGitUrl.endsWith('.git')) {
       return Uri.https(
         'raw.githubusercontent.com',
-        '${flutterGitUrl.substring(
-          isHttp ? httpPrefix.length : sshPrefix.length,
-          flutterGitUrl.length - 4,
-        )}/$commit/$path',
+        '${flutterGitUrl.substring(isHttp ? httpPrefix.length : sshPrefix.length, flutterGitUrl.length - 4)}/$commit/$path',
       );
     }
     return null;
   }
 
-  Uri? tryGetEngineGitDownloadUrl({
-    required String commit,
-    required String path,
-  }) {
+  Uri? tryGetEngineGitDownloadUrl({required String commit, required String path}) {
     const httpPrefix = 'https://github.com/';
     const sshPrefix = 'git@github.com:';
     final isHttp = engineGitUrl.startsWith(httpPrefix);
@@ -248,10 +233,7 @@ class HavenConfig {
         engineGitUrl.endsWith('.git')) {
       return Uri.https(
         'raw.githubusercontent.com',
-        '${engineGitUrl.substring(
-          isHttp ? httpPrefix.length : sshPrefix.length,
-          engineGitUrl.length - 4,
-        )}/$commit/$path',
+        '${engineGitUrl.substring(isHttp ? httpPrefix.length : sshPrefix.length, engineGitUrl.length - 4)}/$commit/$path',
       );
     }
     return null;
@@ -284,10 +266,7 @@ class HavenConfig {
 }
 
 class EnvConfig {
-  EnvConfig({
-    required this.parentConfig,
-    required this.envDir,
-  });
+  EnvConfig({required this.parentConfig, required this.envDir});
 
   final HavenConfig parentConfig;
   final Directory envDir;
@@ -302,8 +281,9 @@ class EnvConfig {
   late final File updateLockFile = envDir.childFile('update.lock');
   late final Directory evalDir = envDir.childDirectory('eval');
   late final Directory evalBootstrapDir = evalDir.childDirectory('bootstrap');
-  late final File evalBootstrapPackagesFile =
-      evalBootstrapDir.childDirectory('.dart_tool').childFile('package_config.json');
+  late final File evalBootstrapPackagesFile = evalBootstrapDir
+      .childDirectory('.dart_tool')
+      .childFile('package_config.json');
 
   bool get exists => envDir.existsSync();
 
@@ -317,9 +297,7 @@ class EnvConfig {
   // lets you change it with an environment variable
   String get flutterToolArgs => '';
 
-  Future<HavenEnvPrefsModel> readPrefs({
-    required Scope scope,
-  }) async {
+  Future<HavenEnvPrefsModel> readPrefs({required Scope scope}) async {
     final model = HavenEnvPrefsModel();
     if (prefsJsonFile.existsSync()) {
       final contents = await readAtomic(scope: scope, file: prefsJsonFile);
@@ -335,27 +313,22 @@ class EnvConfig {
     required FutureOr<void> Function(HavenEnvPrefsModel prefs) fn,
     bool background = false,
   }) {
-    return lockFile(
-      scope,
-      prefsJsonFile,
-      (handle) async {
-        final model = HavenEnvPrefsModel();
-        String? contents;
-        if (handle.lengthSync() > 0) {
-          contents = handle.readAllAsStringSync();
-          final parsed = jsonDecode(contents) as Map<String, dynamic>;
-          validateJsonAgainstProto3Schema(parsed, HavenEnvPrefsModel.create);
-          model.mergeFromProto3Json(parsed);
-        }
-        await fn(model);
-        final newContents = prettyJsonEncoder.convert(model.toProto3Json());
-        if (contents != newContents) {
-          handle.writeAllStringSync(newContents);
-        }
-        return model;
-      },
-      mode: FileMode.append,
-    );
+    return lockFile(scope, prefsJsonFile, (handle) async {
+      final model = HavenEnvPrefsModel();
+      String? contents;
+      if (handle.lengthSync() > 0) {
+        contents = handle.readAllAsStringSync();
+        final parsed = jsonDecode(contents) as Map<String, dynamic>;
+        validateJsonAgainstProto3Schema(parsed, HavenEnvPrefsModel.create);
+        model.mergeFromProto3Json(parsed);
+      }
+      await fn(model);
+      final newContents = prettyJsonEncoder.convert(model.toProto3Json());
+      if (contents != newContents) {
+        handle.writeAllStringSync(newContents);
+      }
+      return model;
+    }, mode: FileMode.append);
   }
 }
 
@@ -366,25 +339,32 @@ class FlutterConfig {
 
   late final Directory binDir = sdkDir.childDirectory('bin');
   late final Directory packagesDir = sdkDir.childDirectory('packages');
-  late final File flutterScript =
-      binDir.childFile(Platform.isWindows ? 'flutter.bat' : 'flutter');
-  late final File dartScript =
-      binDir.childFile(Platform.isWindows ? 'dart.bat' : 'dart');
+  late final File flutterScript = binDir.childFile(
+    Platform.isWindows ? 'flutter.bat' : 'flutter',
+  );
+  late final File dartScript = binDir.childFile(
+    Platform.isWindows ? 'dart.bat' : 'dart',
+  );
   late final Directory binInternalDir = binDir.childDirectory('internal');
   late final Directory cacheDir = binDir.childDirectory('cache');
   late final FlutterCacheConfig cache = FlutterCacheConfig(cacheDir);
   late final File engineVersionFile = binInternalDir.childFile('engine.version');
   late final Directory flutterToolsDir = packagesDir.childDirectory('flutter_tools');
-  late final File flutterToolsScriptFile =
-      flutterToolsDir.childDirectory('bin').childFile('flutter_tools.dart');
-  late final File flutterToolsPubspecYamlFile =
-      flutterToolsDir.childFile('pubspec.yaml');
-  late final File flutterToolsPubspecLockFile =
-      flutterToolsDir.childFile('pubspec.lock');
-  late final File flutterToolsPackageConfigJsonFile =
-      flutterToolsDir.childDirectory('.dart_tool').childFile('package_config.json');
-  late final File flutterToolsLegacyPackagesFile =
-      flutterToolsDir.childFile('.packages');
+  late final File flutterToolsScriptFile = flutterToolsDir
+      .childDirectory('bin')
+      .childFile('flutter_tools.dart');
+  late final File flutterToolsPubspecYamlFile = flutterToolsDir.childFile(
+    'pubspec.yaml',
+  );
+  late final File flutterToolsPubspecLockFile = flutterToolsDir.childFile(
+    'pubspec.lock',
+  );
+  late final File flutterToolsPackageConfigJsonFile = flutterToolsDir
+      .childDirectory('.dart_tool')
+      .childFile('package_config.json');
+  late final File flutterToolsLegacyPackagesFile = flutterToolsDir.childFile(
+    '.packages',
+  );
   late final File legacyVersionFile = sdkDir.childFile('version');
 
   String? get engineVersion => engineVersionFile.existsSync()
@@ -428,13 +408,15 @@ class DartSdkConfig {
 
   late final Directory binDir = sdkDir.childDirectory('bin');
 
-  late final File dartExecutable =
-      binDir.childFile(Platform.isWindows ? 'dart.exe' : 'dart');
+  late final File dartExecutable = binDir.childFile(
+    Platform.isWindows ? 'dart.exe' : 'dart',
+  );
 
   // This no longer exists on recent versions of Dart where we instead use
   // `dart pub`.
-  late final File oldPubExecutable =
-      binDir.childFile(Platform.isWindows ? 'pub.bat' : 'pub');
+  late final File oldPubExecutable = binDir.childFile(
+    Platform.isWindows ? 'pub.bat' : 'pub',
+  );
 
   late final Directory libDir = sdkDir.childDirectory('lib');
   late final Directory internalLibDir = libDir.childDirectory('_internal');

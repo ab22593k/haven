@@ -250,32 +250,29 @@ class HavenCommandRunner extends CompletionCommandRunner<CommandResult> {
     LogLevel level = LogLevel.verbose,
   }) {
     backgroundTasks[() async {
-      try {
-        await task();
-      } catch (exception, stackTrace) {
-        log.add(LogEntry(
-          clock.now(),
-          level,
-          'Exception while $name\n$exception\n$stackTrace',
-        ));
-      }
-    }()] = name;
+          try {
+            await task();
+          } catch (exception, stackTrace) {
+            log.add(
+              LogEntry(
+                clock.now(),
+                level,
+                'Exception while $name\n$exception\n$stackTrace',
+              ),
+            );
+          }
+        }()] =
+        name;
   }
 
   @override
   Future<void> printUsage() async {
     await writeResultAndExit(
-      CommandHelpResult(
-        didRequestHelp: didRequestHelp,
-        usage: usage,
-      ),
+      CommandHelpResult(didRequestHelp: didRequestHelp, usage: usage),
     );
   }
 
-  void addMessage(
-    String message, {
-    CompletionType? type = CompletionType.info,
-  }) {
+  void addMessage(String message, {CompletionType? type = CompletionType.info}) {
     messages.add(CommandMessage(message, type: type));
   }
 
@@ -319,9 +316,7 @@ class HavenCommandRunner extends CompletionCommandRunner<CommandResult> {
       }
       await exitHaven(result.exitCode);
     } catch (exception, stackTrace) {
-      stderr.writeln(
-        'Exception while writing result:\n$exception\n$stackTrace',
-      );
+      stderr.writeln('Exception while writing result:\n$exception\n$stackTrace');
       exit(1);
     }
   }
@@ -352,7 +347,10 @@ class HavenCommandRunner extends CompletionCommandRunner<CommandResult> {
 
       final homeDir = HavenConfig.getHomeDir(scope: scope, fileSystem: fileSystem);
       final havenRoot = HavenConfig.getHavenRoot(
-          scope: scope, fileSystem: fileSystem, homeDir: homeDir);
+        scope: scope,
+        fileSystem: fileSystem,
+        homeDir: homeDir,
+      );
       final prefsJson = havenRoot.childFile('prefs.json');
       scope.add(globalPrefsJsonFileProvider, prefsJson);
       final firstRun = !prefsJson.existsSync() || prefsJson.statSync().size == 0;
@@ -380,10 +378,7 @@ class HavenCommandRunner extends CompletionCommandRunner<CommandResult> {
         shouldSkipCacheSync: context.shouldSkipCacheSyncOverride,
         firstRun: firstRun,
       );
-      scope.add(
-        HavenConfig.provider,
-        config,
-      );
+      scope.add(HavenConfig.provider, config);
       scope.add(CommandMessage.provider, messages.add);
 
       final commandName = topLevelResults.command?.name;
@@ -391,10 +386,7 @@ class HavenCommandRunner extends CompletionCommandRunner<CommandResult> {
       if (command is HavenCommand &&
           command.allowUpdateCheck &&
           (context.allowUpdateCheckOverride ?? true)) {
-        final message = await checkIfUpdateAvailable(
-          scope: scope,
-          runner: this,
-        );
+        final message = await checkIfUpdateAvailable(scope: scope, runner: this);
         if (message != null) {
           messages.add(message);
         }

@@ -11,12 +11,12 @@ void main() {
   group('EnvService', () {
     late TestEnvSetup testEnv;
     late EnvService service;
-    late MockPuroConfig mockConfig;
+    late MockHavenConfig mockConfig;
 
     setUp(() {
       testEnv = setupTestEnv();
       service = const EnvService();
-      mockConfig = testEnv.scope.read(HavenConfig.provider) as MockPuroConfig;
+      mockConfig = testEnv.scope.read(HavenConfig.provider) as MockHavenConfig;
     });
 
     tearDown(() {
@@ -32,8 +32,10 @@ void main() {
       final mockEnv = MockEnvConfig('test-env', true);
       mockConfig.addEnv('test-env', mockEnv);
 
-      final result =
-          await service.setDefaultEnv(scope: testEnv.scope, envName: 'test-env');
+      final result = await service.setDefaultEnv(
+        scope: testEnv.scope,
+        envName: 'test-env',
+      );
       expect(result, 'Set global default environment to `test-env`');
 
       final defaultName = await service.getDefaultEnvName(scope: testEnv.scope);
@@ -55,10 +57,7 @@ void main() {
     test('createEnv validates env name', () async {
       // Test that createEnv calls ensureValidEnvName (indirectly tested by throwing)
       await expectLater(
-        service.createEnv(
-          scope: testEnv.scope,
-          envName: 'invalid name with spaces',
-        ),
+        service.createEnv(scope: testEnv.scope, envName: 'invalid name with spaces'),
         throwsA(anything), // Should throw due to invalid name
       );
     });

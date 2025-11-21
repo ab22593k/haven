@@ -9,9 +9,7 @@ import '../provider.dart';
 import '../terminal.dart';
 
 class BinaryMdProcessor {
-  BinaryMdProcessor({
-    required this.scope,
-  });
+  BinaryMdProcessor({required this.scope});
 
   final Scope scope;
 
@@ -38,24 +36,29 @@ class BinaryMdProcessor {
 
       final result = BinaryMdGrammar().build().parse(source);
       if (result is Failure) {
-        return Future.error(BasicMessageResult(
-          'Failed to parse AST parser:\n$result',
-          type: CompletionType.failure,
-        ));
+        return Future.error(
+          BasicMessageResult(
+            'Failed to parse AST parser:\n$result',
+            type: CompletionType.failure,
+          ),
+        );
       }
 
       final componentFile = (result.value as List).singleWhere((e) {
         return e['type'] != null && e['type'][1] == 'ComponentFile';
       });
-      final version = int.parse((componentFile['type'][3] as List).singleWhere(
-              (e) => e['field'] != null && e['field'][1] == 'formatVersion')['field'][2]
-          as String);
+      final version = int.parse(
+        (componentFile['type'][3] as List).singleWhere(
+              (e) => e['field'] != null && e['field'][1] == 'formatVersion',
+            )['field'][2]
+            as String,
+      );
 
       verSchema[version] = result.value;
 
-      astsJsonDir.childFile('v$version.json').writeAsStringSync(
-            const JsonEncoder.withIndent('  ').convert(result.value),
-          );
+      astsJsonDir
+          .childFile('v$version.json')
+          .writeAsStringSync(const JsonEncoder.withIndent('  ').convert(result.value));
     }
 
     return verSchema;

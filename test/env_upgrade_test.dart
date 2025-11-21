@@ -15,8 +15,10 @@ void main() {
 
     test('has correct description', () {
       final command = EnvUpgradeCommand();
-      expect(command.description,
-          'Upgrades or downgrades an environment to a new version of Flutter');
+      expect(
+        command.description,
+        'Upgrades or downgrades an environment to a new version of Flutter',
+      );
     });
 
     test('parses channel option', () {

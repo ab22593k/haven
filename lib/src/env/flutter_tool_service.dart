@@ -7,13 +7,7 @@ class FlutterToolService {
   const FlutterToolService();
 
   /// Sets up the Flutter tool for the environment.
-  Future<void> setUpTool({
-    required Scope scope,
-    required EnvConfig environment,
-  }) async {
-    await setUpFlutterTool(
-      scope: scope,
-      environment: environment,
-    );
+  Future<void> setUpTool({required Scope scope, required EnvConfig environment}) async {
+    await setUpFlutterTool(scope: scope, environment: environment);
   }
 }

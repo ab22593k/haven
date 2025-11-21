@@ -38,11 +38,7 @@ class InstallCommandService {
     final config = HavenConfig.of(scope);
     final log = HVLogger.of(scope);
 
-    await ensureHavenInstalled(
-      scope: scope,
-      force: force,
-      promote: promote,
-    );
+    await ensureHavenInstalled(scope: scope, force: force, promote: promote);
 
     final HavenGlobalPrefsModel prefs = await updateGlobalPrefs(
       scope: scope,
@@ -77,8 +73,10 @@ class InstallCommandService {
       },
     );
 
-    log.d(() =>
-        'prefs: ${const JsonEncoder.withIndent('  ').convert(prefs.toProto3Json())}');
+    log.d(
+      () =>
+          'prefs: ${const JsonEncoder.withIndent('  ').convert(prefs.toProto3Json())}',
+    );
 
     // Update the PATH by default if this is a distribution install.
     String? profilePath;
@@ -98,9 +96,7 @@ class InstallCommandService {
           profilePath = '~' + profilePath.substring(homeDir.length);
         }
       } else if (Platform.isWindows) {
-        updatedWindowsRegistry = await tryUpdateWindowsPath(
-          scope: scope,
-        );
+        updatedWindowsRegistry = await tryUpdateWindowsPath(scope: scope);
       }
     }
 
@@ -110,13 +106,9 @@ class InstallCommandService {
       if (envDir.basename == 'default') continue;
       final environment = config.getEnv(envDir.basename);
       if (!environment.flutterDir.childDirectory('.git').existsSync()) continue;
-      await runOptional(
-        scope,
-        '`${environment.name}` post-upgrade',
-        () async {
-          await installEnvShims(scope: scope, environment: environment);
-        },
-      );
+      await runOptional(scope, '`${environment.name}` post-upgrade', () async {
+        await installEnvShims(scope: scope, environment: environment);
+      });
     }
 
     final externalMessage = await detectExternalFlutterInstallations(scope: scope);
@@ -133,7 +125,8 @@ class InstallCommandService {
         if (updateMessage != null) updateMessage,
         if (profilePath != null)
           CommandMessage(
-              'Updated PATH in $profilePath, reopen your terminal or `source $profilePath` for it to take effect'),
+            'Updated PATH in $profilePath, reopen your terminal or `source $profilePath` for it to take effect',
+          ),
         if (updatedWindowsRegistry)
           CommandMessage(
             'Updated PATH in the Windows registry, reopen your terminal for it to take effect',
@@ -142,7 +135,7 @@ class InstallCommandService {
           'Successfully installed haven ${havenVersion.semver} to `${config.havenRoot.path}`',
         ),
       ]),
-      profilePath
+      profilePath,
     );
   }
 }

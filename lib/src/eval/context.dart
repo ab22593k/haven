@@ -27,12 +27,7 @@ final _identifierOrUriRegex = RegExp(r'[a-zA-Z_$:/\\.][a-zA-Z_$0-9:/\\.]*');
 
 @immutable
 class EvalImport {
-  const EvalImport(
-    this.uri, {
-    this.as,
-    this.show = const {},
-    this.hide = const {},
-  });
+  const EvalImport(this.uri, {this.as, this.show = const {}, this.hide = const {}});
 
   final Uri uri;
   final String? as;
@@ -74,22 +69,14 @@ class EvalImport {
       } else if (modifier == '+') {
         final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
         if (identifierMatch == null) {
-          throw ArgumentError.value(
-            import,
-            'import',
-            'name expected after `+`',
-          );
+          throw ArgumentError.value(import, 'import', 'name expected after `+`');
         }
         show.add(identifierMatch.group(0)!);
         import = import.substring(identifierMatch.end);
       } else if (modifier == '-') {
         final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
         if (identifierMatch == null) {
-          throw ArgumentError.value(
-            import,
-            'import',
-            'name expected after `-`',
-          );
+          throw ArgumentError.value(import, 'import', 'name expected after `-`');
         }
         hide.add(identifierMatch.group(0)!);
         import = import.substring(identifierMatch.end);
@@ -112,12 +99,7 @@ class EvalImport {
 
   @override
   String toString() {
-    return "import ${[
-      "'$uri'",
-      if (as != null) 'as $as',
-      if (show.isNotEmpty) 'show ${show.join(', ')}',
-      if (hide.isNotEmpty) 'hide ${hide.join(', ')}',
-    ].join(' ')};";
+    return "import ${["'$uri'", if (as != null) 'as $as', if (show.isNotEmpty) 'show ${show.join(', ')}', if (hide.isNotEmpty) 'hide ${hide.join(', ')}'].join(' ')};";
   }
 
   @override
@@ -133,11 +115,11 @@ class EvalImport {
 
   @override
   int get hashCode => Object.hash(
-        uri,
-        as,
-        Object.hashAllUnordered(show),
-        Object.hashAllUnordered(hide),
-      );
+    uri,
+    as,
+    Object.hashAllUnordered(show),
+    Object.hashAllUnordered(hide),
+  );
 }
 
 MapEntry<String, VersionConstraint?> parseEvalPackage(String package) {
@@ -172,10 +154,7 @@ class EvalError implements Exception {
 }
 
 class EvalContext {
-  EvalContext({
-    required this.scope,
-    required this.environment,
-  });
+  EvalContext({required this.scope, required this.environment});
 
   final Scope scope;
   final EnvConfig environment;
@@ -218,20 +197,25 @@ class EvalContext {
 
     log.d('unitNode: ${unitNode.runtimeType}');
     log.d(() => 'unitNode.directives: ${unitNode?.directives}');
-    log.d(() => 'unitNode.declarations: '
-        '${unitNode?.declarations.map((e) => e.runtimeType).join(', ')}');
+    log.d(
+      () =>
+          'unitNode.declarations: '
+          '${unitNode?.declarations.map((e) => e.runtimeType).join(', ')}',
+    );
 
     // Always use unit if it contains top-level declarations, contains imports,
     // or contains a main function.
     if (unitNode != null &&
         (unitNode.directives.isNotEmpty ||
-            unitNode.declarations.any((e) =>
-                e is ClassDeclaration ||
-                e is MixinDeclaration ||
-                e is ExtensionDeclaration ||
-                e is EnumDeclaration ||
-                e is TypeAlias ||
-                (e is FunctionDeclaration && e.name.lexeme == 'main')))) {
+            unitNode.declarations.any(
+              (e) =>
+                  e is ClassDeclaration ||
+                  e is MixinDeclaration ||
+                  e is ExtensionDeclaration ||
+                  e is EnumDeclaration ||
+                  e is TypeAlias ||
+                  (e is FunctionDeclaration && e.name.lexeme == 'main'),
+            ))) {
       return unitParseResult;
     }
 
@@ -239,16 +223,26 @@ class EvalContext {
 
     final expressionNode = expressionParseResult.node;
     log.d('expressionNode: ${expressionNode.runtimeType}');
-    log.d('expressionParseResult.parseErrors: '
-        '${expressionParseResult.parseErrors}');
-    log.d('expressionParseResult.scanErrors: '
-        '${expressionParseResult.scanErrors}');
-    log.d('expressionParseResult.parseException: '
-        '${expressionParseResult.parseException}');
-    log.d('expressionParseResult.scanException: '
-        '${expressionParseResult.scanException}');
-    log.d('expressionParseResult.exhaustive: '
-        '${expressionParseResult.exhaustive}');
+    log.d(
+      'expressionParseResult.parseErrors: '
+      '${expressionParseResult.parseErrors}',
+    );
+    log.d(
+      'expressionParseResult.scanErrors: '
+      '${expressionParseResult.scanErrors}',
+    );
+    log.d(
+      'expressionParseResult.parseException: '
+      '${expressionParseResult.parseException}',
+    );
+    log.d(
+      'expressionParseResult.scanException: '
+      '${expressionParseResult.scanException}',
+    );
+    log.d(
+      'expressionParseResult.exhaustive: '
+      '${expressionParseResult.exhaustive}',
+    );
 
     if (!expressionParseResult.hasError && expressionParseResult.exhaustive) {
       return expressionParseResult;
@@ -258,9 +252,7 @@ class EvalContext {
   }
 
   void importCore() {
-    imports.addAll(
-      _coreLibraryNames.map((e) => EvalImport(Uri.parse('dart:$e'))),
-    );
+    imports.addAll(_coreLibraryNames.map((e) => EvalImport(Uri.parse('dart:$e'))));
   }
 
   ParseResult transform(String code) {

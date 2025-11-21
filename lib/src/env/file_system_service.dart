@@ -15,7 +15,7 @@ class FileSystemService {
 
   /// Prepares the rollback for prefs update and returns the action and rollback.
   Future<({Future<void> Function() action, Future<void> Function() rollback})>
-      preparePrefsUpdate({
+  preparePrefsUpdate({
     required Scope scope,
     required EnvConfig environment,
     FlutterVersion? flutterVersion,

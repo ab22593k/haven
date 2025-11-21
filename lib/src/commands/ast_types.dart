@@ -92,13 +92,13 @@ class UnionType extends DartType {
     final firstName = first is UnionType
         ? first.name
         : (first is ClassType
-            ? (first as ClassType).parent!.name
-            : throw AssertionError());
+              ? (first as ClassType).parent!.name
+              : throw AssertionError());
     final secondName = second is UnionType
         ? second.name
         : (second is ClassType
-            ? (second as ClassType).parent!.name
-            : throw AssertionError());
+              ? (second as ClassType).parent!.name
+              : throw AssertionError());
     assert(firstName == secondName);
     return firstName;
   }

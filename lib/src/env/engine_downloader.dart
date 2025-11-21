@@ -40,9 +40,7 @@ class EngineDownloader {
             sharedCache.dartSdk.dartExecutable.path,
             ['--version'],
             throwOnFailure: true,
-            environment: {
-              'PUB_CACHE': config.legacyPubCacheDir.path,
-            },
+            environment: {'PUB_CACHE': config.legacyPubCacheDir.path},
           );
         });
       } catch (exception) {
@@ -74,7 +72,8 @@ class EngineDownloader {
         // of shared.sh or the git tree, but this is much simpler.
         if (e.statusCode == 404 && target == EngineBuildTarget.macosArm64) {
           final engineZipUrl = config.flutterStorageBaseUrl.append(
-            path: 'flutter_infra_release/flutter/$engineCommit/'
+            path:
+                'flutter_infra_release/flutter/$engineCommit/'
                 '${EngineBuildTarget.macosX64.zipName}',
           );
           await downloadFile(
@@ -91,11 +90,7 @@ class EngineDownloader {
       log.v('Unzipping into ${config.sharedCachesDir}');
       await ProgressNode.of(scope).wrap((scope, node) async {
         node.description = 'Unzipping engine';
-        await unzip(
-          scope: scope,
-          zipFile: zipFile,
-          destination: sharedCache.cacheDir,
-        );
+        await unzip(scope: scope, zipFile: zipFile, destination: sharedCache.cacheDir);
       });
 
       zipFile.deleteSync();
@@ -122,29 +117,19 @@ class EngineDownloader {
     if (Platform.isWindows) {
       final zip = await findProgramInPath(scope: scope, name: '7z');
       if (zip.isNotEmpty) {
-        await runProcess(
-          scope,
-          zip.first.path,
-          [
-            'x',
-            '-y',
-            '-o${destination.path}',
-            zipFile.path,
-          ],
-          throwOnFailure: true,
-        );
+        await runProcess(scope, zip.first.path, [
+          'x',
+          '-y',
+          '-o${destination.path}',
+          zipFile.path,
+        ], throwOnFailure: true);
       } else {
-        await runProcess(
-          scope,
-          'powershell',
-          [
-            'Import-Module Microsoft.PowerShell.Archive; Expand-Archive',
-            zipFile.path,
-            '-DestinationPath',
-            destination.path,
-          ],
-          throwOnFailure: true,
-        );
+        await runProcess(scope, 'powershell', [
+          'Import-Module Microsoft.PowerShell.Archive; Expand-Archive',
+          zipFile.path,
+          '-DestinationPath',
+          destination.path,
+        ], throwOnFailure: true);
       }
     } else if (Platform.isLinux || Platform.isMacOS) {
       const pm = LocalProcessManager();
@@ -162,13 +147,7 @@ class EngineDownloader {
       await runProcess(
         scope,
         'unzip',
-        [
-          '-o',
-          '-q',
-          zipFile.path,
-          '-d',
-          destination.path,
-        ],
+        ['-o', '-q', zipFile.path, '-d', destination.path],
         runInShell: true,
         throwOnFailure: true,
       );

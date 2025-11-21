@@ -11,10 +11,7 @@ class ShimService {
     required Scope scope,
     required EnvConfig environment,
   }) async {
-    await installEnvShims(
-      scope: scope,
-      environment: environment,
-    );
+    await installEnvShims(scope: scope, environment: environment);
   }
 
   /// Uninstalls environment shims.
@@ -22,9 +19,6 @@ class ShimService {
     required Scope scope,
     required EnvConfig environment,
   }) async {
-    await uninstallEnvShims(
-      scope: scope,
-      environment: environment,
-    );
+    await uninstallEnvShims(scope: scope, environment: environment);
   }
 }

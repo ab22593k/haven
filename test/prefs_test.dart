@@ -64,10 +64,7 @@ void main() {
 }
 ''';
       final result = parsePrefsJson(json, logger);
-      expect(result, {
-        'defaultEnvironment': 'stable',
-        'legacyPubCache': true,
-      });
+      expect(result, {'defaultEnvironment': 'stable', 'legacyPubCache': true});
       expect(logger.warnings, hasLength(1));
       expect(logger.warnings.first, contains('concatenated'));
     });
@@ -117,7 +114,7 @@ trailing
         'array': [
           1,
           2,
-          {'inner': 'obj'}
+          {'inner': 'obj'},
         ],
       });
       expect(logger.warnings, hasLength(1));
@@ -134,10 +131,7 @@ trailing
 }
 ''';
       final result = parsePrefsJson(json, logger);
-      expect(result, {
-        'description': 'This has { and } in it',
-        'key': 'value',
-      });
+      expect(result, {'description': 'This has { and } in it', 'key': 'value'});
       expect(logger.warnings, hasLength(1));
     });
 
@@ -146,10 +140,10 @@ trailing
   "defaultEnvironment": "stable",
   "lastUpdateCheck": "2025-10-27T13:27:31.098027",
   "projectDotfiles": [
-    "/dummy/path1/.puro.json",
-    "/dummy/path2/.puro.json",
-    "/dummy/path3/.puro.json",
-    "/dummy/path4/.puro.json"
+    "/dummy/path1/.haven.json",
+    "/dummy/path2/.haven.json",
+    "/dummy/path3/.haven.json",
+    "/dummy/path4/.haven.json"
   ],
   "legacyPubCache": true
 }
@@ -161,10 +155,10 @@ trailing
         'defaultEnvironment': 'stable',
         'lastUpdateCheck': '2025-10-27T13:27:31.098027',
         'projectDotfiles': [
-          '/dummy/path1/.puro.json',
-          '/dummy/path2/.puro.json',
-          '/dummy/path3/.puro.json',
-          '/dummy/path4/.puro.json'
+          '/dummy/path1/.haven.json',
+          '/dummy/path2/.haven.json',
+          '/dummy/path3/.haven.json',
+          '/dummy/path4/.haven.json',
         ],
         'legacyPubCache': true,
       });

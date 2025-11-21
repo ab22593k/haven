@@ -4,9 +4,7 @@ import '../env/dart.dart';
 import '../provider.dart';
 
 class SnapshotReader {
-  SnapshotReader({
-    required this.scope,
-  });
+  SnapshotReader({required this.scope});
 
   final Scope scope;
   late final config = HavenConfig.of(scope);
@@ -15,12 +13,11 @@ class SnapshotReader {
     final releases = await getDartReleases(scope: scope);
 
     final allReleases = releases.releases.entries
-        .expand((r) => r.value.map((v) => DartRelease(
-              DartOS.current,
-              DartArch.current,
-              r.key,
-              v,
-            )))
+        .expand(
+          (r) => r.value.map(
+            (v) => DartRelease(DartOS.current, DartArch.current, r.key, v),
+          ),
+        )
         .toList();
 
     for (final release in allReleases) {

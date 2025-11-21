@@ -75,71 +75,58 @@ Future<EnvConfig> getProjectEnvOrDefault({
   return env;
 }
 
-Future<String> getDefaultEnvName({
-  required Scope scope,
-}) async {
+Future<String> getDefaultEnvName({required Scope scope}) async {
   final prefs = await readGlobalPrefs(scope: scope);
   return prefs.hasDefaultEnvironment() ? prefs.defaultEnvironment : 'stable';
 }
 
-Future<void> setDefaultEnvName({
-  required Scope scope,
-  required String envName,
-}) async {
+Future<void> setDefaultEnvName({required Scope scope, required String envName}) async {
   ensureValidEnvName(envName);
   await EnvTransaction.run(
-      scope: scope,
-      body: (tx) async {
-        // Update global prefs
-        final prefsFile = scope.read(globalPrefsJsonFileProvider);
-        final prefsExisted = prefsFile.existsSync();
-        String? oldPrefsContent;
-        if (prefsExisted) {
-          oldPrefsContent = prefsFile.readAsStringSync();
-        }
-        await tx.step(
-          label: 'update global prefs',
-          action: () async {
-            await updateGlobalPrefs(
-              scope: scope,
-              fn: (prefs) {
-                prefs.defaultEnvironment = envName;
-              },
-            );
-          },
-          rollback: () async {
-            if (oldPrefsContent != null) {
-              prefsFile.writeAsStringSync(oldPrefsContent);
-            } else if (prefsFile.existsSync()) {
-              prefsFile.deleteSync();
-            }
-          },
-        );
+    scope: scope,
+    body: (tx) async {
+      // Update global prefs
+      final prefsFile = scope.read(globalPrefsJsonFileProvider);
+      final prefsExisted = prefsFile.existsSync();
+      String? oldPrefsContent;
+      if (prefsExisted) {
+        oldPrefsContent = prefsFile.readAsStringSync();
+      }
+      await tx.step(
+        label: 'update global prefs',
+        action: () async {
+          await updateGlobalPrefs(
+            scope: scope,
+            fn: (prefs) {
+              prefs.defaultEnvironment = envName;
+            },
+          );
+        },
+        rollback: () async {
+          if (oldPrefsContent != null) {
+            prefsFile.writeAsStringSync(oldPrefsContent);
+          } else if (prefsFile.existsSync()) {
+            prefsFile.deleteSync();
+          }
+        },
+      );
 
-        // Update default env symlink
-        final oldDefaultName = await getDefaultEnvName(scope: scope);
-        await tx.step(
-          label: 'update default env symlink',
-          action: () async {
-            await updateDefaultEnvSymlink(
-              scope: scope,
-              name: envName,
-            );
-          },
-          rollback: () async {
-            await updateDefaultEnvSymlink(
-              scope: scope,
-              name: oldDefaultName,
-            );
-          },
-        );
-      });
+      // Update default env symlink
+      final oldDefaultName = await getDefaultEnvName(scope: scope);
+      await tx.step(
+        label: 'update default env symlink',
+        action: () async {
+          await updateDefaultEnvSymlink(scope: scope, name: envName);
+        },
+        rollback: () async {
+          await updateDefaultEnvSymlink(scope: scope, name: oldDefaultName);
+        },
+      );
+    },
+  );
 }
 
-Future<void> updateDefaultEnvSymlink({
-  required Scope scope,
-  String? name,
-}) async {
+Future<void> updateDefaultEnvSymlink({required Scope scope, String? name}) async {
   final config = HavenConfig.of(scope);
   name ??= await getDefaultEnvName(scope: scope);
   final environment = config.getEnv(name);

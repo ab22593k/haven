@@ -58,9 +58,7 @@ class IntelliJConfig extends IdeConfig {
         log.v('Deleting `${dartPackagesFile.path}`');
         dartPackagesFile.deleteSync();
       }
-      log.v(
-        'Renaming `${dartPackagesBakFile.path}` to `${dartPackagesFile.path}`',
-      );
+      log.v('Renaming `${dartPackagesBakFile.path}` to `${dartPackagesFile.path}`');
       dartPackagesBakFile.renameSync(dartPackagesFile.path);
     }
   }
@@ -113,39 +111,32 @@ class IntelliJConfig extends IdeConfig {
     final homeDirStr = path.canonicalize(config.homeDir.path).replaceAll('\\', '/');
     final urls = <String>[
       for (final libName in libraries)
-        '${Uri.file(path.canonicalize(dartSdk.libDir.path))}/$libName'
-            .replaceAll('$homeDirStr', r'$USER_HOME$'),
+        '${Uri.file(path.canonicalize(dartSdk.libDir.path))}/$libName'.replaceAll(
+          '$homeDirStr',
+          r'$USER_HOME$',
+        ),
     ];
     urls.sort();
-    final document = XmlDocument(
-      [
-        XmlElement(
-          XmlName('component'),
-          [XmlAttribute(XmlName('name'), 'libraryTable')],
-          [
-            XmlElement(
-              XmlName('library'),
-              [XmlAttribute(XmlName('name'), 'Dart SDK')],
-              [
-                XmlElement(
-                  XmlName('CLASSES'),
-                  [],
-                  [
-                    for (final url in urls)
-                      XmlElement(
-                        XmlName('root'),
-                        [XmlAttribute(XmlName('url'), url)],
-                      ),
-                  ],
-                ),
-                XmlElement(XmlName('JAVADOC')),
-                XmlElement(XmlName('SOURCES')),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
+    final document = XmlDocument([
+      XmlElement(
+        XmlName('component'),
+        [XmlAttribute(XmlName('name'), 'libraryTable')],
+        [
+          XmlElement(
+            XmlName('library'),
+            [XmlAttribute(XmlName('name'), 'Dart SDK')],
+            [
+              XmlElement(XmlName('CLASSES'), [], [
+                for (final url in urls)
+                  XmlElement(XmlName('root'), [XmlAttribute(XmlName('url'), url)]),
+              ]),
+              XmlElement(XmlName('JAVADOC')),
+              XmlElement(XmlName('SOURCES')),
+            ],
+          ),
+        ],
+      ),
+    ]);
     log.v('Writing to `${dartSdkFile.path}`');
     dartSdkFile.parent.createSync(recursive: true);
     dartSdkFile.writeAsStringSync(document.toXmlString(pretty: true));
@@ -171,9 +162,11 @@ class IntelliJConfig extends IdeConfig {
       return;
     }
 
-    var component = project.childElements.firstWhereOrNull((e) =>
-        e.name.toString() == 'component' &&
-        e.getAttribute('name') == 'ProjectModuleManager');
+    var component = project.childElements.firstWhereOrNull(
+      (e) =>
+          e.name.toString() == 'component' &&
+          e.getAttribute('name') == 'ProjectModuleManager',
+    );
     if (component == null) {
       log.d('enableDartSupport - no component');
       return;
@@ -191,7 +184,8 @@ class IntelliJConfig extends IdeConfig {
       var filepath = e.getAttribute('filepath');
       if (filepath == null ||
           !filepath.startsWith(projectDirStr) ||
-          !filepath.endsWith('.iml')) return false;
+          !filepath.endsWith('.iml'))
+        return false;
       filepath = filepath.substring(projectDirStr.length);
       if (filepath.startsWith(dotIdeaStr)) {
         filepath = filepath.substring(dotIdeaStr.length);
@@ -203,8 +197,9 @@ class IntelliJConfig extends IdeConfig {
       return;
     }
 
-    var rootModulePath =
-        rootModule.getAttribute('filepath')!.substring(projectDirStr.length);
+    var rootModulePath = rootModule
+        .getAttribute('filepath')!
+        .substring(projectDirStr.length);
     if (Platform.isWindows) {
       rootModulePath = rootModulePath.replaceAll('/', '\\');
     }
@@ -223,9 +218,11 @@ class IntelliJConfig extends IdeConfig {
       return;
     }
 
-    component = module.childElements.firstWhereOrNull((e) =>
-        e.name.toString() == 'component' &&
-        e.getAttribute('name') == 'NewModuleRootManager');
+    component = module.childElements.firstWhereOrNull(
+      (e) =>
+          e.name.toString() == 'component' &&
+          e.getAttribute('name') == 'NewModuleRootManager',
+    );
     if (component == null) {
       log.d('enableDartSupport - no component in iml');
       return;
@@ -272,7 +269,8 @@ class IntelliJConfig extends IdeConfig {
     log.v('intellij workspaceDir: $workspaceDir');
     if (workspaceDir == null) {
       return IntelliJConfig(
-        workspaceDir: config.findVSCodeWorkspaceDir(projectDir) ??
+        workspaceDir:
+            config.findVSCodeWorkspaceDir(projectDir) ??
             projectConfig.ensureParentProjectDir(),
         projectConfig: projectConfig,
         exists: false,
@@ -284,22 +282,22 @@ class IntelliJConfig extends IdeConfig {
       exists: true,
     );
     if (intellijConfig.dartSdkFile.existsSync()) {
-      final xml = XmlDocument.parse(
-        intellijConfig.dartSdkFile.readAsStringSync(),
-      );
+      final xml = XmlDocument.parse(intellijConfig.dartSdkFile.readAsStringSync());
       final classElements = xml.findAllElements('root');
       if (classElements.isNotEmpty) {
         final classElement = classElements.first;
-        final urlPath = Uri.parse(classElement
-                .getAttribute('url')!
-                .replaceAll(
-                  RegExp(r'\$USER_HOME\$', caseSensitive: false),
-                  config.homeDir.path,
-                )
-                .replaceAll(RegExp(r'\$PROJECT_DIR\$', caseSensitive: false),
-                    workspaceDir.path))
-            .toFilePath()
-            .replaceAll(RegExp(r'^\\\\'), '');
+        final urlPath = Uri.parse(
+          classElement
+              .getAttribute('url')!
+              .replaceAll(
+                RegExp(r'\$USER_HOME\$', caseSensitive: false),
+                config.homeDir.path,
+              )
+              .replaceAll(
+                RegExp(r'\$PROJECT_DIR\$', caseSensitive: false),
+                workspaceDir.path,
+              ),
+        ).toFilePath().replaceAll(RegExp(r'^\\\\'), '');
         final dartSdkDir = config.fileSystem.directory(urlPath).absolute.parent.parent;
         if (dartSdkDir.childDirectory('bin').existsSync()) {
           intellijConfig.dartSdkDir = dartSdkDir.absolute;

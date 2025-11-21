@@ -9,9 +9,7 @@ import '../provider.dart';
 
 /// Manages Windows SDK detection and version querying.
 class WindowsSdkManager {
-  WindowsSdkManager({
-    required this.scope,
-  });
+  WindowsSdkManager({required this.scope});
 
   final Scope scope;
   late final config = HavenConfig.of(scope);
@@ -34,8 +32,9 @@ class WindowsSdkManager {
     if (sdkLocation == null) {
       return null;
     }
-    final Directory sdkIncludeDirectory =
-        config.fileSystem.directory(sdkLocation).childDirectory('Include');
+    final Directory sdkIncludeDirectory = config.fileSystem
+        .directory(sdkLocation)
+        .childDirectory('Include');
     if (!sdkIncludeDirectory.existsSync()) {
       return null;
     }

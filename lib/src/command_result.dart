@@ -8,9 +8,10 @@ extension CommandResultModelExtensions on CommandResultModel {
   void addMessage(CommandMessage message, OutputFormatter format) {
     messages.add(
       CommandMessageModel(
-        type: (message.type ??
-                (success ? CompletionType.success : CompletionType.failure))
-            .name,
+        type:
+            (message.type ??
+                    (success ? CompletionType.success : CompletionType.failure))
+                .name,
         message: message.message(format),
       ),
     );
@@ -25,11 +26,11 @@ extension CommandResultModelExtensions on CommandResultModel {
 
 class CommandErrorResult extends InternalErrorResult {
   CommandErrorResult(this.exception, StackTrace stackTrace, this.logLevel)
-      : super(
-          message: '$exception\n$stackTrace',
-          error: exception,
-          stackTrace: stackTrace,
-        );
+    : super(
+        message: '$exception\n$stackTrace',
+        error: exception,
+        stackTrace: stackTrace,
+      );
 
   final Object exception;
   final int? logLevel;
@@ -38,53 +39,40 @@ class CommandErrorResult extends InternalErrorResult {
   Iterable<CommandMessage> get messages {
     return [
       CommandMessage('$exception\n$stackTrace'),
-      CommandMessage([
-        'Haven crashed! Please file an issue at https://github.com/ab22593k/haven',
-        if (logLevel != null && logLevel! < 4)
-          'Consider running the command with a higher log level: `--log-level=4`',
-      ].join('\n')),
+      CommandMessage(
+        [
+          'Haven crashed! Please file an issue at https://github.com/ab22593k/haven',
+          if (logLevel != null && logLevel! < 4)
+            'Consider running the command with a higher log level: `--log-level=4`',
+        ].join('\n'),
+      ),
     ];
   }
 }
 
 class CommandHelpResult extends HelpResult {
-  CommandHelpResult({
-    required bool didRequestHelp,
-    String? help,
-    String? usage,
-  }) : super(
-          didRequestHelp: didRequestHelp,
-          description: help,
-          usage: usage,
-        );
+  CommandHelpResult({required bool didRequestHelp, String? help, String? usage})
+    : super(didRequestHelp: didRequestHelp, description: help, usage: usage);
 }
 
 class BasicMessageResult extends MessageResult {
-  BasicMessageResult(
-    String message, {
-    bool success = true,
-    CompletionType? type,
-  }) : super(
-          messages: [CommandMessage(message, type: type)],
-          success: success,
-        );
+  BasicMessageResult(String message, {bool success = true, CompletionType? type})
+    : super(
+        messages: [CommandMessage(message, type: type)],
+        success: success,
+      );
 
   BasicMessageResult.format(
     String Function(OutputFormatter format) message, {
     bool success = true,
     CompletionType? type,
   }) : super(
-          messages: [CommandMessage.format(message, type: type)],
-          success: success,
-        );
+         messages: [CommandMessage.format(message, type: type)],
+         success: success,
+       );
 
-  BasicMessageResult.list(
-    List<CommandMessage> messages, {
-    bool success = true,
-  }) : super(
-          messages: messages,
-          success: success,
-        );
+  BasicMessageResult.list(List<CommandMessage> messages, {bool success = true})
+    : super(messages: messages, success: success);
 }
 
 sealed class CommandResult {
@@ -108,16 +96,14 @@ sealed class CommandResult {
 
   @override
   String toString() => CommandMessage.formatMessages(
-        messages: messages,
-        format: plainFormatter,
-        success: toModel().success,
-      );
+    messages: messages,
+    format: plainFormatter,
+    success: toModel().success,
+  );
 }
 
 class SuccessResult extends CommandResult {
-  const SuccessResult({
-    this.messages = const [],
-  });
+  const SuccessResult({this.messages = const []});
 
   @override
   int get exitCode => 0;
@@ -130,11 +116,7 @@ class SuccessResult extends CommandResult {
 }
 
 class HelpResult extends CommandResult {
-  const HelpResult({
-    this.usage,
-    this.description,
-    this.didRequestHelp = true,
-  });
+  const HelpResult({this.usage, this.description, this.didRequestHelp = true});
 
   final String? usage;
   final String? description;
@@ -145,27 +127,20 @@ class HelpResult extends CommandResult {
 
   @override
   Iterable<CommandMessage> get messages => [
-        if (description != null)
-          CommandMessage(
-            description!,
-            type: CompletionType.failure,
-          ),
-        if (usage != null)
-          CommandMessage(
-            usage!,
-            type: didRequestHelp ? CompletionType.plain : CompletionType.info,
-          ),
-      ];
+    if (description != null) CommandMessage(description!, type: CompletionType.failure),
+    if (usage != null)
+      CommandMessage(
+        usage!,
+        type: didRequestHelp ? CompletionType.plain : CompletionType.info,
+      ),
+  ];
 
   @override
   CommandResultModel? get model => CommandResultModel(usage: usage);
 }
 
 class UserErrorResult extends CommandResult {
-  const UserErrorResult({
-    required this.message,
-    this.showUsage = false,
-  });
+  const UserErrorResult({required this.message, this.showUsage = false});
 
   final String message;
   final bool showUsage;
@@ -175,21 +150,17 @@ class UserErrorResult extends CommandResult {
 
   @override
   Iterable<CommandMessage> get messages => [
-        CommandMessage(message, type: CompletionType.failure),
-        if (showUsage)
-          CommandMessage('Run with --help for usage.', type: CompletionType.info),
-      ];
+    CommandMessage(message, type: CompletionType.failure),
+    if (showUsage)
+      CommandMessage('Run with --help for usage.', type: CompletionType.info),
+  ];
 
   @override
   CommandResultModel? get model => null;
 }
 
 class InternalErrorResult extends CommandResult {
-  const InternalErrorResult({
-    required this.message,
-    this.error,
-    this.stackTrace,
-  });
+  const InternalErrorResult({required this.message, this.error, this.stackTrace});
 
   final String message;
   final Object? error;
@@ -200,31 +171,27 @@ class InternalErrorResult extends CommandResult {
 
   @override
   Iterable<CommandMessage> get messages => [
-        CommandMessage(message, type: CompletionType.failure),
-        if (error != null) CommandMessage('$error', type: CompletionType.failure),
-        if (stackTrace != null)
-          CommandMessage('$stackTrace', type: CompletionType.failure),
-        CommandMessage(
-          'Haven crashed! Please file an issue at https://github.com/ab22593k/haven',
-          type: CompletionType.failure,
-        ),
-      ];
+    CommandMessage(message, type: CompletionType.failure),
+    if (error != null) CommandMessage('$error', type: CompletionType.failure),
+    if (stackTrace != null) CommandMessage('$stackTrace', type: CompletionType.failure),
+    CommandMessage(
+      'Haven crashed! Please file an issue at https://github.com/ab22593k/haven',
+      type: CompletionType.failure,
+    ),
+  ];
 
   @override
   CommandResultModel? get model => CommandResultModel(
-        error: CommandErrorModel(
-          exception: error?.toString() ?? message,
-          exceptionType: error?.runtimeType.toString() ?? 'Unknown',
-          stackTrace: stackTrace?.toString(),
-        ),
-      );
+    error: CommandErrorModel(
+      exception: error?.toString() ?? message,
+      exceptionType: error?.runtimeType.toString() ?? 'Unknown',
+      stackTrace: stackTrace?.toString(),
+    ),
+  );
 }
 
 class MessageResult extends CommandResult {
-  const MessageResult({
-    required this.messages,
-    this.success = true,
-  });
+  const MessageResult({required this.messages, this.success = true});
 
   @override
   final List<CommandMessage> messages;
@@ -250,11 +217,12 @@ class CommandMessage {
     required bool success,
   }) {
     return messages
-        .map((e) => format.complete(
-              e.message(format),
-              type:
-                  e.type ?? (success ? CompletionType.success : CompletionType.failure),
-            ))
+        .map(
+          (e) => format.complete(
+            e.message(format),
+            type: e.type ?? (success ? CompletionType.success : CompletionType.failure),
+          ),
+        )
         .join('\n');
   }
 
@@ -267,33 +235,17 @@ class CommandMessage {
 
 /// Like [CommandResult] but thrown as an exception.
 class CommandError implements Exception {
-  CommandError(
-    String message, {
-    CompletionType? type,
-    bool success = false,
-  }) : result = BasicMessageResult(
-          message,
-          success: success,
-          type: type,
-        );
+  CommandError(String message, {CompletionType? type, bool success = false})
+    : result = BasicMessageResult(message, success: success, type: type);
 
   CommandError.format(
     String Function(OutputFormatter format) message, {
     CompletionType? type,
     bool success = false,
-  }) : result = BasicMessageResult.format(
-          message,
-          success: success,
-          type: type,
-        );
+  }) : result = BasicMessageResult.format(message, success: success, type: type);
 
-  CommandError.list(
-    List<CommandMessage> messages, {
-    bool success = false,
-  }) : result = BasicMessageResult.list(
-          messages,
-          success: success,
-        );
+  CommandError.list(List<CommandMessage> messages, {bool success = false})
+    : result = BasicMessageResult.list(messages, success: success);
 
   final CommandResult result;
 

@@ -10,11 +10,7 @@ abstract class JsonElement {
   String toJsonString();
 }
 
-String _indentString(
-  String input, [
-  bool skipFirstLine = false,
-  int indent = 1,
-]) {
+String _indentString(String input, [bool skipFirstLine = false, int indent = 1]) {
   final lines = input.split('\n');
   if (skipFirstLine) {
     if (lines.length == 1) return lines.first;
@@ -25,11 +21,7 @@ String _indentString(
 }
 
 class JsonWhitespace extends JsonElement {
-  JsonWhitespace({
-    required this.leading,
-    required this.body,
-    required this.trailing,
-  });
+  JsonWhitespace({required this.leading, required this.body, required this.trailing});
 
   String leading;
   Token<JsonElement> body;
@@ -58,10 +50,7 @@ class JsonWhitespace extends JsonElement {
 }
 
 class JsonMap extends JsonElement {
-  JsonMap({
-    required this.children,
-    required this.space,
-  });
+  JsonMap({required this.children, required this.space});
 
   @override
   final List<Token<JsonMapEntry>> children;
@@ -69,9 +58,9 @@ class JsonMap extends JsonElement {
 
   Token<JsonMapEntry>? operator [](String key) {
     return children.cast<Token<JsonMapEntry>?>().firstWhere(
-          (child) => child!.value.key.value == key,
-          orElse: () => null,
-        );
+      (child) => child!.value.key.value == key,
+      orElse: () => null,
+    );
   }
 
   @override
@@ -108,10 +97,7 @@ class JsonMap extends JsonElement {
 }
 
 class JsonArray extends JsonElement {
-  JsonArray({
-    required this.children,
-    required this.space,
-  });
+  JsonArray({required this.children, required this.space});
 
   @override
   List<Token<JsonElement>> children;
@@ -123,9 +109,7 @@ class JsonArray extends JsonElement {
 
   @override
   Object? toJson() {
-    return [
-      for (final child in children) child.value.toJson(),
-    ];
+    return [for (final child in children) child.value.toJson()];
   }
 
   @override

@@ -16,7 +16,9 @@ class VswhereDetails {
 
   /// Create a `VswhereDetails` from the JSON output of vswhere.exe.
   factory VswhereDetails.fromJson(
-      bool meetsRequirements, Map<String, dynamic> details) {
+    bool meetsRequirements,
+    Map<String, dynamic> details,
+  ) {
     final Map<String, dynamic>? catalog = details['catalog'] as Map<String, dynamic>?;
 
     return VswhereDetails(
@@ -31,8 +33,9 @@ class VswhereDetails {
       // Below are strings that are used only for display purposes and are allowed to
       // contain replacement characters.
       displayName: details['displayName'] as String?,
-      catalogDisplayVersion:
-          catalog == null ? null : catalog['productDisplayVersion'] as String?,
+      catalogDisplayVersion: catalog == null
+          ? null
+          : catalog['productDisplayVersion'] as String?,
     );
   }
 

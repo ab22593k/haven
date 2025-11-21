@@ -27,8 +27,10 @@ Future<HavenConfig> createHavenConfig({
 }) async {
   final log = HVLogger.of(scope);
   final globalPrefsJsonFile = scope.read(globalPrefsJsonFileProvider);
-  final globalPrefs =
-      await GlobalPrefsConfig.load(scope: scope, jsonFile: globalPrefsJsonFile);
+  final globalPrefs = await GlobalPrefsConfig.load(
+    scope: scope,
+    jsonFile: globalPrefsJsonFile,
+  );
 
   final currentDir = args.workingDir == null
       ? fileSystem.currentDirectory
@@ -49,19 +51,15 @@ Future<HavenConfig> createHavenConfig({
     } else {
       throw UnsupportedOSError();
     }
-    throw CommandError(
-      'Could not find git executable, consider $instructions',
-    );
+    throw CommandError('Could not find git executable, consider $instructions');
   }
 
-  final absoluteProjectDir =
-      projectDir == null ? null : fileSystem.directory(projectDir).absolute;
+  final absoluteProjectDir = projectDir == null
+      ? null
+      : fileSystem.directory(projectDir).absolute;
 
-  var resultProjectDir = absoluteProjectDir ??
-      findProjectDir(
-        currentDir,
-        'pubspec.yaml',
-      );
+  var resultProjectDir =
+      absoluteProjectDir ?? findProjectDir(currentDir, 'pubspec.yaml');
 
   // Haven looks for a suitable project root in the following order:
   //   1. Directory specified in `--project`
@@ -71,16 +69,11 @@ Future<HavenConfig> createHavenConfig({
   // If Haven finds a grandparent and tries to access the parentProjectDir with
   // dotfileForWriting, it throws an error indicating the selection is
   // ambiguous.
-  final Directory? parentProjectDir = absoluteProjectDir ??
-      findProjectDir(
-        currentDir,
-        ProjectConfig.dotfileName,
-      ) ??
+  final Directory? parentProjectDir =
+      absoluteProjectDir ??
+      findProjectDir(currentDir, ProjectConfig.dotfileName) ??
       (resultProjectDir != null
-          ? findProjectDir(
-              resultProjectDir.parent,
-              'pubspec.yaml',
-            )
+          ? findProjectDir(resultProjectDir.parent, 'pubspec.yaml')
           : null) ??
       resultProjectDir;
 
@@ -126,7 +119,8 @@ Future<HavenConfig> createHavenConfig({
   if (pubCacheOverride != null && pubCacheOverride.isNotEmpty) {
     pubCache ??= pubCacheOverride;
   }
-  pubCache ??= globalPrefs.pubCacheDir ??
+  pubCache ??=
+      globalPrefs.pubCacheDir ??
       havenRoot.childDirectory('shared').childDirectory('pub_cache').path;
 
   shouldSkipCacheSync ??=
@@ -137,18 +131,23 @@ Future<HavenConfig> createHavenConfig({
     gitExecutable: fileSystem.file(gitExecutable),
     havenRoot: havenRoot,
     homeDir: fileSystem.directory(homeDir),
-    flutterGitUrl: args.flutterGitUrl ??
+    flutterGitUrl:
+        args.flutterGitUrl ??
         globalPrefs.flutterGitUrl ??
         'https://github.com/flutter/flutter.git',
-    engineGitUrl: args.engineGitUrl ??
+    engineGitUrl:
+        args.engineGitUrl ??
         globalPrefs.engineGitUrl ??
         'https://github.com/flutter/engine.git',
-    dartSdkGitUrl: args.dartSdkGitUrl ??
+    dartSdkGitUrl:
+        args.dartSdkGitUrl ??
         globalPrefs.dartSdkGitUrl ??
         'https://github.com/dart-lang/sdk.git',
-    releasesJsonUrl: Uri.parse(args.releasesJsonUrl ??
-        globalPrefs.releasesJsonUrl ??
-        '$flutterStorageBaseUrl/flutter_infra_release/releases/releases_${Platform.operatingSystem}.json'),
+    releasesJsonUrl: Uri.parse(
+      args.releasesJsonUrl ??
+          globalPrefs.releasesJsonUrl ??
+          '$flutterStorageBaseUrl/flutter_infra_release/releases/releases_${Platform.operatingSystem}.json',
+    ),
     flutterStorageBaseUrl: Uri.parse(flutterStorageBaseUrl),
     havenBuildsUrl: Uri.parse(globalPrefs.havenBuildsUrl ?? 'https://puro.dev/builds'),
     buildTarget: globalPrefs.havenBuildTarget != null

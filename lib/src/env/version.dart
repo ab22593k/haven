@@ -32,12 +32,7 @@ enum FlutterChannel {
 
 @immutable
 class FlutterVersion {
-  const FlutterVersion({
-    required this.commit,
-    this.version,
-    this.branch,
-    this.tag,
-  });
+  const FlutterVersion({required this.commit, this.version, this.branch, this.tag});
 
   final String commit;
   final Version? version;
@@ -68,11 +63,7 @@ class FlutterVersion {
     String colorize(List<String> result) {
       return result
           .map(
-            (e) => format!.color(
-              e,
-              bold: true,
-              foregroundColor: Ansi8BitColor.green,
-            ),
+            (e) => format!.color(e, bold: true, foregroundColor: Ansi8BitColor.green),
           )
           .join(' / ');
     }
@@ -159,14 +150,9 @@ class FlutterVersion {
             arg: version,
           );
           if (commit != null) {
-            return FlutterVersion(
-              commit: commit,
-              version: parsedVersion,
-            );
+            return FlutterVersion(commit: commit, version: parsedVersion);
           }
-          throw CommandError(
-            'Could not find version $version',
-          );
+          throw CommandError('Could not find version $version');
         }
         final releaseVersion = tryParseVersion(release.version);
         if (releaseVersion == null) {
@@ -191,10 +177,7 @@ class FlutterVersion {
         arg: 'tags/$version',
       );
       if (result != null) {
-        return FlutterVersion(
-          commit: result,
-          tag: version,
-        );
+        return FlutterVersion(commit: result, tag: version);
       }
 
       // Check if it's a commit
@@ -231,10 +214,7 @@ class FlutterVersion {
         repository: sharedRepository,
         branch: 'origin/$version',
       );
-      return FlutterVersion(
-        commit: result,
-        branch: isBranch ? version : null,
-      );
+      return FlutterVersion(commit: result, branch: isBranch ? version : null);
     }
 
     // Check again after fetching
@@ -286,35 +266,25 @@ Future<FlutterVersion?> getEnvironmentFlutterVersion({
   final git = GitClient.of(scope);
   final flutterConfig = environment.flutter;
   final versionFile = flutterConfig.legacyVersionFile;
-  final commit = await git.tryGetCurrentCommitHash(
-    repository: flutterConfig.sdkDir,
-  );
+  final commit = await git.tryGetCurrentCommitHash(repository: flutterConfig.sdkDir);
   if (commit == null) {
     return null;
   }
   if (!versionFile.existsSync()) {
-    await runOptional(
-      scope,
-      'querying Flutter version for `${environment.name}`',
-      () {
-        return runFlutterCommand(
-          scope: scope,
-          environment: environment,
-          args: ['--version', '--machine'],
-          onStdout: (_) {},
-          onStderr: (_) {},
-        );
-      },
-    );
+    await runOptional(scope, 'querying Flutter version for `${environment.name}`', () {
+      return runFlutterCommand(
+        scope: scope,
+        environment: environment,
+        args: ['--version', '--machine'],
+        onStdout: (_) {},
+        onStderr: (_) {},
+      );
+    });
   }
   Version? version;
   if (versionFile.existsSync()) {
     version = tryParseVersion(versionFile.readAsStringSync().trim());
   }
   final branch = await git.getBranch(repository: flutterConfig.sdkDir);
-  return FlutterVersion(
-    commit: commit,
-    version: version,
-    branch: branch,
-  );
+  return FlutterVersion(commit: commit, version: version, branch: branch);
 }

@@ -6,8 +6,10 @@ class Reader {
   Reader(this._bytes);
 
   final Uint8List _bytes;
-  late final byteData =
-      _bytes.buffer.asByteData(_bytes.offsetInBytes, _bytes.lengthInBytes);
+  late final byteData = _bytes.buffer.asByteData(
+    _bytes.offsetInBytes,
+    _bytes.lengthInBytes,
+  );
   var byteOffset = 0;
   int readByte() => _bytes[byteOffset++];
   int peekByte() => _bytes[byteOffset];

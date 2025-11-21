@@ -39,10 +39,9 @@ class GenerateASTParserCommand extends HavenCommand {
     if (astsDir.existsSync()) astsDir.deleteSync(recursive: true);
     astsDir.createSync(recursive: true);
     for (final entry in verSchema.entries) {
-      final ast = generateAstForSchemas(
-        {entry.key: entry.value},
-        comment: 'For schema ${entry.key}',
-      );
+      final ast = generateAstForSchemas({
+        entry.key: entry.value,
+      }, comment: 'For schema ${entry.key}');
       astsDir.childFile('v${entry.key}.dart').writeAsStringSync(ast);
     }
 
@@ -51,22 +50,17 @@ class GenerateASTParserCommand extends HavenCommand {
     if (diffsDir.existsSync()) diffsDir.deleteSync(recursive: true);
     diffsDir.createSync(recursive: true);
     for (final entry in verSchema.entries.skip(1)) {
-      final diff = await runProcess(
-        scope,
-        'diff',
-        [
-          '--context',
-          '-F',
-          '^class',
-          '--label',
-          'v${entry.key}',
-          '--label',
-          'v${entry.key - 1}',
-          astsDir.childFile('v${entry.key - 1}.dart').path,
-          astsDir.childFile('v${entry.key}.dart').path,
-        ],
-        debugLogging: false,
-      );
+      final diff = await runProcess(scope, 'diff', [
+        '--context',
+        '-F',
+        '^class',
+        '--label',
+        'v${entry.key}',
+        '--label',
+        'v${entry.key - 1}',
+        astsDir.childFile('v${entry.key - 1}.dart').path,
+        astsDir.childFile('v${entry.key}.dart').path,
+      ], debugLogging: false);
       if (diff.exitCode > 1) {
         return BasicMessageResult(
           'Failed to generate diff:\n${diff.stderr}',

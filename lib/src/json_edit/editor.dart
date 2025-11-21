@@ -6,10 +6,7 @@ import 'element.dart';
 import 'grammar.dart';
 
 class JsonEditor {
-  JsonEditor({
-    required this.source,
-    required this.indentLevel,
-  });
+  JsonEditor({required this.source, required this.indentLevel});
 
   String source;
   final int indentLevel;
@@ -62,11 +59,7 @@ class JsonEditor {
     return indent;
   }
 
-  String _indentString(
-    String input,
-    String indent, {
-    bool indentFirstLine = true,
-  }) {
+  String _indentString(String input, String indent, {bool indentFirstLine = true}) {
     final lines = input.split('\n');
     if (indentFirstLine) {
       return lines.map((e) => '$indent$e').join('\n');
@@ -76,11 +69,7 @@ class JsonEditor {
     }
   }
 
-  void update(
-    List<Object> selectors,
-    Object? value, {
-    bool create = false,
-  }) {
+  void update(List<Object> selectors, Object? value, {bool create = false}) {
     if (selectors.isEmpty) {
       source = _indentedEncoder.convert(value);
       return;
@@ -149,8 +138,10 @@ class JsonEditor {
     final collectionElement = collectionToken.value;
     final collectionIndent = _indentAt(collectionToken.start);
     final collectionStartLine = collectionToken.line;
-    final collectionEndLine =
-        Token.lineAndColumnOf(collectionToken.buffer, collectionToken.stop)[0];
+    final collectionEndLine = Token.lineAndColumnOf(
+      collectionToken.buffer,
+      collectionToken.stop,
+    )[0];
     final collectionSpace = collectionElement is JsonMap
         ? collectionElement.space
         : (collectionElement as JsonArray).space;
@@ -247,17 +238,15 @@ class JsonEditor {
       encodedValue = _encodeWithoutIndent(value);
     }
 
-    source = source.substring(0, replaceStart) +
+    source =
+        source.substring(0, replaceStart) +
         leading +
         encodedValue +
         trailing +
         source.substring(replaceEnd);
   }
 
-  void remove(
-    List<Object> selectors, {
-    bool permissive = true,
-  }) {
+  void remove(List<Object> selectors, {bool permissive = true}) {
     if (selectors.isEmpty) {
       throw ArgumentError('Cannot delete root');
     }
@@ -344,22 +333,25 @@ class JsonEditor {
 
     final trailingSpace = trailingSpaceOf(token.value);
     final trailingSpaceNewline = trailingSpace.indexOf('\n');
-    final trailingSpaceAfterEOL =
-        trailingSpaceNewline == -1 ? '' : trailingSpace.substring(trailingSpaceNewline);
+    final trailingSpaceAfterEOL = trailingSpaceNewline == -1
+        ? ''
+        : trailingSpace.substring(trailingSpaceNewline);
 
     final collectionChildren = collectionElement.children.toList();
     final elementIndex = collectionChildren.indexOf(token);
     final hasChildBefore = elementIndex > 0;
     final hasChildAfter = elementIndex + 1 < collectionChildren.length;
     final collectionStartLine = collectionToken.line;
-    final collectionEndLine =
-        Token.lineAndColumnOf(collectionToken.buffer, collectionToken.stop)[0];
+    final collectionEndLine = Token.lineAndColumnOf(
+      collectionToken.buffer,
+      collectionToken.stop,
+    )[0];
     final singleLine = collectionStartLine == collectionEndLine;
     final leadingLines = leadingSpaceOf(token.value).split('\n');
     final leadingLineAfterComma =
         !singleLine && hasChildBefore && leadingLines.isNotEmpty
-            ? leadingLines.first
-            : '';
+        ? leadingLines.first
+        : '';
 
     if (collectionElement.children.length == 1 &&
         trailingSpaceAfterEOL.trim().isEmpty) {
@@ -394,10 +386,7 @@ class JsonEditor {
     source = source.substring(0, replaceStart) + content + source.substring(replaceEnd);
   }
 
-  Token<JsonElement>? query(
-    List<Object> selectors, {
-    bool permissive = true,
-  }) {
+  Token<JsonElement>? query(List<Object> selectors, {bool permissive = true}) {
     Token<JsonElement>? token = JsonGrammar.parse(source);
     var selectorDesc = 'data';
     for (var i = 0; i < selectors.length; i++) {

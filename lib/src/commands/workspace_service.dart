@@ -16,10 +16,7 @@ class WorkspaceCommandService {
     required Scope scope,
     required ProjectConfig projectConfig,
   }) async {
-    await cleanWorkspace(
-      scope: scope,
-      projectConfig: projectConfig,
-    );
+    await cleanWorkspace(scope: scope, projectConfig: projectConfig);
     return BasicMessageResult('Removed haven from current project');
   }
 }

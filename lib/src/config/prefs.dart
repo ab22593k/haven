@@ -46,8 +46,9 @@ class GlobalPrefsConfig {
       engineGitUrl: model.hasEngineGitUrl() ? model.engineGitUrl : null,
       dartSdkGitUrl: model.hasDartSdkGitUrl() ? model.dartSdkGitUrl : null,
       releasesJsonUrl: model.hasReleasesJsonUrl() ? model.releasesJsonUrl : null,
-      flutterStorageBaseUrl:
-          model.hasFlutterStorageBaseUrl() ? model.flutterStorageBaseUrl : null,
+      flutterStorageBaseUrl: model.hasFlutterStorageBaseUrl()
+          ? model.flutterStorageBaseUrl
+          : null,
       havenBuildsUrl: model.hasHavenBuildsUrl() ? model.havenBuildsUrl : null,
       havenBuildTarget: model.hasHavenBuildTarget() ? model.havenBuildTarget : null,
       pubCacheDir: model.hasPubCacheDir() ? model.pubCacheDir : null,
@@ -56,7 +57,9 @@ class GlobalPrefsConfig {
   }
 
   Future<void> update(
-      Scope scope, FutureOr<void> Function(HavenGlobalPrefsModel prefs) fn) async {
+    Scope scope,
+    FutureOr<void> Function(HavenGlobalPrefsModel prefs) fn,
+  ) async {
     await _updateGlobalPrefs(scope: scope, jsonFile: jsonFile, fn: fn);
   }
 }
@@ -104,7 +107,8 @@ Map<String, dynamic>? parsePrefsJson(String contents, HVLogger log) {
               final result = jsonDecode(candidate);
               if (result is Map<String, dynamic>) {
                 log.w(
-                    'Prefs JSON appears concatenated or has trailing data, using first valid object');
+                  'Prefs JSON appears concatenated or has trailing data, using first valid object',
+                );
                 return result;
               }
             } catch (_) {
@@ -142,35 +146,31 @@ Future<HavenGlobalPrefsModel> _updateGlobalPrefs({
   bool background = false,
 }) {
   jsonFile.parent.createSync(recursive: true);
-  return lockFile(
-    scope,
-    jsonFile,
-    (handle) async {
-      final model = HavenGlobalPrefsModel();
-      String? contents;
-      if (handle.lengthSync() > 0) {
-        contents = utf8.decode(handle.readSync(handle.lengthSync()));
-        final parsed = parsePrefsJson(contents, scope.read(HVLogger.provider));
-        if (parsed != null) {
-          validateJsonAgainstProto3Schema(parsed, HavenGlobalPrefsModel.create);
-          model.mergeFromProto3Json(parsed);
-        }
+  return lockFile(scope, jsonFile, (handle) async {
+    final model = HavenGlobalPrefsModel();
+    String? contents;
+    if (handle.lengthSync() > 0) {
+      contents = utf8.decode(handle.readSync(handle.lengthSync()));
+      final parsed = parsePrefsJson(contents, scope.read(HVLogger.provider));
+      if (parsed != null) {
+        validateJsonAgainstProto3Schema(parsed, HavenGlobalPrefsModel.create);
+        model.mergeFromProto3Json(parsed);
       }
-      await fn(model);
-      if (!model.hasLegacyPubCache()) {
-        model.legacyPubCache = !scope.read(isFirstRunProvider);
-      }
-      final newContents =
-          const JsonEncoder.withIndent('  ').convert(model.toProto3Json());
-      if (contents != newContents) {
-        handle.setPositionSync(0);
-        handle.writeStringSync(newContents);
-        handle.truncateSync(newContents.length);
-      }
-      return model;
-    },
-    mode: FileMode.append,
-  );
+    }
+    await fn(model);
+    if (!model.hasLegacyPubCache()) {
+      model.legacyPubCache = !scope.read(isFirstRunProvider);
+    }
+    final newContents = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(model.toProto3Json());
+    if (contents != newContents) {
+      handle.setPositionSync(0);
+      handle.writeStringSync(newContents);
+      handle.truncateSync(newContents.length);
+    }
+    return model;
+  }, mode: FileMode.append);
 }
 
 final globalPrefsJsonFileProvider = Provider<File>.late();
@@ -180,9 +180,7 @@ final globalPrefsProvider = Provider<Future<HavenGlobalPrefsModel>>(
       _readGlobalPrefs(scope: scope, jsonFile: scope.read(globalPrefsJsonFileProvider)),
 );
 
-Future<HavenGlobalPrefsModel> readGlobalPrefs({
-  required Scope scope,
-}) {
+Future<HavenGlobalPrefsModel> readGlobalPrefs({required Scope scope}) {
   return scope.read(globalPrefsProvider);
 }
 
@@ -210,9 +208,7 @@ class HavenInternalPrefsVars {
   HavenGlobalPrefsModel? prefs;
 
   static final _fieldInfo = HavenGlobalPrefsModel.getDefault().info_.fieldInfo;
-  static final _fields = {
-    for (final field in _fieldInfo.values) field.name: field,
-  };
+  static final _fields = {for (final field in _fieldInfo.values) field.name: field};
 
   Future<dynamic> readVar(String key) async {
     if (!_fields.containsKey(key)) {

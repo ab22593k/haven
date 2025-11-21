@@ -2,7 +2,8 @@ import 'ast_types.dart';
 
 String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
   String fixName(String name, {bool lower = false}) {
-    var out = const {
+    var out =
+        const {
           'VariableDeclarationPlain': 'VariableDeclaration',
           'class': 'clazz',
           '8bitAlignment': 'byteAlignment',
@@ -63,22 +64,17 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
       ('Expression', 'IntegerLiteral'): 'IntegerLiteral',
       (
         'PositiveIntLiteral | NegativeIntLiteral | SpecializedIntLiteral | BigIntLiteral',
-        'IntegerLiteral'
+        'IntegerLiteral',
       ): 'IntegerLiteral',
     }[(from.name, to.name)];
     if (result != null) {
       return getType(result);
     } else {
-      throw AssertionError(
-        'Mismatch ${from.name} != ${to.name}',
-      );
+      throw AssertionError('Mismatch ${from.name} != ${to.name}');
     }
   }
 
-  const skipTypes = {
-    'StringTable',
-    'FileOffset',
-  };
+  const skipTypes = {'StringTable', 'FileOffset'};
 
   for (final entry in schemas.entries) {
     for (final decl in entry.value as List) {
@@ -156,10 +152,7 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
           final parentName = parentType.name;
 
           if (existingParentName != null && existingParentName != parentName) {
-            existing.parent = resolveMerge(
-              existing.parent!,
-              parentType,
-            ) as ClassType;
+            existing.parent = resolveMerge(existing.parent!, parentType) as ClassType;
           } else {
             existing.parent = parentType;
           }

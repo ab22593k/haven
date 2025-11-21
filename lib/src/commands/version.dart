@@ -9,11 +9,7 @@ class VersionCommand extends HavenCommand {
       negatable: false,
       help: 'Print just the version to stdout and exit',
     );
-    argParser.addFlag(
-      'release',
-      negatable: false,
-      hide: true,
-    );
+    argParser.addFlag('release', negatable: false, hide: true);
   }
 
   @override
@@ -30,15 +26,9 @@ class VersionCommand extends HavenCommand {
     const service = VersionCommandService();
     final plain = argResults!['plain'] as bool;
     if (plain) {
-      await service.printPlainVersion(
-        scope: scope,
-        runner: runner,
-      );
+      await service.printPlainVersion(scope: scope, runner: runner);
       // This won't be reached as exitHaven terminates the program
     }
-    return service.getVersionInfo(
-      scope: scope,
-      runner: runner,
-    );
+    return service.getVersionInfo(scope: scope, runner: runner);
   }
 }

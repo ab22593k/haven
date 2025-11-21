@@ -85,8 +85,9 @@ class GitOperationsService {
           .childDirectory('objects')
           .childDirectory('info')
           .childFile('alternates');
-      final sharedObjects =
-          sharedRepository.childDirectory('.git').childDirectory('objects');
+      final sharedObjects = sharedRepository
+          .childDirectory('.git')
+          .childDirectory('objects');
       await alternatesFile.writeAsString('${sharedObjects.path}\n');
       await git.syncRemotes(repository: repository, remotes: remotes);
 
@@ -157,11 +158,7 @@ class GitOperationsService {
         node.description = 'Checking out $forkRef';
 
         await guardCheckout(() async {
-          await git.checkout(
-            repository: repository,
-            ref: forkRef,
-            force: force,
-          );
+          await git.checkout(repository: repository, ref: forkRef, force: force);
         });
       });
 
@@ -186,10 +183,7 @@ class GitOperationsService {
 
       node.description = 'Checking out $flutterVersion';
 
-      await git.fetch(
-        repository: repository,
-        all: true,
-      );
+      await git.fetch(repository: repository, all: true);
 
       final branch = flutterVersion.branch;
       if (branch != null) {
@@ -225,10 +219,7 @@ class GitOperationsService {
           }
         } else {
           // Delete the target branch if it exists (unless we are on a fork).
-          if (await git.checkBranchExists(
-                repository: repository,
-                branch: branch,
-              ) &&
+          if (await git.checkBranchExists(repository: repository, branch: branch) &&
               forkRemoteUrl == null) {
             await git.deleteBranch(repository: repository, branch: branch);
           }

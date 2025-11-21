@@ -3,9 +3,7 @@ import '../git.dart';
 import '../logger.dart';
 import '../provider.dart';
 
-Future<void> installDepotTools({
-  required Scope scope,
-}) async {
+Future<void> installDepotTools({required Scope scope}) async {
   final log = HVLogger.of(scope);
   final config = HavenConfig.of(scope);
   final git = GitClient.of(scope);

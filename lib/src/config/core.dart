@@ -42,28 +42,31 @@ class CoreConfig {
   late final Directory sharedDartReleaseDir = sharedDir.childDirectory('dart-release');
   late final Directory sharedCachesDir = sharedDir.childDirectory('caches');
   late final Directory sharedGClientDir = sharedDir.childDirectory('gclient');
-  late final Directory sharedFlutterToolsDir =
-      sharedDir.childDirectory('flutter_tools');
+  late final Directory sharedFlutterToolsDir = sharedDir.childDirectory(
+    'flutter_tools',
+  );
   late final File havenExecutableFile = binDir.childFile(buildTarget.executableName);
   late final File havenTrampolineFile = binDir.childFile(buildTarget.trampolineName);
   late final File havenDartShimFile = binDir.childFile(buildTarget.dartName);
   late final File havenFlutterShimFile = binDir.childFile(buildTarget.flutterName);
-  late final File havenExecutableTempFile =
-      binDir.childFile('${buildTarget.executableName}.tmp');
-  late final File cachedReleasesJsonFile =
-      havenRoot.childFile(releasesJsonUrl.pathSegments.last);
-  late final File cachedDartReleasesJsonFile =
-      havenRoot.childFile('dart_releases.json');
+  late final File havenExecutableTempFile = binDir.childFile(
+    '${buildTarget.executableName}.tmp',
+  );
+  late final File cachedReleasesJsonFile = havenRoot.childFile(
+    releasesJsonUrl.pathSegments.last,
+  );
+  late final File cachedDartReleasesJsonFile = havenRoot.childFile(
+    'dart_releases.json',
+  );
   late final File defaultEnvNameFile = havenRoot.childFile('default_env');
   late final Link defaultEnvLink = envsDir.childLink('default');
-  late final Uri havenLatestVersionUrl =
-      havenBuildsUrl.replace(path: havenBuildsUrl.path + '/latest');
+  late final Uri havenLatestVersionUrl = havenBuildsUrl.replace(
+    path: havenBuildsUrl.path + '/latest',
+  );
   late final File havenLatestVersionFile = havenRoot.childFile('latest_version');
   late final Directory depotToolsDir = havenRoot.childDirectory('depot_tools');
 
-  static Directory getHomeDir({
-    required FileSystem fileSystem,
-  }) {
+  static Directory getHomeDir({required FileSystem fileSystem}) {
     final String homeDir;
     if (Platform.isWindows) {
       homeDir = Platform.environment['UserProfile']!;

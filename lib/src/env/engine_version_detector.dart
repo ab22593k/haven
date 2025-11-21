@@ -15,14 +15,12 @@ class EngineVersionDetector {
     required Scope scope,
     required DartSdkConfig dartSdk,
   }) async {
-    final result = await runProcess(
-      scope,
-      dartSdk.dartExecutable.path,
-      ['--version'],
-      throwOnFailure: true,
+    final result = await runProcess(scope, dartSdk.dartExecutable.path, [
+      '--version',
+    ], throwOnFailure: true);
+    final match = EngineVersionDetector._dartSdkRegex.firstMatch(
+      result.stdout as String,
     );
-    final match =
-        EngineVersionDetector._dartSdkRegex.firstMatch(result.stdout as String);
     if (match == null) {
       throw AssertionError('Failed to parse `${result.stdout}`');
     }

@@ -13,9 +13,7 @@ import '../provider.dart';
 import 'depot_tools.dart';
 import 'worker.dart';
 
-Future<void> prepareEngineSystemDeps({
-  required Scope scope,
-}) async {
+Future<void> prepareEngineSystemDeps({required Scope scope}) async {
   await installDepotTools(scope: scope);
 
   if (Platform.isLinux) {
@@ -56,10 +54,7 @@ Future<void> prepareEngine({
 
   final sharedRepository = config.sharedEngineDir;
   if (forkRemoteUrl != null ||
-      !await git.checkCommitExists(
-        repository: sharedRepository,
-        commit: ref,
-      )) {
+      !await git.checkCommitExists(repository: sharedRepository, commit: ref)) {
     await const GitOperationsService().fetchOrCloneShared(
       scope: scope,
       repository: sharedRepository,
@@ -88,14 +83,12 @@ Future<void> prepareEngine({
         .childDirectory('objects')
         .childDirectory('info')
         .childFile('alternates');
-    final sharedObjects =
-        sharedRepository.childDirectory('.git').childDirectory('objects');
+    final sharedObjects = sharedRepository
+        .childDirectory('.git')
+        .childDirectory('objects');
     alternatesFile.writeAsStringSync('${sharedObjects.path}\n');
     await git.syncRemotes(repository: repository, remotes: remotes);
-    await git.checkout(
-      repository: repository,
-      ref: ref,
-    );
+    await git.checkout(repository: repository, ref: ref);
   });
 
   // This is Python, not JSON.
@@ -128,20 +121,22 @@ cache_dir = ${jsonEncode(config.sharedGClientDir.path)}
 
     final logFile = environment.engineRootDir.childFile('gclient.log');
     final logSink = logFile.openWrite(mode: FileMode.append);
-    final stdoutFuture =
-        proc.stdout.transform(utf8.decoder).transform(const LineSplitter()).listen(
-      (line) {
-        log.d('gclient: $line');
-        logSink.writeln(line);
-      },
-    ).asFuture();
-    final stderrFuture =
-        proc.stderr.transform(utf8.decoder).transform(const LineSplitter()).listen(
-      (line) {
-        log.d('(E) gclient: $line');
-        logSink.writeln(line);
-      },
-    ).asFuture();
+    final stdoutFuture = proc.stdout
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen((line) {
+          log.d('gclient: $line');
+          logSink.writeln(line);
+        })
+        .asFuture();
+    final stderrFuture = proc.stderr
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen((line) {
+          log.d('(E) gclient: $line');
+          logSink.writeln(line);
+        })
+        .asFuture();
 
     final exitCode = await proc.exitCode;
     await stdoutFuture;

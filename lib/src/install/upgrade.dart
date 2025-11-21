@@ -24,7 +24,8 @@ Future<int> upgradeHaven({
   await downloadFile(
     scope: scope,
     url: config.havenBuildsUrl.append(
-      path: '$targetVersion/'
+      path:
+          '$targetVersion/'
           '${buildTarget.name}/'
           '${buildTarget.executableName}',
     ),
@@ -38,18 +39,14 @@ Future<int> upgradeHaven({
   tempFile.renameSync(config.havenExecutableFile.path);
 
   terminal.flushStatus();
-  final installProcess = await startProcess(
-    scope,
-    config.havenExecutableFile.path,
-    [
-      if (terminal.enableColor) '--color',
-      if (terminal.enableStatus) '--progress',
-      '--log-level=${log.level?.index ?? 0}',
-      'install-haven',
-      if (path != null)
-        if (path) '--path' else '--no-path',
-    ],
-  );
+  final installProcess = await startProcess(scope, config.havenExecutableFile.path, [
+    if (terminal.enableColor) '--color',
+    if (terminal.enableStatus) '--progress',
+    '--log-level=${log.level?.index ?? 0}',
+    'install-haven',
+    if (path != null)
+      if (path) '--path' else '--no-path',
+  ]);
   final stdoutFuture = installProcess.stdout.listen(stdout.add).asFuture<void>();
   await installProcess.stderr.listen(stderr.add).asFuture<void>();
   await stdoutFuture;

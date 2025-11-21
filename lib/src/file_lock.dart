@@ -81,14 +81,9 @@ Future<Uint8List> readBytesAtomic({
   required File file,
   bool background = false,
 }) async {
-  return await lockFile(
-    scope,
-    file,
-    (handle) async {
-      return handle.read(handle.lengthSync());
-    },
-    background: background,
-  );
+  return await lockFile(scope, file, (handle) async {
+    return handle.read(handle.lengthSync());
+  }, background: background);
 }
 
 /// Acquires an shared lock on a file before reading from it.
@@ -97,11 +92,7 @@ Future<String> readAtomic({
   required File file,
   bool background = false,
 }) async {
-  final bytes = await readBytesAtomic(
-    scope: scope,
-    file: file,
-    background: background,
-  );
+  final bytes = await readBytesAtomic(scope: scope, file: file, background: background);
   return utf8.decode(bytes);
 }
 
@@ -191,7 +182,8 @@ Future<bool> compareFileBytesAtomic({
   return lockFile(scope, file, (handle) async {
     if (prefix
         ? handle.lengthSync() < bytes.length
-        : handle.lengthSync() != bytes.length) return false;
+        : handle.lengthSync() != bytes.length)
+      return false;
     return _bytesEqual(await handle.read(bytes.length), bytes);
   });
 }
@@ -246,10 +238,7 @@ Future<void> createLink({
   required Link link,
   required String path,
 }) async {
-  return createLinks(
-    scope: scope,
-    paths: {link: path},
-  );
+  return createLinks(scope: scope, paths: {link: path});
 }
 
 /// Creates multiple links, elevating to admin in case the user is on Windows
@@ -278,23 +267,17 @@ Future<void> createLinks({
         '"${escapeCmdString(paths[link]!)}"',
       ],
     ];
-    final startProc = 'Start-Process cmd -Wait -Verb runAs -ArgumentList '
+    final startProc =
+        'Start-Process cmd -Wait -Verb runAs -ArgumentList '
         '${args.map(escapePowershellString).map((e) => '"$e"').join(',')}';
-    await runProcess(
-      scope,
-      'powershell',
-      [
-        '-command',
-        startProc,
-      ],
-      throwOnFailure: true,
-    );
+    await runProcess(scope, 'powershell', [
+      '-command',
+      startProc,
+    ], throwOnFailure: true);
     for (final entry in paths.entries) {
       final linkTarget = entry.key.targetSync();
       if (linkTarget != entry.value) {
-        throw AssertionError(
-          'Link is `$linkTarget` but expected `${entry.value}',
-        );
+        throw AssertionError('Link is `$linkTarget` but expected `${entry.value}');
       }
     }
   }

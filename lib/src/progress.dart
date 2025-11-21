@@ -47,9 +47,7 @@ abstract class ProgressNode {
   }) async {
     final start = clock.now();
     final log = HVLogger.of(scope);
-    final node = ActiveProgressNode(
-      scope: OverrideScope(parent: scope),
-    );
+    final node = ActiveProgressNode(scope: OverrideScope(parent: scope));
     node.scope.add(ProgressNode.provider, node);
     scheduleMicrotask(() {
       addNode(node);
@@ -166,10 +164,7 @@ class ActiveProgressNode extends ProgressNode {
     return (_progress! / _progressTotal!).clamp(0.0, 1.0);
   }
 
-  static String _indentString(
-    String input,
-    String indent,
-  ) {
+  static String _indentString(String input, String indent) {
     return input.split('\n').map((e) => '$indent$e').join('\n');
   }
 
@@ -185,28 +180,20 @@ class ActiveProgressNode extends ProgressNode {
       final progressChars = (progressFraction * width).round();
       text = '[${('=' * progressChars).padRight(width)}]';
     }
-    text = terminal.format.color(
-      text,
-      foregroundColor: Ansi8BitColor.blue,
-      bold: true,
-    );
+    text = terminal.format.color(text, foregroundColor: Ansi8BitColor.blue, bold: true);
     if (_description != null) {
       text = '$text $description';
     }
     if (children.isNotEmpty) {
-      text = '$text\n${_indentString(
-        '${children.where((e) => e.visible).map((e) => e.render()).join('\n')}',
-        '  ',
-      )}';
+      text =
+          '$text\n${_indentString('${children.where((e) => e.visible).map((e) => e.render()).join('\n')}', '  ')}';
     }
     return text;
   }
 }
 
 class RootProgressNode extends ProgressNode {
-  RootProgressNode({
-    required super.scope,
-  }) {
+  RootProgressNode({required super.scope}) {
     _onChanged = () {
       terminal.status = render();
     };

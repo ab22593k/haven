@@ -53,29 +53,17 @@ void main(List<String> args) async {
       ),
     );
   } catch (exception, stackTrace) {
-    await runner.writeResultAndExit(CommandErrorResult(
-      exception,
-      stackTrace,
-      log.level?.index ?? 0,
-    ));
+    await runner.writeResultAndExit(
+      CommandErrorResult(exception, stackTrace, log.level?.index ?? 0),
+    );
   }
 }
 
-HVLogger _setupLogger(
-  bool isJson,
-  Terminal terminal,
-  HavenCommandRunner runner,
-) {
+HVLogger _setupLogger(bool isJson, Terminal terminal, HavenCommandRunner runner) {
   if (isJson) {
-    return HVLogger(
-      terminal: terminal,
-      onAdd: runner.logEntries.add,
-    );
+    return HVLogger(terminal: terminal, onAdd: runner.logEntries.add);
   } else {
-    final log = HVLogger(
-      terminal: terminal,
-      level: LogLevel.warning,
-    );
+    final log = HVLogger(terminal: terminal, level: LogLevel.warning);
     if (Platform.environment.containsKey('HAVEN_LOG_LEVEL')) {
       final logLevel = int.tryParse(Platform.environment['HAVEN_LOG_LEVEL']!);
       if (logLevel != null) {
@@ -195,7 +183,8 @@ void _defineArguments(
     )
     ..addOption(
       'log-level',
-      help: 'Changes how much information is logged to the console, 0 being '
+      help:
+          'Changes how much information is logged to the console, 0 being '
           'no logging at all, and 4 being extremely verbose',
       valueHelp: '0-4',
       callback: runner.wrapCallback((str) {
@@ -247,11 +236,7 @@ void _defineArguments(
         }
       }),
     )
-    ..addFlag(
-      'json',
-      help: 'Output in JSON where possible',
-      negatable: false,
-    )
+    ..addFlag('json', help: 'Output in JSON where possible', negatable: false)
     ..addFlag(
       'install',
       help: 'Whether to attempt to install haven',

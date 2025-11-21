@@ -65,8 +65,9 @@ Future<ToolQuirks> getToolQuirks({
     path: 'bin/flutter',
   );
 
-  final flutterScriptStr =
-      utf8.decode(flutterScriptBuf).replaceAll(RegExp('#.*'), ''); // Remove comments
+  final flutterScriptStr = utf8
+      .decode(flutterScriptBuf)
+      .replaceAll(RegExp('#.*'), ''); // Remove comments
 
   return ToolQuirks(
     useDeprecatedPub: flutterScriptStr.contains('__deprecated_pub'),
@@ -87,14 +88,13 @@ Future<FlutterToolInfo> setUpFlutterTool({
   final log = HVLogger.of(scope);
   final flutterConfig = environment.flutter;
   final flutterCache = flutterConfig.cache;
-  final desiredEngineVersion =
-      await getEngineVersion(scope: scope, flutterConfig: flutterConfig);
+  final desiredEngineVersion = await getEngineVersion(
+    scope: scope,
+    flutterConfig: flutterConfig,
+  );
 
   if (config.project.parentHavenDotfile != null) {
-    await registerDotfile(
-      scope: scope,
-      dotfile: config.project.parentHavenDotfile!,
-    );
+    await registerDotfile(scope: scope, dotfile: config.project.parentHavenDotfile!);
   }
 
   if (desiredEngineVersion == null) {
@@ -153,7 +153,7 @@ Future<FlutterToolInfo> setUpFlutterTool({
           '${Platform.environment['PUB_ENVIRONMENT'] ?? ''}:flutter_install:haven';
       var backoff = const Duration(seconds: 1);
       final rand = Random();
-      for (var i = 0;; i++) {
+      for (var i = 0; ; i++) {
         node.description = 'Updating flutter tool';
         final oldPubExecutable = flutterCache.dartSdk.oldPubExecutable;
         final usePubExecutable = oldPubExecutable.existsSync();
@@ -182,10 +182,11 @@ Future<FlutterToolInfo> setUpFlutterTool({
           throw AssertionError('pub upgrade failed after 10 attempts');
         } else {
           // Exponential backoff with randomization
-          final randomizedBackoff = backoff +
+          final randomizedBackoff =
+              backoff +
               Duration(
-                milliseconds:
-                    (backoff.inMilliseconds * rand.nextDouble() * 0.5).round(),
+                milliseconds: (backoff.inMilliseconds * rand.nextDouble() * 0.5)
+                    .round(),
               );
           backoff += backoff;
           log.w(
@@ -214,10 +215,7 @@ Future<FlutterToolInfo> setUpFlutterTool({
       onFail: () async {
         log.v('Flutter tool out of date');
 
-        final toolQuirks = await getToolQuirks(
-          scope: scope,
-          environment: environment,
-        );
+        final toolQuirks = await getToolQuirks(scope: scope, environment: environment);
 
         await updateTool(toolQuirks: toolQuirks);
 
@@ -247,9 +245,7 @@ Future<FlutterToolInfo> setUpFlutterTool({
               if (toolQuirks.disableMirrors) '--no-enable-mirrors',
               flutterConfig.flutterToolsScriptFile.path,
             ],
-            environment: {
-              'PUB_CACHE': config.legacyPubCacheDir.path,
-            },
+            environment: {'PUB_CACHE': config.legacyPubCacheDir.path},
             throwOnFailure: true,
           );
         });
@@ -270,15 +266,12 @@ Future<FlutterToolInfo> setUpFlutterTool({
       file: environment.updateLockFile,
       condition: () async =>
           pubspecLockFile.existsSync() &&
-          pubspecLockFile
-              .lastModifiedSync()
-              .isAfter(pubspecYamlFile.lastModifiedSync()),
+          pubspecLockFile.lastModifiedSync().isAfter(
+            pubspecYamlFile.lastModifiedSync(),
+          ),
       onFail: () async {
         log.v('Flutter tool out of date');
-        final toolQuirks = await getToolQuirks(
-          scope: scope,
-          environment: environment,
-        );
+        final toolQuirks = await getToolQuirks(scope: scope, environment: environment);
         await updateTool(toolQuirks: toolQuirks);
       },
     );
