@@ -10,6 +10,7 @@ jobs:
     permissions:
       id-token: write # Required for authentication using OIDC
     runs-on: ubuntu-latest
+    environment: pub.dev
     steps:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@v1
