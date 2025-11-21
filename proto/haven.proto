@@ -68,10 +68,8 @@ message HavenGlobalPrefsModel {
   optional string engineGitUrl = 11;
   optional string dartSdkGitUrl = 12;
   optional string releasesJsonUrl = 13;
-  optional string flutterStorageBaseUrl = 14;
-  optional string havenBuildsUrl = 15;
-  optional string havenBuildTarget = 16;
-  optional bool shouldInstall = 18;
+   optional string flutterStorageBaseUrl = 14;
+   optional bool shouldInstall = 18;
   optional bool legacyPubCache = 19;
 }
 

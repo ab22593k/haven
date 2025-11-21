@@ -7,7 +7,6 @@ import 'package:pub_semver/pub_semver.dart';
 import '../command.dart';
 import '../command_result.dart';
 import '../config/config.dart';
-import '../http.dart';
 
 class GenerateDocsCommand extends HavenCommand {
   GenerateDocsCommand() {
@@ -45,25 +44,24 @@ class GenerateDocsCommand extends HavenCommand {
         .copy(referenceDir.childFile('changelog.md').path);
 
     if (argResults!['deploy'] as bool) {
-      // Replace master in the installation instructions with the latest version
-      final httpClient = scope.read(clientProvider);
+      // For pub deployment, use the version from pubspec
       var latestVersion = Platform.environment['CIRCLE_TAG'];
       if (latestVersion == null || latestVersion.isEmpty) {
-        final response = await httpClient.get(config.havenLatestVersionUrl);
-        HttpException.ensureSuccess(response);
-        latestVersion = response.body;
+        final pubspecFile = rootDir.childFile('pubspec.yaml');
+        final pubspecContent = await pubspecFile.readAsString();
+        final versionMatch = RegExp(r'version:\s*([^\s]+)').firstMatch(pubspecContent);
+        if (versionMatch != null) {
+          latestVersion = versionMatch.group(1)!;
+        } else {
+          latestVersion = 'latest';
+        }
       }
       latestVersion = latestVersion.trim();
       // Make sure it's a valid version string
       Version.parse(latestVersion);
 
-      final builds = config.havenBuildsUrl;
       final indexFile = docsDir.childFile('index.md');
       var index = await indexFile.readAsString();
-      index = index.replaceAll(
-        builds.append(path: 'master').toString(),
-        builds.append(path: latestVersion).toString(),
-      );
       index = index.replaceAll(
         'HAVEN_VERSION="master"',
         'HAVEN_VERSION="$latestVersion"',

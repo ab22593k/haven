@@ -292,7 +292,6 @@ Future<FlutterToolInfo> setUpFlutterTool({
   );
 }
 
-// https://github.com/pingbird/puro/issues/20
 // Some tools will break if `version` does not exist and flutter won't re-create
 // it if `flutter.version.json` exists in the cache. Not ideal but we just
 // delete it.

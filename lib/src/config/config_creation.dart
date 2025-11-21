@@ -149,10 +149,7 @@ Future<HavenConfig> createHavenConfig({
           '$flutterStorageBaseUrl/flutter_infra_release/releases/releases_${Platform.operatingSystem}.json',
     ),
     flutterStorageBaseUrl: Uri.parse(flutterStorageBaseUrl),
-    havenBuildsUrl: Uri.parse(globalPrefs.havenBuildsUrl ?? 'https://puro.dev/builds'),
-    buildTarget: globalPrefs.havenBuildTarget != null
-        ? HavenBuildTarget.fromString(globalPrefs.havenBuildTarget!)
-        : HavenBuildTarget.query(),
+    buildTarget: HavenBuildTarget.query(),
     enableShims: enableShims,
   );
 

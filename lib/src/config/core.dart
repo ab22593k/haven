@@ -15,7 +15,6 @@ class CoreConfig {
     required this.dartSdkGitUrl,
     required this.releasesJsonUrl,
     required this.flutterStorageBaseUrl,
-    required this.havenBuildsUrl,
     required this.buildTarget,
     required this.enableShims,
   });
@@ -29,7 +28,6 @@ class CoreConfig {
   final String dartSdkGitUrl;
   final Uri releasesJsonUrl;
   final Uri flutterStorageBaseUrl;
-  final Uri havenBuildsUrl;
   final HavenBuildTarget buildTarget;
   final bool enableShims;
 
@@ -60,9 +58,6 @@ class CoreConfig {
   );
   late final File defaultEnvNameFile = havenRoot.childFile('default_env');
   late final Link defaultEnvLink = envsDir.childLink('default');
-  late final Uri havenLatestVersionUrl = havenBuildsUrl.replace(
-    path: havenBuildsUrl.path + '/latest',
-  );
   late final File havenLatestVersionFile = havenRoot.childFile('latest_version');
   late final Directory depotToolsDir = havenRoot.childDirectory('depot_tools');
 

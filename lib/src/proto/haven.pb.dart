@@ -717,8 +717,6 @@ class HavenGlobalPrefsModel extends $pb.GeneratedMessage {
     $core.String? dartSdkGitUrl,
     $core.String? releasesJsonUrl,
     $core.String? flutterStorageBaseUrl,
-    $core.String? havenBuildsUrl,
-    $core.String? havenBuildTarget,
     $core.bool? shouldInstall,
     $core.bool? legacyPubCache,
   }) {
@@ -740,8 +738,6 @@ class HavenGlobalPrefsModel extends $pb.GeneratedMessage {
     if (releasesJsonUrl != null) result.releasesJsonUrl = releasesJsonUrl;
     if (flutterStorageBaseUrl != null)
       result.flutterStorageBaseUrl = flutterStorageBaseUrl;
-    if (havenBuildsUrl != null) result.havenBuildsUrl = havenBuildsUrl;
-    if (havenBuildTarget != null) result.havenBuildTarget = havenBuildTarget;
     if (shouldInstall != null) result.shouldInstall = shouldInstall;
     if (legacyPubCache != null) result.legacyPubCache = legacyPubCache;
     return result;
@@ -778,8 +774,6 @@ class HavenGlobalPrefsModel extends $pb.GeneratedMessage {
     ..aOS(13, _omitFieldNames ? '' : 'releasesJsonUrl', protoName: 'releasesJsonUrl')
     ..aOS(14, _omitFieldNames ? '' : 'flutterStorageBaseUrl',
         protoName: 'flutterStorageBaseUrl')
-    ..aOS(15, _omitFieldNames ? '' : 'havenBuildsUrl', protoName: 'havenBuildsUrl')
-    ..aOS(16, _omitFieldNames ? '' : 'havenBuildTarget', protoName: 'havenBuildTarget')
     ..aOB(18, _omitFieldNames ? '' : 'shouldInstall', protoName: 'shouldInstall')
     ..aOB(19, _omitFieldNames ? '' : 'legacyPubCache', protoName: 'legacyPubCache')
     ..hasRequiredFields = false;
@@ -923,39 +917,21 @@ class HavenGlobalPrefsModel extends $pb.GeneratedMessage {
   @$pb.TagNumber(14)
   void clearFlutterStorageBaseUrl() => $_clearField(14);
 
-  @$pb.TagNumber(15)
-  $core.String get havenBuildsUrl => $_getSZ(14);
-  @$pb.TagNumber(15)
-  set havenBuildsUrl($core.String value) => $_setString(14, value);
-  @$pb.TagNumber(15)
-  $core.bool hasHavenBuildsUrl() => $_has(14);
-  @$pb.TagNumber(15)
-  void clearHavenBuildsUrl() => $_clearField(15);
-
-  @$pb.TagNumber(16)
-  $core.String get havenBuildTarget => $_getSZ(15);
-  @$pb.TagNumber(16)
-  set havenBuildTarget($core.String value) => $_setString(15, value);
-  @$pb.TagNumber(16)
-  $core.bool hasHavenBuildTarget() => $_has(15);
-  @$pb.TagNumber(16)
-  void clearHavenBuildTarget() => $_clearField(16);
-
   @$pb.TagNumber(18)
-  $core.bool get shouldInstall => $_getBF(16);
+  $core.bool get shouldInstall => $_getBF(14);
   @$pb.TagNumber(18)
-  set shouldInstall($core.bool value) => $_setBool(16, value);
+  set shouldInstall($core.bool value) => $_setBool(14, value);
   @$pb.TagNumber(18)
-  $core.bool hasShouldInstall() => $_has(16);
+  $core.bool hasShouldInstall() => $_has(14);
   @$pb.TagNumber(18)
   void clearShouldInstall() => $_clearField(18);
 
   @$pb.TagNumber(19)
-  $core.bool get legacyPubCache => $_getBF(17);
+  $core.bool get legacyPubCache => $_getBF(15);
   @$pb.TagNumber(19)
-  set legacyPubCache($core.bool value) => $_setBool(17, value);
+  set legacyPubCache($core.bool value) => $_setBool(15, value);
   @$pb.TagNumber(19)
-  $core.bool hasLegacyPubCache() => $_has(17);
+  $core.bool hasLegacyPubCache() => $_has(15);
   @$pb.TagNumber(19)
   void clearLegacyPubCache() => $_clearField(19);
 }

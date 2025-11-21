@@ -370,29 +370,11 @@ const HavenGlobalPrefsModel$json = {
       '17': true
     },
     {
-      '1': 'havenBuildsUrl',
-      '3': 15,
-      '4': 1,
-      '5': 9,
-      '9': 13,
-      '10': 'havenBuildsUrl',
-      '17': true
-    },
-    {
-      '1': 'havenBuildTarget',
-      '3': 16,
-      '4': 1,
-      '5': 9,
-      '9': 14,
-      '10': 'havenBuildTarget',
-      '17': true
-    },
-    {
       '1': 'shouldInstall',
       '3': 18,
       '4': 1,
       '5': 8,
-      '9': 15,
+      '9': 13,
       '10': 'shouldInstall',
       '17': true
     },
@@ -401,7 +383,7 @@ const HavenGlobalPrefsModel$json = {
       '3': 19,
       '4': 1,
       '5': 8,
-      '9': 16,
+      '9': 14,
       '10': 'legacyPubCache',
       '17': true
     },
@@ -420,8 +402,6 @@ const HavenGlobalPrefsModel$json = {
     {'1': '_dartSdkGitUrl'},
     {'1': '_releasesJsonUrl'},
     {'1': '_flutterStorageBaseUrl'},
-    {'1': '_havenBuildsUrl'},
-    {'1': '_havenBuildTarget'},
     {'1': '_shouldInstall'},
     {'1': '_legacyPubCache'},
   ],
@@ -442,16 +422,14 @@ final $typed_data.Uint8List havenGlobalPrefsModelDescriptor = $convert.base64Dec
     'ASgJSAlSDGVuZ2luZUdpdFVybIgBARIpCg1kYXJ0U2RrR2l0VXJsGAwgASgJSApSDWRhcnRTZG'
     'tHaXRVcmyIAQESLQoPcmVsZWFzZXNKc29uVXJsGA0gASgJSAtSD3JlbGVhc2VzSnNvblVybIgB'
     'ARI5ChVmbHV0dGVyU3RvcmFnZUJhc2VVcmwYDiABKAlIDFIVZmx1dHRlclN0b3JhZ2VCYXNlVX'
-    'JsiAEBEisKDmhhdmVuQnVpbGRzVXJsGA8gASgJSA1SDmhhdmVuQnVpbGRzVXJsiAEBEi8KEGhh'
-    'dmVuQnVpbGRUYXJnZXQYECABKAlIDlIQaGF2ZW5CdWlsZFRhcmdldIgBARIpCg1zaG91bGRJbn'
-    'N0YWxsGBIgASgISA9SDXNob3VsZEluc3RhbGyIAQESKwoObGVnYWN5UHViQ2FjaGUYEyABKAhI'
-    'EFIObGVnYWN5UHViQ2FjaGWIAQFCFQoTX2RlZmF1bHRFbnZpcm9ubWVudEISChBfbGFzdFVwZG'
-    'F0ZUNoZWNrQhkKF19sYXN0VXBkYXRlTm90aWZpY2F0aW9uQiAKHl9sYXN0VXBkYXRlTm90aWZp'
-    'Y2F0aW9uQ29tbWFuZEIUChJfZW5hYmxlVXBkYXRlQ2hlY2tCFgoUX2VuYWJsZVByb2ZpbGVVcG'
-    'RhdGVCEgoQX3Byb2ZpbGVPdmVycmlkZUIOCgxfcHViQ2FjaGVEaXJCEAoOX2ZsdXR0ZXJHaXRV'
-    'cmxCDwoNX2VuZ2luZUdpdFVybEIQCg5fZGFydFNka0dpdFVybEISChBfcmVsZWFzZXNKc29uVX'
-    'JsQhgKFl9mbHV0dGVyU3RvcmFnZUJhc2VVcmxCEQoPX2hhdmVuQnVpbGRzVXJsQhMKEV9oYXZl'
-    'bkJ1aWxkVGFyZ2V0QhAKDl9zaG91bGRJbnN0YWxsQhEKD19sZWdhY3lQdWJDYWNoZQ==');
+    'JsiAEBEikKDXNob3VsZEluc3RhbGwYEiABKAhIDVINc2hvdWxkSW5zdGFsbIgBARIrCg5sZWdh'
+    'Y3lQdWJDYWNoZRgTIAEoCEgOUg5sZWdhY3lQdWJDYWNoZYgBAUIVChNfZGVmYXVsdEVudmlyb2'
+    '5tZW50QhIKEF9sYXN0VXBkYXRlQ2hlY2tCGQoXX2xhc3RVcGRhdGVOb3RpZmljYXRpb25CIAoe'
+    'X2xhc3RVcGRhdGVOb3RpZmljYXRpb25Db21tYW5kQhQKEl9lbmFibGVVcGRhdGVDaGVja0IWCh'
+    'RfZW5hYmxlUHJvZmlsZVVwZGF0ZUISChBfcHJvZmlsZU92ZXJyaWRlQg4KDF9wdWJDYWNoZURp'
+    'ckIQCg5fZmx1dHRlckdpdFVybEIPCg1fZW5naW5lR2l0VXJsQhAKDl9kYXJ0U2RrR2l0VXJsQh'
+    'IKEF9yZWxlYXNlc0pzb25VcmxCGAoWX2ZsdXR0ZXJTdG9yYWdlQmFzZVVybEIQCg5fc2hvdWxk'
+    'SW5zdGFsbEIRCg9fbGVnYWN5UHViQ2FjaGU=');
 
 @$core.Deprecated('Use havenEnvPrefsModelDescriptor instead')
 const HavenEnvPrefsModel$json = {

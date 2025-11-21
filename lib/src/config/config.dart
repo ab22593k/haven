@@ -65,11 +65,9 @@ class HavenConfig {
   );
   Uri get flutterStorageBaseUrl =>
       Uri.parse(globalPrefs.flutterStorageBaseUrl ?? 'https://storage.googleapis.com');
-  Uri get havenBuildsUrl =>
-      Uri.parse(globalPrefs.havenBuildsUrl ?? 'https://puro.dev/builds');
-  HavenBuildTarget get buildTarget => globalPrefs.havenBuildTarget != null
-      ? HavenBuildTarget.fromString(globalPrefs.havenBuildTarget!)
-      : HavenBuildTarget.query();
+  HavenBuildTarget get buildTarget => core.buildTarget;
+  Uri get havenLatestVersionUrl =>
+      Uri.parse('https://pub.dev/api/packages/haven');
   bool get enableShims => core.enableShims;
 
   static Future<HavenConfig> fromCommandLine({
@@ -152,7 +150,7 @@ class HavenConfig {
   File get cachedDartReleasesJsonFile => core.cachedDartReleasesJsonFile;
   File get defaultEnvNameFile => core.defaultEnvNameFile;
   Link get defaultEnvLink => core.defaultEnvLink;
-  Uri get havenLatestVersionUrl => core.havenLatestVersionUrl;
+
   File get havenLatestVersionFile => core.havenLatestVersionFile;
   Directory get depotToolsDir => core.depotToolsDir;
 

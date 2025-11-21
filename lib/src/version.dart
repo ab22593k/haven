@@ -274,13 +274,14 @@ Future<void> _fetchLatestVersionInBackground({required Scope scope}) async {
   final log = HVLogger.of(scope);
   final config = HavenConfig.of(scope);
   final httpClient = scope.read(clientProvider);
-  log.v('Fetching latest version from ${config.havenLatestVersionUrl}');
-  final response = await httpClient.get(config.havenLatestVersionUrl);
+  log.v('Fetching latest version from pub.dev');
+  final response = await httpClient.get(Uri.parse('https://pub.dev/api/packages/haven'));
   HttpException.ensureSuccess(response);
-  final body = response.body.trim();
-  Version.parse(body);
-  log.v('Latest version:');
-  await writeAtomic(scope: scope, file: config.havenLatestVersionFile, content: body);
+  final data = jsonDecode(response.body) as Map<String, dynamic>;
+  final latestVersion = data['latest']['version'] as String;
+  Version.parse(latestVersion);
+  log.v('Latest version: $latestVersion');
+  await writeAtomic(scope: scope, file: config.havenLatestVersionFile, content: latestVersion);
 }
 
 Future<CommandMessage?> checkIfUpdateAvailable({

@@ -18,8 +18,6 @@ class GlobalPrefsConfig {
     required this.dartSdkGitUrl,
     required this.releasesJsonUrl,
     required this.flutterStorageBaseUrl,
-    required this.havenBuildsUrl,
-    required this.havenBuildTarget,
     required this.pubCacheDir,
     required this.shouldInstall,
   });
@@ -30,8 +28,6 @@ class GlobalPrefsConfig {
   final String? dartSdkGitUrl;
   final String? releasesJsonUrl;
   final String? flutterStorageBaseUrl;
-  final String? havenBuildsUrl;
-  final String? havenBuildTarget;
   final String? pubCacheDir;
   final bool? shouldInstall;
 
@@ -49,8 +45,6 @@ class GlobalPrefsConfig {
       flutterStorageBaseUrl: model.hasFlutterStorageBaseUrl()
           ? model.flutterStorageBaseUrl
           : null,
-      havenBuildsUrl: model.hasHavenBuildsUrl() ? model.havenBuildsUrl : null,
-      havenBuildTarget: model.hasHavenBuildTarget() ? model.havenBuildTarget : null,
       pubCacheDir: model.hasPubCacheDir() ? model.pubCacheDir : null,
       shouldInstall: model.hasShouldInstall() ? model.shouldInstall : null,
     );
